@@ -1,0 +1,25 @@
+
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+{% endblock stylesheet %}
+
+<div class="login">
+  <div class="heading">
+    <h2>Sube los archivos correspondientes</h2>
+    <form action="/results"  method="POST" enctype=multipart/form-data>
+
+      <div class="input-group input-group-lg">
+        <label for="file_answers">Suba el CSV con las respuestas:</label>
+        <input type="file" class="form-control" name = "file_answers">
+          </div>
+
+        <div class="input-group input-group-lg">
+          <label for="file_answers">Suba el CSV con los colaboradores:</label>
+          <input type="file" class="form-control" name = "file_collaborators">
+        </div>
+
+        <button type="submit" class="float">Procesar</button>
+
+       </form>
+ 		</div>
+ </div>
