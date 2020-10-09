@@ -1,0 +1,24 @@
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='login_css.css') }}"/>
+{% endblock stylesheet %}
+
+<div class="login">
+  <div class="heading">
+    <h2>¡Hola! Por favor inicia sesión para continuar</h2>
+    <form action="/surveys"  method="POST">
+
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+        <input type="text" class="form-control" name = "user" placeholder="Usuario">
+          </div>
+
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+          <input type="password" class="form-control" name = "password" placeholder="Contraseña">
+        </div>
+
+        <button type="submit" class="float">Iniciar sesión</button>
+
+       </form>
+ 		</div>
+ </div>
