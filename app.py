@@ -24,23 +24,23 @@ def login():
 def upload_files():
     if request.method == 'POST':
         if request.form["user"] == "crosland" and request.form["password"] == "360report":
-            
-            return render_template("surveys_files_html.html")
-        else:
-            return "Usuario o contraseña equivocado(s), por favor vuelve a intentar"
 
+            return render_template("surveys_files_html.html")
+
+        else:
+            return render_template("fail_login.html")
     else:
-        return "¿Te conozco?"
-    
-    
+        return "Unknown user start counterattack"
+
+
 @app.route("/results", methods=["GET", "POST"])
 def see_results():
-    if request.method == 'POST':    
+    if request.method == 'POST':
 
         df_answers = pd.read_excel(request.files.get('file_answers'))
         df_coll = pd.read_excel(request.files.get('file_collaborators'))
-        
-        return "En total los dataframes tienen " + str(len(df_answers) + len(df_coll)) + " columnas"
+
+        return "En total los dataframes tienen " + str(len(df_answers) + len(df_coll)) + " filas"
         #else:
             #return "Hubo un error con los archivos"
 
@@ -49,7 +49,3 @@ def see_results():
 
 if __name__ == '__main__':
     app.run()
-
-
-
-
