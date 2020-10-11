@@ -159,13 +159,13 @@ def auto360(df_survey,df_colaboradores):
 
     # Save to Excel =>
 
-    with pd.ExcelWriter('#_Resultados_360.xlsx') as writer:
-        table_score.to_excel(writer,sheet_name='score_by_colaborador')
-        table_feedback.to_excel(writer,sheet_name='feedback_by_colaborador')
-        table_score_by_nivocu.to_excel(writer,sheet_name='score_by_nivel_ocup')
-        table_score_by_unidad.to_excel(writer,sheet_name='score_by_unidad')
-        table_score_by_sector.to_excel(writer,sheet_name='score_by_sector')
-        table_score_by_puesto.to_excel(writer,sheet_name='score_by_puesto')
-        table_score_by_count_NIVOCU.to_excel(writer,sheet_name='conteo unico_by_puesto')
+    #with pd.ExcelWriter('#_Resultados_360.xlsx') as writer:
+        #table_score.to_excel(writer,sheet_name='score_by_colaborador')
+        #table_feedback.to_excel(writer,sheet_name='feedback_by_colaborador')
+        #table_score_by_nivocu.to_excel(writer,sheet_name='score_by_nivel_ocup')
+        #table_score_by_unidad.to_excel(writer,sheet_name='score_by_unidad')
+        #table_score_by_sector.to_excel(writer,sheet_name='score_by_sector')
+        #table_score_by_puesto.to_excel(writer,sheet_name='score_by_puesto')
+        #table_score_by_count_NIVOCU.to_excel(writer,sheet_name='conteo unico_by_puesto')
 
     return df_complete
