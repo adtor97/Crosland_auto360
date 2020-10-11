@@ -1,0 +1,14 @@
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+{% endblock stylesheet %}
+
+<div class="fail_login">
+  <div class="heading">
+    <h2>Hubo un error al leer alguno de los archivos, recuerda que debe ser un Excel o CSV y el dataset debe estar en la primera pestaña</h2>
+
+    <form action="/surveys"  method="POST">
+      <button type="submit" class="float" name="error_button" value="file_format_error">Volver a intentar subir los archivos</button>
+    </form>
+
+  </div>
+</div>

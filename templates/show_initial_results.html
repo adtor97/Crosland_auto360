@@ -1,0 +1,31 @@
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+{% endblock stylesheet %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados csv general</title>
+</head>
+
+<body>
+  <h2>Por favor revise los resultados del nuevo dataset</h2>
+
+{% for table in tables %}
+
+            {{ table|safe }}
+{% endfor %}
+
+  <h2>Por favor revise los resultados de los PDF por colaborador</h2>
+
+  <form action="/final"  method="POST">
+    <h2>Si ves todo conforme aprieta "Aceptar" para subir el nuevo dataset y enviar los PDF a cada colaborador</h2>
+    <h3>Caso contrario aprieta "Volver" para volver a subir los archivos</h3>
+    <button type="submit" class="float">Aceptar</button>
+  </form>
+
+  <form action="/surveys"  method="POST">
+    <button type="submit" class="float" name="error_button" value="data_process_error"">Volver</button>
+  </form>
+
+</body>
+</html>

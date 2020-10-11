@@ -1,0 +1,14 @@
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+{% endblock stylesheet %}
+
+<div class="fail_login">
+  <div class="heading">
+    <h2>Hubo un error al procesar los datos, por favor vuelva a intentar</h2>
+
+    <form action="/surveys"  method="POST">
+      <button type="submit" class="float" name="error_button" value="data_process_error">Volver a subir archivos</button>
+    </form>
+
+  </div>
+</div>
