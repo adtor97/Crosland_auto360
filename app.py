@@ -74,7 +74,7 @@ def see_results():
             df_complete = utils_data_wrangling.auto360(df_answers, df_coll)
             df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
 
-            df_complete.to_csv("outputs/pre_df_complete.csv")
+            #df_complete.to_csv("outputs/pre_df_complete.csv")
 
             return render_template('show_initial_results.html',  tables=[df_complete_show.to_html(classes='data')], titles=df_complete_show.columns.values)
 
