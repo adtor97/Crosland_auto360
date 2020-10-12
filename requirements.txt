@@ -5,3 +5,5 @@ numpy
 xlrd
 datetime
 gspread
+oauth2client
+dash
