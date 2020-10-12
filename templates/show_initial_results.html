@@ -8,12 +8,24 @@
 </head>
 
 <body>
-  <h2>Por favor revise los resultados del nuevo dataset</h2>
+  <h1>Hola! Los archivos se procesaron con éxito</h1>
+  <h4>Revisa los resultados antes de terminar el proceso</h4>
+  <h4> </h4>
 
-{% for table in tables %}
+  <h2>El promedio general de este Q ha sido {{ prom }}</h2>
+  <h3>El promedio de Contagiamos pasión de este Q ha sido {{ proms[0] }}</h3>
+  <h3>El promedio de Vivimos la excelencia este Q ha sido {{ proms[1] }}</h3>
+  <h3>El promedio de Trabajamos juntos este Q ha sido {{ proms[2] }}</h3>
+  <h3>El promedio de Vivimos y disfrutamos este Q ha sido {{ proms[3] }}</h3>
+
+  <h4> </h4>
+
+  <h3>Ahora revisa el formato del dataset final</h3>
+
+  {% for table in tables %}
 
             {{ table|safe }}
-{% endfor %}
+  {% endfor %}
 
   <h2>Por favor revise los resultados de los PDF por colaborador</h2>
 

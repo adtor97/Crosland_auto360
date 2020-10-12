@@ -1,0 +1,22 @@
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+{% endblock stylesheet %}
+
+<div class="login">
+  <div class="heading">
+    <h2>¡Hola! Por favor inicia sesión para continuar</h2>
+    <form action="/coll_results"  method="POST">
+
+      <div class="input-group input-group-lg">
+        <input type="text" class="form-control" name = "birthday_year" placeholder="Año de nacimiento">
+          </div>
+
+        <div class="input-group input-group-lg">
+          <input type="password" class="form-control" name = "DNI" placeholder="Número de DNI">
+        </div>
+
+        <button type="submit" class="float">Ver mis resultados</button>
+
+       </form>
+ 		</div>
+ </div>
