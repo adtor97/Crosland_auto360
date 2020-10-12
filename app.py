@@ -13,9 +13,6 @@ from datetime import date
 #from requests import request
 
 from utils import utils_google, utils_data_wrangling, utils_plotly
-from dash_results import dashboard_results
-from dash import Dash
-import dash_html_components as html
 
 app = Flask(__name__)
 today = str(date.today())
