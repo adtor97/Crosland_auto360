@@ -2,6 +2,11 @@
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
 {% endblock stylesheet %}
 
+<head>
+    <meta charset="UTF-8">
+    <title>Login coll</title>
+</head>
+
 <div class="login">
   <div class="heading">
     <h2>¡Hola! Por favor inicia sesión para continuar</h2>
@@ -12,7 +17,7 @@
           </div>
 
         <div class="input-group input-group-lg">
-          <input type="password" class="form-control" name = "DNI" placeholder="Número de DNI">
+          <input type="text" class="form-control" name = "DNI" placeholder="Número de DNI">
         </div>
 
         <button type="submit" class="float">Ver mis resultados</button>

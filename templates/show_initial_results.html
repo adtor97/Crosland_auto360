@@ -10,33 +10,37 @@
 <body>
   <h1>Hola! Los archivos se procesaron con éxito</h1>
   <h4>Revisa los resultados antes de terminar el proceso</h4>
-  <h4> </h4>
 
-  <h2>El promedio general de este Q ha sido {{ prom }}</h2>
-  <h3>El promedio de Contagiamos pasión de este Q ha sido {{ proms[0] }}</h3>
-  <h3>El promedio de Vivimos la excelencia este Q ha sido {{ proms[1] }}</h3>
-  <h3>El promedio de Trabajamos juntos este Q ha sido {{ proms[2] }}</h3>
-  <h3>El promedio de Vivimos y disfrutamos este Q ha sido {{ proms[3] }}</h3>
+  <h3>El promedio general de este Q ha sido {{ prom }}</h3>
+  <div class="plotly_graph" style="height: 50%; width: 50%; vertical-align: middle">
+    {{ div_radar | safe }}
 
-  <h4> </h4>
-
-  <h3>Ahora revisa el formato del dataset final</h3>
+  </div>
+  <h4>Ahora revisa el formato del dataset final</h4>
 
   {% for table in tables %}
 
             {{ table|safe }}
   {% endfor %}
 
-  <h2>Por favor revise los resultados de los PDF por colaborador</h2>
-
   <form action="/final"  method="POST">
-    <h2>Si ves todo conforme aprieta "Aceptar" para subir el nuevo dataset y enviar los PDF a cada colaborador</h2>
-    <h3>Caso contrario aprieta "Volver" para volver a subir los archivos</h3>
+  <h4>Ingresa el año y el Q</h4>
+  <div class="input-group input-group-lg">
+    <input type="text" class="form-control" name = "year" placeholder="Año. Ejm: 2020">
+      </div>
+
+    <div class="input-group input-group-lg">
+      <input type="text" class="form-control" name = "Q" placeholder="Q. Ejm: Q1">
+    </div>
+
+
+    <h3>Si ves todo conforme aprieta "Aceptar" para subir el nuevo dataset y guardar los PDF de cada colaborador</h3>
+    <h3>Caso contrario aprieta "VEO ALGO RARO" para volver a subir los archivos</h3>
     <button type="submit" class="float">Aceptar</button>
   </form>
 
   <form action="/surveys"  method="POST">
-    <button type="submit" class="float" name="error_button" value="data_process_error"">Volver</button>
+    <button type="submit" class="float" name="error_button" value="data_process_error"">VEO ALGO RARO</button>
   </form>
 
 </body>

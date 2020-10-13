@@ -7,3 +7,5 @@ datetime
 gspread
 oauth2client
 dash
+matplotlib
+os

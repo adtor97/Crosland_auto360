@@ -2,6 +2,11 @@
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
 {% endblock stylesheet %}
 
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+
 <div class="fail_login">
   <div class="heading">
     <h2>¡Hola! Para iniciar elige tu tipo de usuario</h2>
@@ -13,6 +18,13 @@
     <form action="/login_coll"  method="GET">
       <button type="submit" class="float">Colaborador</button>
     </form>
+
+    <div class="heading">
+      <h3>Esto es Crosland</h3>
+    <div class="image">
+    <img src="{{ grafo }}" alt="grafo" width="1075" height="750">
+    </div>
+    </div>
 
   </div>
 </div>
