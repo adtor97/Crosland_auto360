@@ -34,7 +34,7 @@ def build_radar_general(df_total):
     fig.add_trace(go.Scatterpolar(
         r = df_pilares_grouped['value'].append(pd.Series(df_pilares_grouped['value'][0])),
         theta = df_pilares_grouped['Pilar'].append(pd.Series(df_pilares_grouped['Pilar'][0])),
-        title = "Promedio general"
+        #name = "Promedio general"
     ))
 
     fig = fig.to_html(full_html=False)
@@ -45,10 +45,34 @@ def build_lines_coll(df_coll):
     df_pilares_grouped = df_coll.groupby(["Pilar", "Periodo"], as_index = False).mean()
     df_coll = df_coll.groupby("Periodo", as_index = False).mean()
     print(df_pilares_grouped)
-    df_pilares_grouped = df_pilares_grouped.sort_values("Periodo")
+    df_pilares_grouped = df_pilares_grouped.sort_values("Periodo").reset_index(drop=True)
 
-    fig = px.line(df_pilares_grouped[["value", "Periodo", "Pilar"]], x = "Periodo", y = "value", color='Pilar')
-    fig.add_scatter(x = df_coll["Periodo"], y = df_coll["value"], name = "General",mode='lines')
+    fig = go.Figure()
+
+    for pilar in df_pilares_grouped.Pilar.unique():
+
+        df_pilar = df_pilares_grouped.loc[df_pilares_grouped["Pilar"] == pilar]
+        fig.add_trace(go.Line(
+            x = df_pilar['Periodo'],
+            y = df_pilar['value'],
+            name = pilar,
+                    ))
+
+    fig.add_trace(go.Line(
+        x = df_coll['Periodo'],
+        y = df_coll['value'],
+        name = "General"
+                ))
+
+    fig.update_layout(legend=dict(
+    orientation="h",
+    yanchor="bottom",
+    y=1.02,
+    xanchor="right",
+    x=1,
+    font=dict(size=12),
+    bgcolor='rgba(0,0,0,0)',
+        ))
 
     fig = fig.to_html(full_html=False)
     return fig

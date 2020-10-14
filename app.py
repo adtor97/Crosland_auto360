@@ -47,7 +47,10 @@ def login_coll():
 def coll_results_redirect():
 
     if request.method == 'POST':
-        DNI = str(int(request.form["DNI"]))
+        try:
+            DNI = str(int(request.form["DNI"]))
+        except:
+            DNI = str(request.form["DNI"])
         password = str(request.form["password"])
 
         df_user  = df_users.loc[(df_users["DNI"] == DNI) & (df_users["password"] == password)]
