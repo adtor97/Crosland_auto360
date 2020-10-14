@@ -8,5 +8,4 @@ gspread
 oauth2client
 dash
 matplotlib
-os
 plotly-express
