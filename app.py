@@ -12,6 +12,7 @@ from datetime import date
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
+import plotly_express as px
 #from flask_login import LoginManager
 #from requests import request
 
@@ -24,10 +25,10 @@ app = Flask(__name__)
 #app.secret_key = today
 
 df_results = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "base_general"))
-df_results
 df_results["value"] = df_results["value"].astype(float)
-#df_results["Q"] = utils_data_wrangling.get_quarter
 static_folder = os.path.join('static')
+df_users = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users"))
+df_users["DNI"] = df_users["DNI"].astype("str")
 
 @app.route("/")
 def home():
@@ -44,10 +45,18 @@ def login_coll():
 
 @app.route("/coll_results", methods=["POST"])
 def coll_results_redirect():
-    if request.method == 'POST':
-        DNI = request.form["DNI"]
 
-        return redirect(url_for("coll_results", DNI=DNI))
+    if request.method == 'POST':
+        DNI = str(int(request.form["DNI"]))
+        password = str(request.form["password"])
+
+        df_user  = df_users.loc[(df_users["DNI"] == DNI) & (df_users["password"] == password)]
+
+        if len(df_user) == 0:
+            return render_template("fail_login_coll_html.html")
+
+        else:
+            return redirect(url_for("coll_results", DNI=DNI))
 
     else:
         return "Unknown user start counterattack 0"
@@ -55,18 +64,20 @@ def coll_results_redirect():
 
 @app.route("/coll_results/<DNI>", methods=["GET"])
 def coll_results(DNI):
+
     df_results["DNI_evaluado"]  = df_results["DNI_evaluado"].astype(str)
     df_results_DNI = df_results.loc[df_results["DNI_evaluado"] == str(DNI)]
 
-    if len(df_results_DNI) == 0:
+    if (len(df_results_DNI) == 0):
         return render_template("fail_login_coll_html.html")
 
     else:
 
         radar = utils_plotly.build_radar_coll(df_results[["Pilar", "value"]], df_results_DNI[["Pilar", "value"]])
+        line = utils_plotly.build_lines_coll(df_results_DNI[["Pilar", "value", "Periodo"]])
 
         #return "hola"
-        return render_template("coll_results_html.html", div_radar = radar)
+        return render_template("coll_results_html.html", div_radar = radar, div_line = line)
 
 
 @app.route("/surveys", methods=["GET", "POST"])
@@ -125,16 +136,7 @@ def see_results():
             utils_google.pandas_to_sheets(df_complete, ws_temp)
 
             prom = round(df_complete.value.mean(), 2)
-
-            #prom_contagiamos = round(df_complete.loc[df_complete.Pilar == "Contagiamos pasión"].value.mean(), 2)
-            #prom_excelencia = round(df_complete.loc[df_complete.Pilar == "Buscamos la excelencia"].value.mean(), 2)
-            #prom_juntos = round(df_complete.loc[df_complete.Pilar == "Trabajamos juntos"].value.mean(), 2)
-            #prom_disfrutamos = round(df_complete.loc[df_complete.Pilar == "Vivimos y disfrutamos"].value.mean(), 2)
-
             radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
-
-            #proms = [prom_contagiamos, prom_excelencia, prom_juntos, prom_disfrutamos]
-            #values = df_complete.Pilar.unique()
 
             return render_template('show_initial_results.html',
                                     tables=[df_complete_show.to_html(classes='data')],
@@ -142,12 +144,7 @@ def see_results():
                                     prom = prom, div_radar = radar)
 
         except:
-
             return render_template('fail_data_process.html')
-
-        #return "En total los dataframes tienen " + str(len(df_answers) + len(df_coll)) + " filas"
-        #else:
-            #return "Hubo un error con los archivos"
 
     else:
         return "Unknown user start counterattack 0"
@@ -158,6 +155,5 @@ def final_page():
     if request.method == 'POST':
         return "cerrao causa"
 
-
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)

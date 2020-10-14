@@ -1,4 +1,4 @@
 # Don't track content of these folders
 old_data/
 testing_codes/
-cred/
+credentials.json

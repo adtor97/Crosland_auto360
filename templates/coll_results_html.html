@@ -13,10 +13,13 @@
     <h2>Tus resultados de la 360</h2>
   </div>
 
-  <div class="plotly_graph" style="height: 50%; width: 50%; vertical-align: middle">
+  <div>
+  <div class="plotly_graph" style="height: 60%; width: 50%; display: inline-block">
     {{ div_radar | safe }}
-
   </div>
-
+  <div class="plotly_graph" style="height: 60%; width: 40%; display: inline-block">
+    {{ div_line | safe }}
+  </div>
+  </div>
 
 </body>

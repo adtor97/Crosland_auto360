@@ -27,7 +27,7 @@ def open_ws(sheet, ws_name):
             'https://www.googleapis.com/auth/drive']
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
-                                        'cred\\credentials.json', scope) # Your json file here
+                                        'credentials.json', scope) # Your json file here
 
     gc = gspread.authorize(credentials)
 
