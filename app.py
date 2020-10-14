@@ -132,6 +132,7 @@ def see_results():
                 return render_template("fail_file_format.html")
 
         try:
+            global df_complete
             df_complete = utils_data_wrangling.auto360(df_answers, df_coll)
             df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
 
@@ -156,7 +157,18 @@ def see_results():
 #En esta función se guarda el nuevo DF completo, se sube a donde lo lee el Power BI y se generan + envían los PDFs
 def final_page():
     if request.method == 'POST':
-        return "cerrao causa"
+
+        year = request.form["year"]
+        Q = request.form["Q"]
+
+        ws_old = utils_google.open_ws("Crosland_data_master", "base_general")
+        df_old = utils_google.read_ws_data(ws_old)
+
+        df_new = pd.concat([df_old, df_complete], axis = 0)
+
+        utils_google.pandas_to_sheets(df_new, ws_old)
+
+        return str(len(df_new))
 
 if __name__ == "__main__":
     app.run(debug=True)
