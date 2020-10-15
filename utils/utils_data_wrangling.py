@@ -378,7 +378,7 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     # ~ Variables obtenidas por procesamiento
     # + Varibales obtenidas desde la BD de Colaboradores
 
-    return df_complete, table_feedback
+    return [df_complete, table_feedback]
 
 def agregar_Q(df,year,Q):
     year = str(year)
