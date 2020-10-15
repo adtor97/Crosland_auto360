@@ -38,7 +38,7 @@ except:
 print(len(df_results))
 static_folder = os.path.join('static')
 try:
-    df_users = q.enqueue(utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users")), 'http://heroku.com')
+    df_users = q.enqueue(utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users")), 'https://auto360.herokuapp.com/')
     df_users["DNI"] = df_users["DNI"].astype("str")
 except:
     df_users = pd.DataFrame()
