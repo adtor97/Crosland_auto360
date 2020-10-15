@@ -40,7 +40,7 @@ def capitalizar_nombre(message):
     return capitalized_message
 
 def tokenizar(dni):
-    print(type(dni))
+    #print(type(dni))
     if isinstance(dni, float):
         dni = str(int(dni))
     elif isinstance(dni, str):
@@ -116,7 +116,7 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
 
     df_survey = df_survey.iloc[:,19:columns_len]
     df_survey = df_survey.loc[:,~df_survey.columns.str.contains('que has trabajado los últimos tres meses',case=False)]
-    print('DNI_Unicos_Evaluadores: '+str(len(df_survey['DNI_evaluador'].unique())))
+    #print('DNI_Unicos_Evaluadores: '+str(len(df_survey['DNI_evaluador'].unique())))
 
     # Formateo de DNI
 
@@ -174,7 +174,7 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     #df_values['value'] = pd.to_numeric(df_values['value'],errors='coerce')
     #df_values.drop(df_values[df_values.value.isnull()].index, inplace = True)
     df_values.drop_duplicates(subset=['DNI_evaluador','evaluados','que_es'],keep='first')
-    print('# DNI unico Evaluadores - pre merge: '+str(len(df_values['DNI_evaluador'].unique())))
+    #print('# DNI unico Evaluadores - pre merge: '+str(len(df_values['DNI_evaluador'].unique())))
     df_feedback = df_melt.copy()
 
     # =============================================================================
@@ -356,7 +356,7 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     table_temp['evaluados'] = table_temp.evaluados.apply(lambda x:get_close(nombre=x, lista_nombres=df_evaluados['Nombre Completo_evaluado'].to_list()))
 
     table_temp = pd.merge(table_temp,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
-    print(table_temp)
+    #print(table_temp)
 
     # Concatenamos los null tratados y completados
 
@@ -525,4 +525,3 @@ def reporting(df_to_report):
 
     pdf.showPage()
     pdf.save()
-    
