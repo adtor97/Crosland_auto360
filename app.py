@@ -147,7 +147,7 @@ def see_results():
                 return render_template("fail_file_format.html")
 
         try:
-
+            pritn("antes de la funcion")
             results = utils_data_wrangling.auto360(df_answers, df_coll)
             global df_complete
             df_complete = results[0]
