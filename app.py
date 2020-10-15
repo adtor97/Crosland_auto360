@@ -29,21 +29,21 @@ q = Queue(connection=conn)
 
 try:
     ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
-    q.enqueue(df_results = utils_google.read_ws_data(ws_results), 'http://heroku.com')
+    df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'http://heroku.com')
     df_results["value"] = df_results["value"].astype(float)
 except:
     df_results = pd.DataFrame()
 print(len(df_results))
 static_folder = os.path.join('static')
 try:
-    q.enqueue(df_users = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users")), 'http://heroku.com')
+    df_users = q.enqueue(utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users")), 'http://heroku.com')
     df_users["DNI"] = df_users["DNI"].astype("str")
 except:
     df_users = pd.DataFrame()
 print(len(df_users))
 try:
     ws_feedback = utils_google.open_ws("Crosland_data_master", "feedback")
-    q.enqueue(df_feedback_old = utils_google.read_ws_data(ws_feedback), 'http://heroku.com')
+    df_feedback_old = q.enqueue(utils_google.read_ws_data(ws_feedback), 'http://heroku.com')
 except:
     df_feedback_old = pd.DataFrame()
 print(len(df_feedback_old))
