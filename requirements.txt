@@ -9,3 +9,5 @@ oauth2client
 dash
 matplotlib
 plotly-express
+itsdangerous
+difflib

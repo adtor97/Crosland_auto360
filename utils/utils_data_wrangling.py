@@ -39,7 +39,7 @@ def capitalizar_nombre(message):
     return capitalized_message
 
 def tokenizar(dni):
-    print(type(dni))
+    # print(type(dni)) # Punto de revision Input
     if isinstance(dni, float):
         dni = str(int(dni))
     elif isinstance(dni, str):
@@ -115,7 +115,8 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
 
     df_survey = df_survey.iloc[:,19:columns_len]
     df_survey = df_survey.loc[:,~df_survey.columns.str.contains('que has trabajado los últimos tres meses',case=False)]
-    print('DNI_Unicos_Evaluadores: '+str(len(df_survey['DNI_evaluador'].unique())))
+
+    #print('DNI_Unicos_Evaluadores: '+str(len(df_survey['DNI_evaluador'].unique()))) # Punto de revision
 
     # Formateo de DNI
 
@@ -130,9 +131,6 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
 
     df_melt = pd.melt(df_survey,id_vars='DNI_evaluador',var_name='evaluados')
 
-    with pd.ExcelWriter('#_df_survey.xlsx') as writer:
-        df_survey.to_excel(writer,sheet_name='score_by_colaborador')
-    # df_melt.isnull().sum()
     df_melt.dropna(inplace=True)
     df_melt.reset_index(inplace=True)
 
@@ -172,15 +170,12 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     df_values = df_values[(df_values['value']>=1) & (df_values['value']<=5)]
     #df_values.drop(no_df_value_index,inplace=True)
 
-
-
-    with pd.ExcelWriter('#_df_values.xlsx') as writer:
-        df_values.to_excel(writer,sheet_name='score_by_colaborador')
-
     #df_values['value'] = pd.to_numeric(df_values['value'],errors='coerce')
     #df_values.drop(df_values[df_values.value.isnull()].index, inplace = True)
     df_values.drop_duplicates(subset=['DNI_evaluador','evaluados','que_es'],keep='first')
-    print('# DNI unico Evaluadores - pre merge: '+str(len(df_values['DNI_evaluador'].unique())))
+
+    #print('# DNI unico Evaluadores - pre merge: '+str(len(df_values['DNI_evaluador'].unique())))  # Punto de revision
+
     df_feedback = df_melt.copy()
 
     # =============================================================================
@@ -210,19 +205,18 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     df_colaboradores['Nombre Completo'] = df_colaboradores['Nombre Completo'].apply(capitalizar_nombre)
 
     df_colaboradores['DNI'] = pd.to_numeric(df_colaboradores['DNI'],errors='ignore')
+
     df_colaboradores['DNI'] = df_colaboradores['DNI'].astype(int)
 
     #df_colaboradores['DNI'] = df_colaboradores['DNI'].apply(dni_format)
 
-    with pd.ExcelWriter('#_df_colaboradores.xlsx') as writer:
-        df_colaboradores.to_excel(writer,sheet_name='score_by_colaborador')
-
+    #with pd.ExcelWriter('#_df_colaboradores.xlsx') as writer:   # Punto de revision
+    #    df_colaboradores.to_excel(writer,sheet_name='score_by_colaborador')
 
 
     # Obtenemos nombre cercanos
     # Recordamos que los nombres obtenidos de los evaluados en Survey se ingresa manualmente
     # Obtendremos con diff lib los nombre mas cecanos a los de la base de datos.
-
 
 
     #PROBANDO
@@ -266,7 +260,9 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     df_complete = pd.merge(df_complete,df_evaluador,on='DNI_evaluador',how='left') # usamos el DNI
 
     ####
-    # tratamiento de los que no hicieron merge
+    # =============================================================================
+    # MAGIC # TRATAMIENTO de los que no hicieron merge
+    # =============================================================================
     # Borramos los datos que no hicieron merge
 
 
@@ -279,6 +275,7 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     df_complete_temp['evaluados'] = df_complete_temp.evaluados.apply(lambda x:get_close(nombre=x, lista_nombres=df_evaluados['Nombre Completo_evaluado'].to_list()))
 
     df_complete_temp = pd.merge(df_complete_temp,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
+
     df_complete_temp = pd.merge(df_complete_temp,df_evaluador,on='DNI_evaluador',how='left') # usamos el DNI
     #print(table_temp)
     #print(df_complete_temp)
@@ -290,9 +287,9 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
 
 
     # Filtro para excluir algún área en el procesamiento del Score
-    # COMPLEMENTANDO INFORMACIÓN DE EVALUADO
-    with pd.ExcelWriter('#_df_complete_pt_1.xlsx') as writer:
-        df_complete.to_excel(writer,sheet_name='score_by_colaborador')
+    # =============================================================================
+    #     # COMPLEMENTANDO INFORMACIÓN DE EVALUADO
+    # =============================================================================
 
     # Eliminando Nan
     df_complete.drop(df_complete[df_complete.evaluados.isnull()].index, inplace = True)
@@ -307,12 +304,9 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
 
     # Treatment df_values
 
-
     df_complete['value'] = pd.to_numeric(df_complete['value'],errors='coerce')
     df_complete.drop(df_complete[df_complete.value.isnull()].index, inplace = True)
     df_complete.rename(columns={'que_es':'Pilar'},inplace=True)
-
-
 
     # RE - ESCALA [1-5] -> [0-100]
 
@@ -321,23 +315,20 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     df_complete.loc[df_complete['value'] == 3,'value'] = 50
     df_complete.loc[df_complete['value'] == 4,'value'] = 75
     df_complete.loc[df_complete['value'] == 5,'value'] = 100
+
+    # STATUS
+
     #df_complete.loc[df_complete['value']>=75,'status'] = 'Satisfecho'
     #df_complete.loc[df_complete['value']<75,'status'] = 'No Satisfecho'
+
     df_complete.loc[df_complete.groupby(['DNI_evaluador','Pilar','DNI_evaluado']).value.max == df_complete.value]
 
-    #df_complete['DNI_evaluador'] = pd.to_numeric(df_complete['DNI_evaluador'],errors='coerce')
-    #df_complete['DNI_evaluador'] = df_complete['DNI_evaluador'].astype(int)
     df_complete.drop(['Nombre Completo_evaluador'],axis=1,inplace=True)
 
     #TOKENIZAR DNI
     df_complete['DNI_evaluador'] = df_complete['DNI_evaluador'].apply(tokenizar)
 
-    #corrige el formato de los DNIs
-    #df_complete['DNI_evaluado'] = pd.to_numeric(df_complete['DNI_evaluado'],errors='coerce')
-    #df_complete['DNI_evaluado'] = df_complete['DNI_evaluado'].astype(int)
 
-    # df_colaboradores['DNI'] = df_colaboradores['DNI'].apply(dni_format)
-    # print(df_colaboradores['DNI'])
     # =============================================================================
     # FEEDBACK
     # =============================================================================
@@ -350,16 +341,18 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     table_feedback = df_feedback.groupby(['evaluados'])['value'].apply(lambda x: ' | = | '.join(x))
 
     # Convertir el group by to Dataframe
-    table_feedback = pd.DataFrame({'evaluados':table_feedback.index,'feedback':table_feedback.values})
 
+    table_feedback = pd.DataFrame({'evaluados':table_feedback.index,'feedback':table_feedback.values})
+    #
     table_feedback['evaluados'] = table_feedback['evaluados'].str.strip()
+    #
     table_feedback = table_feedback.loc[~table_feedback.evaluados.str.contains('Sentiment',case=False)]
     #merge para obtener el nombre de los usuarios.
     table_feedback = pd.merge(table_feedback,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
-    # tratamiento de los que no hicieron merge
-    # Borramos los datos que no hicieron merge
 
-
+    # TRATAMIENTO PARA LOS VACIOS QUE NO HICIERON MERGE EXACTO
+    # Aplicamos DIFFLIB SOLO A LOS NO MERGE
+        # table_temp
     table_temp = table_feedback[table_feedback['Nombre Completo_evaluado'].isnull()]
 
     table_temp = table_temp[['evaluados','feedback']]
@@ -369,17 +362,12 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     table_temp['evaluados'] = table_temp.evaluados.apply(lambda x:get_close(nombre=x, lista_nombres=df_evaluados['Nombre Completo_evaluado'].to_list()))
 
     table_temp = pd.merge(table_temp,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
-    print(table_temp)
 
     # Concatenamos los null tratados y completados
 
     table_feedback.dropna(subset=['Nombre Completo_evaluado'],inplace=True)
 
     table_feedback = pd.concat([table_feedback,table_temp],ignore_index=True)
-
-
-
-
 
     # =============================================================================
     # TO GENERAL REPORT
@@ -392,9 +380,14 @@ def auto360(df_survey,df_colaboradores,columna_documento_colaboradores='Numero d
     # + Varibales obtenidas desde la BD de Colaboradores
 
     # Save to Excel =>
-    with pd.ExcelWriter('#_Resultados_360_feedback.xlsx') as writer:
-        table_feedback.to_excel(writer,sheet_name='score_by_colaborador')
-        #table_feedback.to_excel(writer,sheet_name='feedback_by_colaborador')
+    #with pd.ExcelWriter('#_Resultados_360_feedback.xlsx') as writer:
+    #    table_feedback.to_excel(writer,sheet_name='score_by_colaborador')
+    #    table_feedback.to_excel(writer,sheet_name='feedback_by_colaborador')
+    '''OUTPUT
+    # df_complete
+    # table_feedback
+    '''
+
     return df_complete, table_feedback
 
 def agregar_Q(df,year,Q):
@@ -403,24 +396,40 @@ def agregar_Q(df,year,Q):
     yearQ = year+'-'+Q
     df['Periodo'] = yearQ
     return df
-
-
-def personal_reporting(df_complete,df_feedback,dni='all',columna_dni='DNI_evaluado'):
-    # =============================================================================
-    #     REPORTES PERSONALES # independizar en otra funcion
-    # =============================================================================
-    # GROUP BY
+def last_n_q(df_complete,n=4,columna_periodo='Periodo'):
+    #Formato periodo Year-Q4
     periodos_activos = df_complete['Periodo'].drop_duplicates(keep='first')
     periodos_activos = periodos_activos.reset_index()
     periodos_activos = periodos_activos.Periodo.str.split('-Q',expand=True)
     periodos_activos.columns = ['Year','Q']
     periodos_activos.Year = periodos_activos.Year.astype(int)
     periodos_activos.Q = periodos_activos.Q.astype(int)
-    # Mostramos los 4 ultimos Q
 
-    periodos_activos.nlargest(4,['Year','Q'])
+    # Las 'n' Q
+
+    periodos_activos.nlargest(n,['Year','Q'])
     periodos_activos['Periodo']=periodos_activos['Year'].astype(str)+'-Q'+periodos_activos['Q'].astype(str)
     periodo_list = periodos_activos['Periodo'].to_list()
+
+    return periodo_list
+
+def personal_reporting(df_complete,df_feedback,dni='all',columna_dni='DNI_evaluado'):
+    # =============================================================================
+    #     REPORTES PERSONALES # independizar en otra funcion
+    # =============================================================================
+    # PERIODOS ACTIVOS ACTUAL ULTIMO 4Q
+    # periodos_activos = df_complete['Periodo'].drop_duplicates(keep='first')
+    # periodos_activos = periodos_activos.reset_index()
+    # periodos_activos = periodos_activos.Periodo.str.split('-Q',expand=True)
+    # periodos_activos.columns = ['Year','Q']
+    # periodos_activos.Year = periodos_activos.Year.astype(int)
+    # periodos_activos.Q = periodos_activos.Q.astype(int)
+    # # Mostramos los 4 ultimos Q
+
+    # periodos_activos.nlargest(4,['Year','Q'])
+    # periodos_activos['Periodo']=periodos_activos['Year'].astype(str)+'-Q'+periodos_activos['Q'].astype(str)
+    #periodo_list = periodos_activos['Periodo'].to_list()
+    periodo_list = last_n_q(df_complete,n=4,columna_periodo='Periodo')
 
     df_complete[columna_dni] = df_complete[columna_dni].astype(float)
 
@@ -444,11 +453,13 @@ def personal_reporting(df_complete,df_feedback,dni='all',columna_dni='DNI_evalua
     else : # caso que ingresa dni particular
         dni = float(dni)
         #filtramos el df_complete por dni
-        df_complete = df_complete[df_complete['DNI_evaluado']==dni]
-        table_score = df_complete.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
+        df_complete_persona = df_complete[df_complete['DNI_evaluado']==dni]
+        table_score = df_complete_persona.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
         # Normalizar Nombre de columnas
         table_score.columns = ['-'.join(col).strip() for col in table_score.columns.values]
+
         table_score.reset_index(inplace=True)
+
         table_score = table_score[table_score['Periodo'].isin(periodo_list)]
 
         #table_personal_score = table_score.loc[table_score[columna_dni]==dni]
@@ -460,18 +471,34 @@ def personal_reporting(df_complete,df_feedback,dni='all',columna_dni='DNI_evalua
         table_score_by_nivocu.reset_index(inplace=True)
         table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
         table_score_by_nivocu.rename(columns={'DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)
+
         #reporting persona
-        #table_personal_score_by_nivocu = table_score_by_nivocu.loc[table_score_by_nivocu[columna_dni]==dni]
 
         #FEEDBACK PERSONAL
         df_feedback = df_feedback.loc[df_feedback[columna_dni]==dni]
-        #return table_personal_score,table_personal_score_by_nivocu,table_feedback_personal
-        return table_score,table_score_by_nivocu,df_feedback
+        df_feedback = df_feedback.drop_duplicates(['evaluados'],keep='first',inplace=True)
 
+        # return table_personal_score,table_personal_score_by_nivocu,table_feedback_personal
 
+        df_complete_persona = df_complete_persona.drop_duplicates(['evaluados'],keep='first')
 
+        '''
+        OUTPUT
 
-##=============================TESTING===============================##
+        # table_score: Puntaje Personal por Pilar de cada Q
+        # table_score_by_nivocu
+        #
+
+        '''
+        print('exito!')
+        return table_score,table_score_by_nivocu,df_feedback,df_complete_persona
+
+##=================================TESTING====================================##
+# =============================================================================#
+#                           REPORTE PERSONAL PDF
+# =============================================================================
+
+# OJO | El input es una TUPLA -> Personal Reporting Output
 
 def reporting(df_to_report):
     from reportlab.pdfgen import canvas
@@ -526,7 +553,7 @@ def reporting(df_to_report):
     pdf.drawCentredString(270, 700, 'Puesto: '+df_to_report.iloc[0]['Puesto'])
 
     # =============================================================================
-    # #Seccion Data General
+    # #Seccion Data General | CALIFICACION CROSLAND
     # =============================================================================
 
     pdf.setFont("Helvetica", 9)
@@ -537,6 +564,22 @@ def reporting(df_to_report):
     #Text title
     pdf.setFillColorRGB(0, 0, 0)
     pdf.drawCentredString(300, 675, 'Calificacion Crosland')
+
+    # =============================================================================
+    # #Seccion Data General | CALIFICACION POR NIVEL OCUPACIONAL
+    # =============================================================================
+
+
+
+
+
+
+
+
+    # =============================================================================
+    # #Seccion Feedback | FEEDBACK
+    # =============================================================================
+
 
     pdf.drawString(100,100,"Hello World")
 
