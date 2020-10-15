@@ -23,7 +23,7 @@ def pandas_to_sheets(pandas_df, sheet, clear = True):
     sheet.update_cells(cells)
 
 def open_ws(sheet, ws_name):
-    scope = ['https://spreadsheets.google.com/feeds', 
+    scope = ['https://spreadsheets.google.com/feeds',
             'https://www.googleapis.com/auth/drive']
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
@@ -42,4 +42,4 @@ def read_ws_data(ws):
 
     df = pd.DataFrame(data, columns=headers)
 
-    return df
+    return df.head()
