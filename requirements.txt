@@ -10,3 +10,4 @@ dash
 matplotlib
 plotly-express
 itsdangerous
+redis

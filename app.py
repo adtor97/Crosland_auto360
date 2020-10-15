@@ -13,12 +13,15 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
 import plotly_express as px
+from rq import Queue
+from worker import conn
 #from flask_login import LoginManager
 #from requests import request
 
 from utils import utils_google, utils_data_wrangling, utils_plotly
 
 app = Flask(__name__)
+q = Queue(connection=conn)
 #login_manager = LoginManager()
 #login_manager.init_app(app)
 #today = str(date.today())
@@ -26,21 +29,21 @@ app = Flask(__name__)
 
 try:
     ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
-    df_results = utils_google.read_ws_data(ws_results)
+    q.enqueue(df_results = utils_google.read_ws_data(ws_results), 'http://heroku.com')
     df_results["value"] = df_results["value"].astype(float)
 except:
     df_results = pd.DataFrame()
 print(len(df_results))
 static_folder = os.path.join('static')
 try:
-    df_users = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users"))
+    q.enqueue(df_users = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users")), 'http://heroku.com')
     df_users["DNI"] = df_users["DNI"].astype("str")
 except:
     df_users = pd.DataFrame()
 print(len(df_users))
 try:
     ws_feedback = utils_google.open_ws("Crosland_data_master", "feedback")
-    df_feedback_old = utils_google.read_ws_data(ws_feedback)
+    q.enqueue(df_feedback_old = utils_google.read_ws_data(ws_feedback), 'http://heroku.com')
 except:
     df_feedback_old = pd.DataFrame()
 print(len(df_feedback_old))
@@ -156,7 +159,7 @@ def see_results():
 
         try:
             print("antes de la funcion")
-            results = utils_data_wrangling.auto360(df_answers, df_coll)
+            results = q.enqueue(utils_data_wrangling.auto360(df_answers, df_coll), 'http://heroku.com')
             global df_complete
             df_complete = results[0]
             df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
@@ -201,10 +204,10 @@ def final_page():
 
         df_new = pd.concat([df_results, df_complete_final], axis = 0)
         print(len(df_new))
-        utils_google.pandas_to_sheets(df_new, ws_results)
+        q.enqueue(utils_google.pandas_to_sheets(df_new, ws_results), 'http://heroku.com')
 
         df_new_feedback = pd.concat([df_feedback_old, df_feedback_final], axis = 0)
-        utils_google.pandas_to_sheets(df_new_feedback, ws_feedback)
+        q.enqueue(utils_google.pandas_to_sheets(df_new_feedback, ws_feedback), 'http://heroku.com')
 
         return render_template('final_html.html')
 
