@@ -29,7 +29,7 @@ q = Queue(connection=conn)
 
 try:
     ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
-    df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'http://heroku.com')
+    df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'https://auto360.herokuapp.com/')
     df_results["value"] = df_results["value"].astype(float)
 except:
     df_results = pd.DataFrame()
