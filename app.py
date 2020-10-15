@@ -175,7 +175,7 @@ def see_results():
         #    df_complete = results[0]
         #    df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
         #    global df_feedback
-            df_feedback = results[1]
+        #    df_feedback = results[1]
 
             #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
             #utils_google.pandas_to_sheets(df_complete, ws_temp)
