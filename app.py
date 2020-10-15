@@ -26,26 +26,29 @@ q = Queue(connection=conn)
 #login_manager.init_app(app)
 #today = str(date.today())
 #app.secret_key = today
-ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
-df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'https://heroku.com/')
+#ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
+#df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'https://heroku.com/')
 
 try:
     ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
-    df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'https://heroku.com/')
+    #df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'https://heroku.com/')
+    df_results = utils_google.read_ws_data(ws_results)
     df_results["value"] = df_results["value"].astype(float)
 except:
     df_results = pd.DataFrame()
 print(len(df_results))
 static_folder = os.path.join('static')
 try:
-    df_users = q.enqueue(utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users")), 'https://auto360.herokuapp.com/')
+    #df_users = q.enqueue(utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users")), 'https://auto360.herokuapp.com/')
+    df_users = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users"))
     df_users["DNI"] = df_users["DNI"].astype("str")
 except:
     df_users = pd.DataFrame()
 print(len(df_users))
 try:
     ws_feedback = utils_google.open_ws("Crosland_data_master", "feedback")
-    df_feedback_old = q.enqueue(utils_google.read_ws_data(ws_feedback), 'http://heroku.com')
+    #df_feedback_old = q.enqueue(utils_google.read_ws_data(ws_feedback), 'http://heroku.com')
+    df_feedback_old = utils_google.read_ws_data(ws_feedback)
 except:
     df_feedback_old = pd.DataFrame()
 print(len(df_feedback_old))
@@ -151,47 +154,49 @@ def see_results():
             except:
                 return render_template("fail_file_format.html")
 
-        print("antes de la funcion")
-        results = q.enqueue(utils_data_wrangling.auto360(df_answers, df_coll), 'http://heroku.com')
-        global df_complete
-        df_complete = results[0]
-        df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
-        global df_feedback
-        df_feedback = results[1]
+        #print("antes de la funcion")
+        #results = q.enqueue(utils_data_wrangling.auto360(df_answers, df_coll), 'http://heroku.com')
+        #results = utils_data_wrangling.auto360(df_answers, df_coll)
+        #global df_complete
+        #df_complete = results[0]
+        #df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
+        #global df_feedback
+        #df_feedback = results[1]
 
         #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
         #utils_google.pandas_to_sheets(df_complete, ws_temp)
 
-        prom = round(df_complete.value.mean(), 2)
-        radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
+        #prom = round(df_complete.value.mean(), 2)
+        #radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
 
-        return render_template('show_initial_results.html',
-                                tables=[df_complete_show.to_html(classes='data')],
-                                titles=df_complete_show.columns.values,
-                                prom = prom, div_radar = radar)
+        #return render_template('show_initial_results.html',
+        #                        tables=[df_complete_show.to_html(classes='data')],
+        #                        titles=df_complete_show.columns.values,
+        #                        prom = prom, div_radar = radar)
 
-        #try:
-        #    print("antes de la funcion")
-        #    results = q.enqueue(utils_data_wrangling.auto360(df_answers, df_coll), 'http://heroku.com')
-        #    global df_complete
-        #    df_complete = results[0]
-        #    df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
-        #    global df_feedback
-        #    df_feedback = results[1]
+        try:
+            print("antes de la funcion")
+            #results = q.enqueue(utils_data_wrangling.auto360(df_answers, df_coll), 'http://heroku.com')
+            results = utils_data_wrangling.auto360(df_answers, df_coll)
+            global df_complete
+            df_complete = results[0]
+            df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
+            global df_feedback
+            df_feedback = results[1]
 
             #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
             #utils_google.pandas_to_sheets(df_complete, ws_temp)
 
-        #    prom = round(df_complete.value.mean(), 2)
-        #    radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
+            prom = round(df_complete.value.mean(), 2)
+            radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
 
-        #    return render_template('show_initial_results.html',
-        #                            tables=[df_complete_show.to_html(classes='data')],
-        #                            titles=df_complete_show.columns.values,
-        #                            prom = prom, div_radar = radar)
+            return render_template('show_initial_results.html',
+                                    tables=[df_complete_show.to_html(classes='data')],
+                                    titles=df_complete_show.columns.values,
+                                    prom = prom, div_radar = radar)
 
-        #except:
-        #    return render_template('fail_data_process.html')
+        except:
+            return render_template('fail_data_process.html')
 
     else:
         return "Unknown user start counterattack 0"
@@ -217,12 +222,14 @@ def final_page():
 
         df_new = pd.concat([df_results, df_complete_final], axis = 0)
         print(len(df_new))
-        q.enqueue(utils_google.pandas_to_sheets(df_new, ws_results), 'http://heroku.com')
+        #q.enqueue(utils_google.pandas_to_sheets(df_new, ws_results), 'http://heroku.com')
+        utils_google.pandas_to_sheets(df_new, ws_results)
 
         df_new_feedback = pd.concat([df_feedback_old, df_feedback_final], axis = 0)
-        q.enqueue(utils_google.pandas_to_sheets(df_new_feedback, ws_feedback), 'http://heroku.com')
+        #q.enqueue(utils_google.pandas_to_sheets(df_new_feedback, ws_feedback), 'http://heroku.com')
+        utils_google.pandas_to_sheets(df_new_feedback, ws_feedback)
 
         return render_template('final_html.html')
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)

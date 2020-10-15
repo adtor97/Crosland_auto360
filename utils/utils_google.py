@@ -42,4 +42,4 @@ def read_ws_data(ws):
 
     df = pd.DataFrame(data, columns=headers)
 
-    return len(df)
+    return df
