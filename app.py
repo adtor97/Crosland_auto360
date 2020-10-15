@@ -154,28 +154,28 @@ def see_results():
         global df_feedback
         df_feedback = results[1]
 
-        try:
-            print("antes de la funcion")
-            results = utils_data_wrangling.auto360(df_answers, df_coll)
-            global df_complete
-            df_complete = results[0]
-            df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
-            global df_feedback
-            df_feedback = results[1]
+        #try:
+    #        print("antes de la funcion")
+    #        results = utils_data_wrangling.auto360(df_answers, df_coll)
+    #        global df_complete
+    #        df_complete = results[0]
+    #        df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
+    #        global df_feedback
+    #        df_feedback = results[1]
 
             #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
             #utils_google.pandas_to_sheets(df_complete, ws_temp)
 
-            prom = round(df_complete.value.mean(), 2)
-            radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
+    #        prom = round(df_complete.value.mean(), 2)
+    #        radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
 
-            return render_template('show_initial_results.html',
-                                    tables=[df_complete_show.to_html(classes='data')],
-                                    titles=df_complete_show.columns.values,
-                                    prom = prom, div_radar = radar)
+    #        return render_template('show_initial_results.html',
+    #                                tables=[df_complete_show.to_html(classes='data')],
+    #                                titles=df_complete_show.columns.values,
+    #                                prom = prom, div_radar = radar)
 
-        except:
-            return render_template('fail_data_process.html')
+    #    except:
+    #        return render_template('fail_data_process.html')
 
     else:
         return "Unknown user start counterattack 0"
