@@ -11,3 +11,4 @@ matplotlib
 plotly-express
 itsdangerous
 redis
+rq
