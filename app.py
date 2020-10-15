@@ -146,8 +146,16 @@ def see_results():
             except:
                 return render_template("fail_file_format.html")
 
+        print("antes de la funcion")
+        results = utils_data_wrangling.auto360(df_answers, df_coll)
+        global df_complete
+        df_complete = results[0]
+        df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
+        global df_feedback
+        df_feedback = results[1]
+
         try:
-            pritn("antes de la funcion")
+            print("antes de la funcion")
             results = utils_data_wrangling.auto360(df_answers, df_coll)
             global df_complete
             df_complete = results[0]
