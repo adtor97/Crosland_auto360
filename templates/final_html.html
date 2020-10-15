@@ -1,0 +1,26 @@
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+{% endblock stylesheet %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>Éxito</title>
+</head>
+
+<div class="login">
+  <div class="heading">
+    <h2>¡Resultados actualizados con éxito!</h2>
+    <button onclick="window.open('https://google.com','_blank')">Ir al dashboard</button>
+
+    <form action="/surveys"  method="POST">
+      <h3>Descargar PDFs de colaboradores</h3>
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+        <input type="text" class="form-control" name = "path_PDFS" placeholder="Introduce dónde quieres guardar los PDFs">
+          </div>
+
+        <button type="submit" class="float">Descargar PDFs</button>
+
+       </form>
+ 		</div>
+ </div>

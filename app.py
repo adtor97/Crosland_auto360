@@ -24,11 +24,26 @@ app = Flask(__name__)
 #today = str(date.today())
 #app.secret_key = today
 
-df_results = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "base_general"))
-df_results["value"] = df_results["value"].astype(float)
+try:
+    ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
+    df_results = utils_google.read_ws_data(ws_results)
+    df_results["value"] = df_results["value"].astype(float)
+except:
+    df_results = pd.DataFrame()
+print(len(df_results))
 static_folder = os.path.join('static')
-df_users = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users"))
-df_users["DNI"] = df_users["DNI"].astype("str")
+try:
+    df_users = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users"))
+    df_users["DNI"] = df_users["DNI"].astype("str")
+except:
+    df_users = pd.DataFrame()
+print(len(df_users))
+try:
+    ws_feedback = utils_google.open_ws("Crosland_data_master", "feedback")
+    df_feedback_old = utils_google.read_ws_data(ws_feedback)
+except:
+    df_feedback_old = pd.DataFrame()
+print(len(df_feedback_old))
 
 @app.route("/")
 def home():
@@ -132,12 +147,16 @@ def see_results():
                 return render_template("fail_file_format.html")
 
         try:
-            global df_complete
-            df_complete = utils_data_wrangling.auto360(df_answers, df_coll)
-            df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
 
-            ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
-            utils_google.pandas_to_sheets(df_complete, ws_temp)
+            results = utils_data_wrangling.auto360(df_answers, df_coll)
+            global df_complete
+            df_complete = results[0]
+            df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
+            global df_feedback
+            df_feedback = results[1]
+
+            #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
+            #utils_google.pandas_to_sheets(df_complete, ws_temp)
 
             prom = round(df_complete.value.mean(), 2)
             radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
@@ -161,14 +180,25 @@ def final_page():
         year = request.form["year"]
         Q = request.form["Q"]
 
-        ws_old = utils_google.open_ws("Crosland_data_master", "base_general")
-        df_old = utils_google.read_ws_data(ws_old)
+        df_complete_final = utils_data_wrangling.agregar_Q(df_complete, year, Q)
+        df_feedback_final = utils_data_wrangling.agregar_Q(df_feedback, year, Q)
 
-        df_new = pd.concat([df_old, df_complete], axis = 0)
+        dates_complete = list(df_complete_final.select_dtypes(include=['datetime64']).columns)
+        dates_feedback = list(df_feedback_final.select_dtypes(include=['datetime64']).columns)
 
-        utils_google.pandas_to_sheets(df_new, ws_old)
+        for column in dates_complete:
+            df_complete_final[column] = df_complete_final[column].astype("str")
+        for column in dates_feedback:
+            df_feedback_final[column] = df_feedback_final[column].astype("str")
 
-        return str(len(df_new))
+        df_new = pd.concat([df_results, df_complete_final], axis = 0)
+        print(len(df_new))
+        utils_google.pandas_to_sheets(df_new, ws_results)
+
+        df_new_feedback = pd.concat([df_feedback_old, df_feedback_final], axis = 0)
+        utils_google.pandas_to_sheets(df_new_feedback, ws_feedback)
+
+        return render_template('final_html.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
