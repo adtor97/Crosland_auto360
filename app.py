@@ -26,8 +26,8 @@ q = Queue(connection=conn)
 #login_manager.init_app(app)
 #today = str(date.today())
 #app.secret_key = today
-#ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
-df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'https://heroku.com/')
+ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
+#df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'https://heroku.com/')
 
 try:
     ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
