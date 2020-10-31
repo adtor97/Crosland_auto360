@@ -13,15 +13,15 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
 import plotly_express as px
-from rq import Queue
-from worker import conn
+#from rq import Queue
+#from worker import conn
 #from flask_login import LoginManager
 #from requests import request
 
 from utils import utils_google, utils_data_wrangling, utils_plotly
 
 app = Flask(__name__)
-q = Queue(connection=conn)
+#q = Queue(connection=conn)
 #login_manager = LoginManager()
 #login_manager.init_app(app)
 #today = str(date.today())
@@ -209,6 +209,7 @@ def final_page():
         year = request.form["year"]
         Q = request.form["Q"]
 
+        global df_complete
         df_complete_final = utils_data_wrangling.agregar_Q(df_complete, year, Q)
         df_feedback_final = utils_data_wrangling.agregar_Q(df_feedback, year, Q)
 
