@@ -3,10 +3,11 @@ import pandas as pd
 import plotly_express as px
 
 
-def build_radar_coll(df_total, df_coll):
+def build_radar_coll(df_total, df_coll, df_auto):
 
     df_pilares_grouped = df_total.groupby("Pilar", as_index = False).mean()
     df_pilares_coll_grouped = df_coll.groupby("Pilar", as_index = False).mean()
+    df_pilares_auto_grouped = df_auto.groupby("Pilar", as_index = False).mean()
 
     fig = go.Figure()
 
@@ -20,6 +21,12 @@ def build_radar_coll(df_total, df_coll):
         r = df_pilares_coll_grouped['value'].append(pd.Series(df_pilares_coll_grouped['value'][0])),
         theta = df_pilares_coll_grouped['Pilar'].append(pd.Series(df_pilares_coll_grouped['Pilar'][0])),
         name = "Tu promedio"
+    ))
+
+    fig.add_trace(go.Scatterpolar(
+        r = df_pilares_auto_grouped['value'].append(pd.Series(df_pilares_auto_grouped['value'][0])),
+        theta = df_pilares_auto_grouped['Pilar'].append(pd.Series(df_pilares_auto_grouped['Pilar'][0])),
+        name = "Autoevaluación"
     ))
 
     fig = fig.to_html(full_html=False)
@@ -38,6 +45,7 @@ def build_radar_general(df_total):
     ))
 
     fig = fig.to_html(full_html=False)
+    #print(fig)
     return fig
 
 def build_lines_coll(df_coll):

@@ -1,0 +1,30 @@
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+{% endblock stylesheet %}
+
+
+<body>
+<div class="login">
+  <div class="heading">
+    <h2>¡Hola admin! ¿Qué deseas hacer hoy?</h2>
+  </div>
+    <form action="/surveys"  method="GET">
+      <button type="submit" class="float">Subir nuevos resultados</button>
+    </form>
+      <br>
+    <form action="/previous_results"  method="GET">
+      <button type="submit" class="float">Descargar resultados anteriores</button>
+    </form>
+</div>
+    <div id='dashboard' style="margin-left:10%;">
+      <iframe width="80%" height="75%" src="https://app.powerbi.com/view?r=eyJrIjoiZGIwZWM1NDctNTQwZC00NWI0LWIzN2UtZWZiOTlhZjk0ZTk2IiwidCI6ImExYTYwYWJlLWRmZDAtNGYxNS1hMjg0LWI3M2VmMGQwNjQ5NSIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>
+      <br>
+    </div>
+    <br>
+    <br>
+    <div id=dashboard_botones width="600">
+    <a href="" class="boton_1">Descargar Plantilla</a>
+    <a href="" class="boton_2">¿Cómo actualizar dashboard?</a>
+</div>
+<br>
+</body>

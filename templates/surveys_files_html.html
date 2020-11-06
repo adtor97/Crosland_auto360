@@ -3,6 +3,21 @@
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
 {% endblock stylesheet %}
 
+<div class="container-fluid" style="min-height:100%">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible" role="alert">
+
+          <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+
+        {{message}}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+
 <head>
     <meta charset="UTF-8">
     <title>Subir archivos</title>
@@ -23,8 +38,17 @@
           <input type="file" class="form-control" name = "file_collaborators">
         </div>
 
+        <div class="input-group input-group-lg">
+          <label for="file_answers">Ahora ingrese el año y el Q correspondientes</label>
+
+          <input type="text" class="form-control" name = "year" placeholder="Año. Ejm: 2020">
+          <input type="text" class="form-control" name = "Q" placeholder="Q. Ejm: Q1">
+
+        </div>
+
         <button type="submit" class="float">Procesar</button>
 
        </form>
  		</div>
+ </div>
  </div>
