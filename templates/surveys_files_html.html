@@ -1,8 +1,3 @@
-
-{% block stylesheet %}
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
-{% endblock stylesheet %}
-
 <div class="container-fluid" style="min-height:100%">
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -19,36 +14,45 @@
 
 
 <head>
+    {% block stylesheet %}
+        <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_adm.css') }}"/>
+    {% endblock stylesheet %}
     <meta charset="UTF-8">
     <title>Subir archivos</title>
 </head>
 
-<div class="login">
-  <div class="heading">
-    <h2>Sube los archivos correspondientes</h2>
-    <form action="/results"  method="POST" enctype=multipart/form-data>
+<body>
 
-      <div class="input-group input-group-lg">
+
+<div class="container">
+  <div class="heading">
+
+    <form action="/results"  method="POST" enctype=multipart/form-data>
+      <h2 class="form__title">Sube los archivos correspondientes</h2>
+      <div class="form__input-survey">
         <label for="file_answers">Suba el CSV o Excel con las respuestas:</label>
         <input type="file" class="form-control" name = "file_answers">
           </div>
 
-        <div class="input-group input-group-lg">
+        <div class="form__input-survey">
           <label for="file_answers">Suba el CSV o Excel con los colaboradores:</label>
           <input type="file" class="form-control" name = "file_collaborators">
         </div>
 
-        <div class="input-group input-group-lg">
+        <div class="form__input-group">
           <label for="file_answers">Ahora ingrese el año y el Q correspondientes</label>
 
-          <input type="text" class="form-control" name = "year" placeholder="Año. Ejm: 2020">
-          <input type="text" class="form-control" name = "Q" placeholder="Q. Ejm: Q1">
+          <input type="text" class="form__input" name = "year" placeholder="Año. Ejm: 2020">
+          <input type="text" class="form__input" name = "Q" placeholder="Q. Ejm: Q1">
 
         </div>
 
         <button type="submit" class="float">Procesar</button>
 
        </form>
+       <a href="/action_admin" class="form__link">← Panel admin</a>
+
  		</div>
  </div>
+ </body>
  </div>

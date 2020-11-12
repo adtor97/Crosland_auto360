@@ -11,25 +11,31 @@ def build_radar_coll(df_total, df_coll, df_auto):
 
     fig = go.Figure()
 
-    fig.add_trace(go.Scatterpolar(
-        r = df_pilares_grouped['value'].append(pd.Series(df_pilares_grouped['value'][0])),
-        theta = df_pilares_grouped['Pilar'].append(pd.Series(df_pilares_grouped['Pilar'][0])),
-        name = "Promedio general"
-    ))
+    if len(df_pilares_grouped)>0:
+        fig.add_trace(go.Scatterpolar(
+            r = df_pilares_grouped['value'].append(pd.Series(df_pilares_grouped['value'][0])),
+            theta = df_pilares_grouped['Pilar'].append(pd.Series(df_pilares_grouped['Pilar'][0])),
+            name = "Promedio general"
+        ))
+    else: pass
 
-    fig.add_trace(go.Scatterpolar(
-        r = df_pilares_coll_grouped['value'].append(pd.Series(df_pilares_coll_grouped['value'][0])),
-        theta = df_pilares_coll_grouped['Pilar'].append(pd.Series(df_pilares_coll_grouped['Pilar'][0])),
-        name = "Tu promedio"
-    ))
+    if len(df_pilares_coll_grouped)>0:
+        fig.add_trace(go.Scatterpolar(
+            r = df_pilares_coll_grouped['value'].append(pd.Series(df_pilares_coll_grouped['value'][0])),
+            theta = df_pilares_coll_grouped['Pilar'].append(pd.Series(df_pilares_coll_grouped['Pilar'][0])),
+            name = "Tu promedio"
+        ))
+    else: pass
 
-    fig.add_trace(go.Scatterpolar(
-        r = df_pilares_auto_grouped['value'].append(pd.Series(df_pilares_auto_grouped['value'][0])),
-        theta = df_pilares_auto_grouped['Pilar'].append(pd.Series(df_pilares_auto_grouped['Pilar'][0])),
-        name = "Autoevaluación"
-    ))
+    if len(df_pilares_auto_grouped)>0:
+        fig.add_trace(go.Scatterpolar(
+            r = df_pilares_auto_grouped['value'].append(pd.Series(df_pilares_auto_grouped['value'][0])),
+            theta = df_pilares_auto_grouped['Pilar'].append(pd.Series(df_pilares_auto_grouped['Pilar'][0])),
+            name = "Autoevaluación"
+        ))
+    else: pass
 
-    fig = fig.to_html(full_html=False)
+    #fig = fig.to_html(full_html=False)
     return fig
 
 def build_radar_general(df_total):
@@ -44,7 +50,7 @@ def build_radar_general(df_total):
         #name = "Promedio general"
     ))
 
-    fig = fig.to_html(full_html=False)
+    #fig = fig.to_html(full_html=False)
     #print(fig)
     return fig
 
@@ -82,5 +88,5 @@ def build_lines_coll(df_coll):
     bgcolor='rgba(0,0,0,0)',
         ))
 
-    fig = fig.to_html(full_html=False)
+    #fig = fig.to_html(full_html=False)
     return fig

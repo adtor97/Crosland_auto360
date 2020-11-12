@@ -1,32 +1,39 @@
 {% block stylesheet %}
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_login_colab.css') }}"/>
 {% endblock stylesheet %}
 
 <head>
     <meta charset="UTF-8">
-    <title>Login coll</title>
+    <title>Login Colaborador</title>
 </head>
 
-<div class="login">
-  <div class="heading">
-    <h2>¡Hola! Por favor inicia sesión para continuar</h2>
-    <form action="/coll_results"  method="POST">
 
-      <div class="input-group input-group-lg">
-        <input type="text" class="form-control" name = "DNI" placeholder="DNI">
+<body>
+
+<div class="container">
+  <div class="heading">
+    <form action="/coll_results"  method="POST">
+      <h2 class="form__title">Login 360° | Colaborador</h2>
+      <div class="form__input-group">
+        <input type="text" class="form__input" name = "DNI" placeholder="DNI">
           </div>
 
-        <div class="input-group input-group-lg">
-          <input type="password" class="form-control" name = "password" placeholder="Contraseña">
+        <div class="form__input-group">
+          <input type="password" class="form__input" name = "password" placeholder="Contraseña">
         </div>
 
         <button type="submit" class="float">Ver mis resultados</button>
+
+        <h3 class="form__title">¿Aún no creas tu contraseña?</h3>
+        <p class="form__text">
+          <a  class="form__link"  href="https://docs.google.com/forms/d/e/1FAIpQLScolRut55Ar6U5FmfzrpEEhZSOM_xTpasUDvsfViFy8ho7gEA/viewform" id="linkcreatepass" target="_blank">Crear constraseña</a>
+        </p>
+
+        <p class="form__text">
+          <a  class="form__link"  href="#" id="linkcreatepass" onClick="window.location.reload()">Actualizar!</a>
+        </p>
     </form>
-
-        <h4>¿Aún no creas tu contraseña?</h4>
-        <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLScolRut55Ar6U5FmfzrpEEhZSOM_xTpasUDvsfViFy8ho7gEA/viewform','_blank')">Crear mi contraseña</button>
-
-        <button onClick="window.location.reload();">Actualizar!</button>
 
  		</div>
  </div>
+</body>

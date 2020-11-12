@@ -11,27 +11,41 @@
   <h1>Hola! Los archivos se procesaron con éxito</h1>
   <h4>Revisa los resultados antes de terminar el proceso</h4>
 
-    <h3>El promedio general de este Q ha sido {{ prom }}</h3>
-    <div class="plotly_graph" style="height: 50%; width: 50%; vertical-align: middle">
-      {{ div_radar | safe }}
 
+
+    <h3 class="form__title">El promedio general de este Q ha sido {{ prom }}</h3>
+
+    <div style="height: 50%;width: 100%;align-items:center;">
+      <div class="img" style="height: 100%; width: 50%; display: block;margin:auto;">
+        <img src="{{ radar_name }}"  alt="radar_Q">
+      </div>
     </div>
+
+
     <h4>Ahora revisa el formato del dataset final</h4>
 
     {% for table in tables %}
-
               {{ table|safe }}
     {% endfor %}
 
-  <form action="/final"  method="POST">
 
-    <h3>Si ves todo conforme aprieta "Aceptar" para subir el nuevo dataset y guardar los PDF de cada colaborador</h3>
-    <h3>Caso contrario aprieta "VEO ALGO RARO" para volver a subir los archivos</h3>
-    <button type="submit" class="float">Aceptar</button>
-  </form>
+<div class="container">
+  <div class="form__input-group">
+    <form action="/final"  method="POST">
+      <h3 class="form__title-warning">⚠ Lee Cuidadosamente</h3>
+      <p class="form_sub-title">En caso este seguro de que no hay ningún error en el procesamiento y desee realmente actualizar estos resultados a la base de datos principal haga click en
+      "ACTUALIZAR" <strong>-- Esta acción no es reversible --</strong> , en caso contrario de click en "VEO ALGO RARO" para volver a procesar los archivos.</p>
+      <button type="submit" class="float_result">Actualizar</button>
+    </form>
+  </div>
 
-  <form action="/surveys"  method="POST">
-    <button type="submit" class="float" name="error_button" value="data_process_error"">VEO ALGO RARO</button>
-  </form>
+
+    <div class="form__input-group">
+      <form action="/surveys"  method="POST">
+        <button type="submit" class="float_result-error" name="error_button" value="data_process_error"">Veo algo raro.</button>
+      </form>
+    </div>
+     <a href="/action_admin" class="form__link">← Panel admin</a>
+</div>
 
 </body>

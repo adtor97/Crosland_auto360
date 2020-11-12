@@ -1,0 +1,42 @@
+
+<html lang="en" dir="ltr">
+  <head>
+    {% block stylesheet %}
+        <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_adm.css') }}"/>
+    {% endblock stylesheet %}
+
+    <meta charset="utf-8">
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript.js') }}">
+    </script>
+    <title></title>
+  </head>
+
+
+  <body>
+    <div class="container">
+      <div class="heading">
+
+        <h2 class="form__title">Dashboard</h2>
+        <img src="static/pictures/dashboard_img.png" alt="Dashboard" class="img_dashboard">
+        <!-- The text field -->
+        <input type="text" value="https://app.powerbi.com/view?r=eyJrIjoiZjU5ZTY5ZWEtODNkMC00NTNiLTg1MzctMGYzZTYwMmYzMGVjIiwidCI6ImExYTYwYWJlLWRmZDAtNGYxNS1hMjg0LWI3M2VmMGQwNjQ5NSIsImMiOjR9" id="myInput" readonly>
+        <!-- The button used to copy the text -->
+
+        <button onclick="copyClipboard()">¡Copiar link!</button>
+        <a href="https://app.powerbi.com/view?r=eyJrIjoiZjU5ZTY5ZWEtODNkMC00NTNiLTg1MzctMGYzZTYwMmYzMGVjIiwidCI6ImExYTYwYWJlLWRmZDAtNGYxNS1hMjg0LWI3M2VmMGQwNjQ5NSIsImMiOjR9" target="_blank">
+        <button onclick="" >Ver Dashboard</button>
+        </a>
+        <h4 class="form__title">Links de interés</h4>
+        <ul>
+          <li><a href="https://we.tl/t-pDeeYjd2I5" target="_blank">Descargar plantilla de dashboard</li>
+          <li><a href="https://youtube.com" target="_blank">¿Cómo actualizar datos del Dashboard?</li>
+        </ul>
+
+
+      </div>
+      <a href="/action_admin" class="form__link">← Panel admin</a>
+    </div>
+
+  </body>
+
+</html>

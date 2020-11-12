@@ -1,4 +1,4 @@
-@import "bourbon";
+
 
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,700);
 @import url(https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css);
@@ -8,6 +8,27 @@ $shadow-color: #23203b;
 $input-color: lighten(#AB9E95, 10%);
 $input-border-color: #5E5165;
 $button-background-color: #27AE60;
+
+body{
+    --color-primary: #009579;
+    --color-primary-dark: #007f67;
+    --color-secondary: #252c6a;
+    --color-error: #cc3333;
+    --color-success: #4bb544;
+    --border-radius: 4px;
+
+
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background-size: cover;
+
+}
+
+
 
 #dashboard{
     width:100%;
@@ -47,11 +68,26 @@ div.sub, iframe {
     margin-left: : 10%;
 }
 
-
-* {
-  margin: 0;
-  padding: 0;
+.container{
+    align-items: center;
+    width: 700px;
+    max-width: 700px;
+    margin:auto;
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+    padding: 2rem;
+		padding-bottom: 2rem;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+    border-radius: var(--border-radius);
+    background: rgba(255,255,255, 0.85);
 }
+
+.form__title{
+  text-align: center;
+  margin: 1rem;
+}
+
+
 
 html {
   background: url(https://dl.dropboxusercontent.com/u/159328383/background.jpg) no-repeat center center fixed;
@@ -66,7 +102,7 @@ body {
 }
 
 body, input, button {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Quicksand', sans-serif;
 }
 
 @mixin normalize-input {
@@ -165,21 +201,7 @@ body, input, button {
   }
 }
 
-.float {
-  display: inline-block;
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
-  -webkit-transition-property: transform;
-  transition-property: transform;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
-}
 
-.float:hover, .float:focus, .float:active {
-  -webkit-transform: translateY(-3px);
-  transform: translateY(-3px);
-}
 
 /* Large Devices, Wide Screens */
 
@@ -244,4 +266,105 @@ body, input, button {
     font-size: 0.7em;
     min-height: 0;
   }
+}
+
+
+/*Dataframe Style*/
+table{
+  font-size: 1rem;
+  color: #0A101A;
+}
+
+th {
+  background-color: #0453a4;
+  color: white;
+  text-align: center;
+}
+tr:hover{
+  background-color: #f5f5f5;
+}
+
+td {
+  text-align: center;
+}
+th, td {
+  border-bottom: 1px solid #ddd;
+
+}
+
+/*From css_admin*/
+
+.float_result {
+    font: 500 1rem 'Quicksand', sans-serif;
+}
+
+.form > *:first-child{
+    margin-top: 0;
+}
+
+.form > *:last-child{
+    margin-top: 0;
+}
+
+.form__input-group{
+    margin-bottom: 1rem;
+}
+
+.form__title-warning{
+  text-align: center;
+  margin: 1rem;
+  color: #cc3333;
+}
+
+.float_result {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #009579;
+    border: 2px solid #009579;
+    border-radius: 4px;
+    outline:none;
+    cursor: pointer;
+    background:  #ffffff;
+    align
+}
+
+.float_result :hover {
+    background: #007f67;
+}
+
+.float_result :active {
+    transform: scale(0.98 );
+}
+
+.float_result-error {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    outline:none;
+    cursor: pointer;
+    background: #009579 ;
+}
+
+.float_result-error :hover {
+    background: #007f67;
+}
+
+.float_result-error :active {
+    transform: scale(0.98 );
+}
+
+.form__link {
+  color:#252c6a;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.form__link:hover {
+  text-decoration: underline;
 }

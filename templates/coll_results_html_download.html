@@ -1,0 +1,32 @@
+{% block stylesheet %}
+    <link rel="stylesheet" type="text/css"  href="C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/css.css"/>
+{% endblock stylesheet %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados personales</title>
+</head>
+
+<body>
+  <div class="heading" style="text-align: center">
+    <h2>Tus resultados de la 360</h2>
+  </div>
+
+
+<div style="width: 100%;align-items:center;">
+    <div class="img" style="height: 60%; width: 45%; display: inline-block;margin:auto;">
+      <img src="{{ radar_name }}"  alt="radar_coll">
+
+    </div>
+    <div class="img" style="height: 60%; width: 45%; display: inline-block;margin:auto;">
+      <img src="{{ line_name }}" alt="line_coll">
+    </div>
+</div>
+
+
+  {% for table in tables %}
+  {{ titles[loop.index] }}
+  {{ table|safe }}
+  {% endfor %}
+
+</body>

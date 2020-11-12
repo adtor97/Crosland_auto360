@@ -1,30 +1,52 @@
-{% block stylesheet %}
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
-{% endblock stylesheet %}
+<!doctype html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<title>Panel Administador</title>
+	{% block stylesheet %}
+	    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_adm.css') }}"/>
+	{% endblock stylesheet %}
+
+</head>
 
 
 <body>
-<div class="login">
-  <div class="heading">
-    <h2>¡Hola admin! ¿Qué deseas hacer hoy?</h2>
-  </div>
-    <form action="/surveys"  method="GET">
-      <button type="submit" class="float">Subir nuevos resultados</button>
-    </form>
-      <br>
-    <form action="/previous_results"  method="GET">
-      <button type="submit" class="float">Descargar resultados anteriores</button>
-    </form>
+	<div class="heading">
+
+
+		<div id="titulo">
+				<p id="header">Hola Admin, que deseas hacer hoy?</p>
+		</div>
+
+			<div class="container-panel">
+				<div class="contenerdor-menu">
+
+
+							<a href="/surveys">
+							<div class="contenedor" id="uno">
+								<img class="icon" src="static/pictures/process.png">
+								<p class="texto">Procesar Encuestas</p>
+							</div>
+							</a>
+
+
+							<a href="/previous_results">
+							<div class="contenedor" id="dos">
+								<img class="icon" src="static/pictures/reports.png">
+								<p class="texto">Descargar Reportes</p>
+							</div>
+							</a>
+
+
+							<a href="/dashboard">
+							<div class="contenedor" id="tres">
+								<img class="icon" src="static/pictures/dashboard.png">
+								<p class="texto">Ver Dashboard</p>
+							</div>
+							</a>
+					</div>
+			</div>
+
 </div>
-    <div id='dashboard' style="margin-left:10%;">
-      <iframe width="80%" height="75%" src="https://app.powerbi.com/view?r=eyJrIjoiZGIwZWM1NDctNTQwZC00NWI0LWIzN2UtZWZiOTlhZjk0ZTk2IiwidCI6ImExYTYwYWJlLWRmZDAtNGYxNS1hMjg0LWI3M2VmMGQwNjQ5NSIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>
-      <br>
-    </div>
-    <br>
-    <br>
-    <div id=dashboard_botones width="600">
-    <a href="" class="boton_1">Descargar Plantilla</a>
-    <a href="" class="boton_2">¿Cómo actualizar dashboard?</a>
-</div>
-<br>
 </body>
+</html>

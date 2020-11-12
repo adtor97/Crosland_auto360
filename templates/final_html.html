@@ -1,21 +1,33 @@
 {% block stylesheet %}
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_adm.css') }}"/>
 {% endblock stylesheet %}
 
 <head>
     <meta charset="UTF-8">
     <title>Éxito</title>
 </head>
+<body>
+    <div class="container">
+      <div class="heading">
+        <img src="static/pictures/Finish.gif" alt="Dame esos 5!" class="img_thanks">
+        <h2 class="form__title" style="align-text:center;">¡Dame esos 5!</h2>
+        <h4 class="form__title" style="align-text:center;">Los resultados fueron actualizados con éxito</h2>
 
-<div class="login">
-  <div class="heading">
-    <h2>¡Resultados actualizados con éxito!</h2>
-    </div>
-    <div class="form">
-    <button onclick="window.open('https://app.powerbi.com/view?r=eyJrIjoiZGIwZWM1NDctNTQwZC00NWI0LWIzN2UtZWZiOTlhZjk0ZTk2IiwidCI6ImExYTYwYWJlLWRmZDAtNGYxNS1hMjg0LWI3M2VmMGQwNjQ5NSIsImMiOjR9&pageName=ReportSection58050cb2a30c8d971a33','_blank')">Ir al dashboard</button>
-    <form action="/"  method="GET">
-      <button type="submit" class="float">Ir al home</button>
-    </form>
 
- </div>
- </div>
+          <div class="form">
+
+        <form action="/action_admin"  method="GET">
+          <button type="submit" class="float">Ir al home</button>
+        </form>
+        <h4>Otras acciones</h4>
+        
+        <ul>
+          <li><a href="/dashboard">Ver Dashboard</a></li>
+          <li><a href="/dashboard">Descargar Reportes PDF's</a></li>
+        </ul>
+
+
+        </div>
+      </div>
+     </div>
+</body>

@@ -496,16 +496,18 @@ def update(df_new, df_master_path):
             df_new.reset_index(drop=True,inplace=True)
             df_master = pd.concat([df_master,df_new],axis=0,ignore_index=True)
 
-            return df_master.to_csv(str(df_master_path),encoding='utf-8',index = False)
+            df_master.to_csv(str(df_master_path),encoding='utf-8',index = False)
+            return df_master
 
         else:
             df_master.reset_index(drop=True,inplace=True)
             df_new.reset_index(drop=True,inplace=True)
             df_master = pd.concat([df_master,df_new],axis=0,ignore_index=True)
-
-            return df_master.to_csv(str(df_master_path),encoding='utf-8',index = False)
+            df_master.to_csv(str(df_master_path),encoding='utf-8',index = False)
+            return df_master
     else:
-        return df_new.to_csv(str(df_master_path),encoding='utf-8',index = False)
+        df_new.to_csv(str(df_master_path),encoding='utf-8',index = False)
+        return df_new
 
 
 
@@ -526,6 +528,8 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
 
     # Normalizar Nombre de columnas
     table_score.columns = ['-'.join(col).strip() for col in table_score.columns.values]
+    table_score = table_score[[table_score.columns[0], table_score.columns[4], table_score.columns[1], table_score.columns[5], table_score.columns[2], table_score.columns[6], table_score.columns[3], table_score.columns[7]]]
+    #print(table_score.columns)
     table_score.reset_index(inplace=True)
     #table_score         = table_score[table_score['Periodo'].isin(periodo_list)]
 
@@ -536,12 +540,16 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     table_score_by_nivocu.reset_index(inplace=True)
     table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
     table_score_by_nivocu.rename(columns={'Periodo-':'Periodo','DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)
+    table_score_by_nivocu = table_score_by_nivocu[[table_score_by_nivocu.columns[0], table_score_by_nivocu.columns[1], table_score_by_nivocu.columns[2], table_score_by_nivocu.columns[3], table_score_by_nivocu.columns[7], table_score_by_nivocu.columns[4], table_score_by_nivocu.columns[8], table_score_by_nivocu.columns[5], table_score_by_nivocu.columns[9], table_score_by_nivocu.columns[6], table_score_by_nivocu.columns[10]]]
 
+    print(table_score_by_nivocu.columns)
 
     #FEEDBACK PERSONAL
 
     #df_feedback[columna_dni] = df_feedback[columna_dni].astype(str)
-    df_feedback_personal = df_feedback[df_feedback[columna_dni]==float(dni)]
+    print("feedback total len: ", len(df_feedback))
+    df_feedback_personal = df_feedback[df_feedback[columna_dni].astype(float)==float(dni)]
+    print("feedback len: ", len(df_feedback_personal))
     df_feedback_personal = df_feedback_personal[["feedback"]]
     #df_feedback_personal = df_feedback_personal[df_feedback_personal['Periodo'].isin(last_q)]
 

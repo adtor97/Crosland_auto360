@@ -6,14 +6,20 @@ Created on Thu Oct  8 20:43:57 2020
 """
 
 #%%
-from flask import Flask, render_template, request, redirect, url_for, session, Markup, flash
+from flask import Flask, render_template, request, redirect, url_for, session, Markup, flash, send_file
 import pandas as pd
 from datetime import date
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import os
+import os, io, zipfile, time
 import plotly_express as px
 import requests
+from flask_bootstrap import Bootstrap
+import pdfkit
+from time import sleep
+import plotly
+import shutil
+
 #from rq import Queue
 #from worker import conn
 #from flask_login import LoginManager
@@ -22,6 +28,8 @@ import requests
 from utils import utils_google, utils_data_wrangling, utils_plotly, utils_validations
 
 app = Flask(__name__)
+Bootstrap(app)
+
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
 #login_manager.init_app(app)
@@ -30,12 +38,18 @@ app.secret_key = today
 #ws_results = utils_google.open_ws("Crosland_data_master", "base_general")
 #df_results = q.enqueue(utils_google.read_ws_data(ws_results), 'https://heroku.com/')
 
-
 try:
     df_results = pd.read_csv("data/df_results.csv")
 except:
     df_results = pd.DataFrame()
-print(len(df_results))
+#print(df_results.columns)
+
+try:
+    Qs = list(df_results.Periodo.unique())
+    Qs.sort()
+except:
+    Qs = []
+#print(Qs)
 
 static_folder = os.path.join('static')
 
@@ -43,13 +57,13 @@ try:
     df_feedback_old = pd.read_csv("data/df_feedback.csv")
 except:
     df_feedback_old = pd.DataFrame()
-print(len(df_feedback_old))
+#print(len(df_feedback_old))
 
 try:
     df_auto_old = pd.read_csv("data/df_auto.csv")
 except:
     df_auto_old = pd.DataFrame()
-print(len(df_auto_old))
+#print(len(df_auto_old))
 
 @app.route("/")
 def home():
@@ -69,20 +83,44 @@ def action_admin():
         except:
             pass
 
-        try:
-            if utils_validations.validate_admin(session['user'], session['password']):
-                return render_template("action_admin_html.html")
-            else:
-                return render_template("fail_login_admin_html.html")
-        except:
+    try:
+        if utils_validations.validate_admin(session['user'], session['password']):
+            return render_template("action_admin_html.html")
+        else:
             return render_template("fail_login_admin_html.html")
+    except:
+        return render_template("fail_login_admin_html.html")
 
 @app.route("/previous_results", methods=["GET"])
 def download_previous_results():
     if utils_validations.validate_admin(session['user'], session['password']):
-        return render_template("download_previous_results.html")
+        global Qs
+        Qs = Qs
+        return render_template("download_previous_results.html", buttons=Qs)
     else: return "Inicia sesión"
 
+@app.route("/download_action", methods=["POST"])
+def download_action():
+
+    if utils_validations.validate_admin(session['user'], session['password']):
+        Q = request.form["Q_button"]
+        file_path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/PDFs/" + Q
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        fileName = "my_data_dump_{}.zip".format(timestr)
+        memory_file = io.BytesIO()
+
+        with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+              for root, dirs, files in os.walk(file_path):
+                        for file in files:
+                                  zipf.write(os.path.join(root, file))
+        memory_file.seek(0)
+        return send_file(memory_file,
+                         attachment_filename=fileName,
+                         as_attachment=True)
+
+        #return str(request.form["Q_button"])
+
+    else: return "Inicia sesión"
 
 @app.route("/login_coll")
 def login_coll():
@@ -93,7 +131,7 @@ def login_coll():
         df_users["DNI"] = df_users["DNI"].astype("str")
     except:
         df_users = pd.DataFrame()
-    print(len(df_users))
+    #print(len(df_users))
     return render_template("login_coll_html.html")
 
 @app.route("/coll_results", methods=["POST"])
@@ -115,13 +153,13 @@ def coll_results_redirect():
             return render_template("fail_login_coll_html.html")
 
         else:
-            return redirect(url_for("coll_results", DNI=DNI))
+            return redirect(url_for("coll_results", DNI=DNI), code=307)
 
     else:
         return "Unknown user start counterattack 0"
 
 
-@app.route("/coll_results/<DNI>", methods=["GET"])
+@app.route("/coll_results/<DNI>", methods=["POST"])
 def coll_results(DNI):
     try:
         df_results = pd.read_csv("data/df_results.csv")
@@ -135,7 +173,7 @@ def coll_results(DNI):
         df_autoev = pd.read_csv("data/df_auto.csv")
     except:
         df_autoev = pd.DataFrame()
-    print(len(df_results))
+    #print(len(df_results))
     if len(df_results)==0:
         return render_template("no_results.html")
     else:
@@ -144,21 +182,29 @@ def coll_results(DNI):
     df_results["DNI_evaluado"]  = df_results["DNI_evaluado"].astype(str)
     df_results_DNI = df_results.loc[df_results["DNI_evaluado"] == str(DNI)]
 
+    df_autoev_DNI = df_autoev.loc[df_autoev["DNI_evaluador"] == str(DNI)]
+
     if (len(df_results_DNI) == 0):
         return render_template("fail_login_coll_html.html")
 
     else:
 
-        radar = utils_plotly.build_radar_coll(df_results[["Pilar", "value"]], df_results_DNI[["Pilar", "value"]], df_autoev[["Pilar", "value"]])
+        radar = utils_plotly.build_radar_coll(df_results[["Pilar", "value"]], df_results_DNI[["Pilar", "value"]], df_autoev_DNI[["Pilar", "value"]])
         line = utils_plotly.build_lines_coll(df_results_DNI[["Pilar", "value", "Periodo"]])
+
+        radar_name = "radar_" + str(DNI) + ".png"
+        line_name = "line_" + str(DNI) + ".png"
+
+        radar.write_image("C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/tmp/" + radar_name)
+        line.write_image("C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/tmp/" + line_name)
 
         dfs_show_coll = utils_data_wrangling.personal_reporting(df_results,df_feedback,df_autoev,str(session["DNI"]))
         dfs_show_coll_html = [x.to_html(classes='data') for x in dfs_show_coll]
         dfs_cols = [x.columns.values for x in dfs_show_coll]
-        for i in dfs_show_coll:
-            print(len(i))
+        #for i in dfs_show_coll:
+            #print(len(i))
         #return "hola"
-        return render_template("coll_results_html.html", div_radar = radar, div_line = line, tables=dfs_show_coll_html,
+        return render_template("coll_results_html.html", radar_name = "/static/tmp/" + radar_name, line_name = "/static/tmp/" + line_name, tables=dfs_show_coll_html,
         titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
 
 
@@ -223,6 +269,8 @@ def see_results():
         session["year"] = year
         session["Q"] = Q
 
+        Periodo = str(session["year"]) + "-" + session["Q"]
+
         try:
             #results = q.enqueue(utils_data_wrangling.auto360(df_answers, df_coll), 'http://heroku.com')
             dfs_auto_survey = utils_data_wrangling.df_split(df_answers)
@@ -235,6 +283,7 @@ def see_results():
 
             global df_complete
             df_complete = results[0]
+            df_complete = df_complete.drop("DNI_evaluador", axis = 1)
             df_complete["DNI_evaluado"] = df_complete["DNI_evaluado"].astype(int).astype(str)
             df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
             global df_feedback
@@ -246,6 +295,10 @@ def see_results():
             prom = round(df_complete.value.mean(), 2)
             #print("pre radar")
             radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
+
+            radar_name = "radar_" + str(Periodo) + ".png"
+            radar.write_image("C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/tmp/" + radar_name)
+
             #print("pre render")
             #print(df_complete.head())
             #print(df_complete_show.to_html(classes='data'))
@@ -253,7 +306,7 @@ def see_results():
                                     tables=[df_complete_show.to_html(classes='data')],
                                     titles=df_complete_show.columns.values,
                                     prom = prom,
-                                    div_radar = radar
+                                    radar_name = "/static/tmp/" + radar_name
                                     )
 
         except:
@@ -269,6 +322,14 @@ def final_page():
 
         year = session["year"]
         Q = session["Q"]
+        Periodo = str(session["year"]) + "-" + session["Q"]
+
+        Periodo_path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/PDFs/"+Periodo
+
+        try:
+            shutil.rmtree(Periodo_path, ignore_errors=True)
+        except: pass
+        os.mkdir(Periodo_path)
 
         global df_complete
         df_complete = df_complete
@@ -278,13 +339,62 @@ def final_page():
         df_auto = df_auto
 
         df_new = utils_data_wrangling.update(df_complete, "data/df_results.csv")
+        df_complete = df_new.loc[df_new["Periodo"]<=Periodo]
         #df_new.to_csv("data/df_results.csv", index = False)
 
         df_new_feedback = utils_data_wrangling.update(df_feedback, "data/df_feedback.csv")
+        df_feedback = df_new_feedback.loc[df_new_feedback["Periodo"]<=Periodo]
         #df_new_feedback.to_csv("data/df_feedback.csv", index = False)
 
         df_new_auto = utils_data_wrangling.update(df_auto, "data/df_auto.csv")
+        df_auto = df_new_auto.loc[df_new_auto["Periodo"]<=Periodo]
         #df_new_auto.to_csv("data/df_auto.csv", index = False)
+
+        options = {
+                    "enable-local-file-access": None
+                    }
+        path_wkthmltopdf = b'C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe'
+
+        config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+
+        for DNI in df_complete["DNI_evaluado"].unique():
+            #sleep(5)
+            df_complete["DNI_evaluado"]  = df_complete["DNI_evaluado"].astype(str)
+            df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == str(DNI)]
+
+            df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == str(DNI)]
+
+            if (len(df_complete_DNI) == 0):
+                render = render_template("no_results.html")
+                pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
+
+            else:
+                try:
+
+                    radar = utils_plotly.build_radar_coll(df_new[["Pilar", "value"]], df_complete_DNI[["Pilar", "value"]], df_auto_DNI[["Pilar", "value"]])
+                    line = utils_plotly.build_lines_coll(df_complete_DNI[["Pilar", "value", "Periodo"]])
+
+                    radar_name = "radar_" + str(DNI) + ".png"
+                    line_name = "line_" + str(DNI) + ".png"
+
+                    radar.write_image("C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/tmp/" + radar_name)
+                    line.write_image("C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/tmp/" + line_name)
+
+                    dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,str(DNI))
+                    dfs_show_coll_html = [x.to_html(classes='data') for x in dfs_show_coll]
+                    dfs_cols = [x.columns.values for x in dfs_show_coll]
+                    #for i in dfs_show_coll:
+                        #print(len(i))
+                    #return "hola"
+                    render = render_template("coll_results_html_download.html", radar_name = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/tmp/" + radar_name,
+                                            line_name = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/tmp/" + line_name, tables=dfs_show_coll_html,
+                                            titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
+                    #print(DNI, len())
+                    pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css="C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/css.css")
+
+                except:
+                    render = render_template("no_results.html")
+                    pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
 
         return render_template('final_html.html')
 
