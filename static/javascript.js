@@ -12,3 +12,12 @@ function copyClipboard() {
   /* Alert the copied text */
   alert("Texto copiado: " + copyText.value);
 }
+
+function process_once() {
+
+  var msg = document.getElementById('msg');
+        msg.innerHTML = 'Boton desabilitado, la data se está procesando';
+  document.getElementById('buttom_process').disabled = true;
+  document.getElementById('buttom_process').innerHTML = 'Procesando...'
+
+}

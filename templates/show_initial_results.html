@@ -3,6 +3,7 @@
 {% endblock stylesheet %}
 
 <head>
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript.js')}}"></script>
     <meta charset="UTF-8">
     <title>Resultados csv general</title>
 </head>
@@ -11,13 +12,11 @@
   <h1>Hola! Los archivos se procesaron con éxito</h1>
   <h4>Revisa los resultados antes de terminar el proceso</h4>
 
-
-
     <h3 class="form__title">El promedio general de este Q ha sido {{ prom }}</h3>
 
-    <div style="height: 50%;width: 100%;align-items:center;">
-      <div class="img" style="height: 100%; width: 50%; display: block;margin:auto;">
-        <img src="{{ radar_name }}"  alt="radar_Q">
+    <div style="height: 50%;width: 50%;align-items:center;">
+      <div class="imga">
+        <img src="{{ radar_name}}"  alt="radar_Q" class="img">
       </div>
     </div>
 
@@ -35,7 +34,8 @@
       <h3 class="form__title-warning">⚠ Lee Cuidadosamente</h3>
       <p class="form_sub-title">En caso este seguro de que no hay ningún error en el procesamiento y desee realmente actualizar estos resultados a la base de datos principal haga click en
       "ACTUALIZAR" <strong>-- Esta acción no es reversible --</strong> , en caso contrario de click en "VEO ALGO RARO" para volver a procesar los archivos.</p>
-      <button type="submit" class="float_result">Actualizar</button>
+      <button id="buttom_process" type="submit" onclick="this.form.submit();process_once();" class="float_result">Actualizar</button>
+      <p id="msg"></p>
     </form>
   </div>
 

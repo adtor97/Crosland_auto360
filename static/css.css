@@ -273,6 +273,7 @@ body, input, button {
 table{
   font-size: 1rem;
   color: #0A101A;
+  margin: 1rem;
 }
 
 th {
@@ -367,4 +368,13 @@ th, td {
 
 .form__link:hover {
   text-decoration: underline;
+}
+
+.img{
+	max-width: 300px;
+  height: auto;
+	align :center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }

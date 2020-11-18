@@ -30,9 +30,10 @@ body{
 }
 .container-panel{
 
-    width: 80%;
+    width: 85%;
 		display: flex;
-    max-width: 80%;
+    align-items: center;
+    max-width: 85%;
     margin:3rem;
 		margin-top: 1rem;
 		margin-bottom: 1rem;
