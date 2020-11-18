@@ -35,7 +35,7 @@ def build_radar_coll(df_total, df_coll, df_auto):
         ))
     else: pass
 
-    #fig = fig.to_html(full_html=False)
+    fig.update_traces(hoverinfo='r')
     return fig
 
 def build_radar_general(df_total):

@@ -6,7 +6,7 @@ Created on Thu Oct  8 20:43:57 2020
 """
 
 #%%
-from flask import Flask, render_template, request, redirect, url_for, session, Markup, flash, send_file
+from flask import Flask, render_template, request, redirect, url_for, session, Markup, flash, send_file, make_response
 import pandas as pd
 from datetime import date
 import matplotlib.pyplot as plt
@@ -19,7 +19,11 @@ import pdfkit
 from time import sleep
 import plotly
 import shutil
+<<<<<<< HEAD
 import pathlib
+=======
+import flask_excel as excel
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
 
 #from rq import Queue
 #from worker import conn
@@ -30,6 +34,10 @@ from utils import utils_google, utils_data_wrangling, utils_plotly, utils_valida
 
 app = Flask(__name__)
 Bootstrap(app)
+
+pd.options.display.float_format = "{:,.2f}".format
+path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
+wkhtmltopdf_path = "C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
@@ -109,7 +117,11 @@ def download_action():
 
     if utils_validations.validate_admin(session['user'], session['password']):
         Q = request.form["Q_button"]
+<<<<<<< HEAD
         file_path = "D:/Proyectos/Freelance/Crosland/Produccion/Crosland_auto360/PDFs/" + Q
+=======
+        file_path = path + "/PDFs/" + Q
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
         timestr = time.strftime("%Y%m%d-%H%M%S")
         fileName = "my_data_dump_{}.zip".format(timestr)
         memory_file = io.BytesIO()
@@ -200,8 +212,13 @@ def coll_results(DNI):
         radar_name = "radar_" + str(DNI) + ".png"
         line_name = "line_" + str(DNI) + ".png"
 
+<<<<<<< HEAD
         radar.write_image("D:/Proyectos/Freelance/Crosland/Produccion/Crosland_auto360/static/tmp/" + radar_name)
         line.write_image("D:/Proyectos/Freelance/Crosland/Produccion/Crosland_auto360/static/tmp/" + line_name)
+=======
+        radar.write_image(path + "/static/tmp/" + radar_name)
+        line.write_image(path + "/static/tmp/" + line_name)
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
 
         dfs_show_coll = utils_data_wrangling.personal_reporting(df_results,df_feedback,df_autoev,str(session["DNI"]))
         dfs_show_coll_html = [x.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
@@ -288,9 +305,22 @@ def see_results():
 
             global df_complete
             df_complete = results[0]
+<<<<<<< HEAD
             df_complete = df_complete
             df_complete["DNI_evaluado"] = df_complete["DNI_evaluado"].astype(int).astype(str)
             df_complete_show = df_complete.drop("DNI_evaluador", axis = 1).sample(n=10).reset_index(drop=True)
+=======
+            df_complete = df_complete.drop("DNI_evaluador", axis = 1)
+            global df_results
+            df_results = df_results
+            new_columns = [x for x in df_complete.columns if x not in df_results.columns]
+            df_new_columns = pd.DataFrame(new_columns, columns = ["Columnas nuevas"])
+            old_columns = [x for x in df_results.columns if x not in df_complete.columns]
+            df_old_columns = pd.DataFrame(old_columns, columns = ["Columnas faltantes"])
+            df_complete["DNI_evaluado"] = df_complete["DNI_evaluado"].astype(int).astype(str)
+            df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
+
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
             global df_feedback
             df_feedback = results[1]
 
@@ -302,19 +332,33 @@ def see_results():
             radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
 
             radar_name = "radar_" + str(Periodo) + ".png"
+<<<<<<< HEAD
             radar_path = 'static/tmp/'+radar_name
                         
             radar.write_image(radar_path)
             
+=======
+            radar.write_image(path + "/static/tmp/" + radar_name)
+
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
             #print("pre render")
             #print(df_complete.head())
             #print(df_complete_show.to_html(classes='data'))
+
             return render_template('show_initial_results.html',
-                                    tables=[df_complete_show.to_html(classes='data')],
-                                    titles=df_complete_show.columns.values,
+                                    tables1=[df_complete_show.to_html(classes='data')],
+                                    titles1=df_complete_show.columns.values,
                                     prom = prom,
+<<<<<<< HEAD
                                     radar_name = radar_path
                                     #"/static/tmp/" + 
+=======
+                                    radar_name = "/static/tmp/" + radar_name,
+                                    tables2=[df_new_columns.to_html(classes='data')],
+                                    titles2=df_new_columns.columns.values,
+                                    tables3=[df_old_columns.to_html(classes='data')],
+                                    titles3=df_old_columns.columns.values,
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
                                     )
 
         except:
@@ -332,7 +376,11 @@ def final_page():
         Q = session["Q"]
         Periodo = str(session["year"]) + "-" + session["Q"]
 
+<<<<<<< HEAD
         Periodo_path = "PDFs/"+Periodo
+=======
+        Periodo_path = path + "/PDFs/"+Periodo
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
 
         try:
             shutil.rmtree(Periodo_path, ignore_errors=True)
@@ -347,9 +395,18 @@ def final_page():
         df_auto = df_auto
 
         df_new = utils_data_wrangling.update(df_complete, "data/df_results.csv")
+        print(df_new)
+        DNIs = [str(int(float(x))) for x in df_new.DNI_evaluado.unique()]
+        df_users_passwords = utils_data_wrangling.build_password_df(DNIs)
         df_complete = df_new.loc[df_new["Periodo"]<=Periodo]
-        #df_new.to_csv("data/df_results.csv", index = False)
+        #print(df_users_passwords)
+        df_users_passwords.to_csv("data/df_users_passwords.csv", encoding='utf-8', index = False)
+        #df_users_passwords = df_users_passwords.to_csv(index = False)
+        #resp_df_users_passwords = make_response(df_users_passwords)
+        #resp_df_users_passwords.headers["Content-Disposition"] = "attachment; filename=export.csv"
+        #resp_df_users_passwords.headers["Content-Type"] = "text/csv"
 
+        print("saved users pass")
         df_new_feedback = utils_data_wrangling.update(df_feedback, "data/df_feedback.csv")
         df_feedback = df_new_feedback.loc[df_new_feedback["Periodo"]<=Periodo]
         #df_new_feedback.to_csv("data/df_feedback.csv", index = False)
@@ -360,14 +417,19 @@ def final_page():
 
         options = {
                     "enable-local-file-access": None
+<<<<<<< HEAD
                     
                    }
         
         path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin/wkhtmltopdf.exe'
+=======
+                    }
+        path_wkthmltopdf = wkhtmltopdf_path
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
 
         config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
 
-        for DNI in df_complete["DNI_evaluado"].unique():
+        for DNI in df_complete["DNI_evaluado"].head().unique():
             #sleep(5)
             df_complete["DNI_evaluado"]  = df_complete["DNI_evaluado"].astype(str)
             df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == str(DNI)]
@@ -387,26 +449,50 @@ def final_page():
                     radar_name = "radar_" + str(DNI) + ".png"
                     line_name = "line_" + str(DNI) + ".png"
 
+<<<<<<< HEAD
                     radar.write_image("static/tmp/" + radar_name)
                     line.write_image("static/tmp/" + line_name)
+=======
+                    radar.write_image(path + "/static/tmp/" + radar_name)
+                    line.write_image(path + "/static/tmp/" + line_name)
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
 
                     dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,str(DNI))
-                    dfs_show_coll_html = [x.to_html(classes='data') for x in dfs_show_coll]
+                    dfs_show_coll_html = [x.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
                     dfs_cols = [x.columns.values for x in dfs_show_coll]
                     #for i in dfs_show_coll:
                         #print(len(i))
                     #return "hola"
+<<<<<<< HEAD
                     render = render_template("coll_results_html_download.html", radar_name = "D:/Proyectos/Freelance/Crosland/Produccion/Crosland_auto360/static/tmp/" + radar_name,
                                             line_name = "D:/Proyectos/Freelance/Crosland/Produccion/Crosland_auto360/static/tmp/" + line_name, tables=dfs_show_coll_html,
                                             titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
                     #print(DNI, len())
                     pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css="D:/Proyectos/Freelance/Crosland/Produccion/Crosland_auto360/static/css.css")
+=======
+                    css_path = path + "\static\css_colab_results.css"
+                    render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,
+                                            titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
+                    #print(DNI, len())
+                    pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=path + "/static/css.css")
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
 
                 except:
                     render = render_template("no_results.html")
                     pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
 
-        return render_template('final_html.html')
+
+        return excel.make_response_from_array(list(df_users_passwords.values), "csv", file_name="users_passwords")#, render_template('final_html.html')
+
+@app.route("/download_users_passwords", methods=["GET", "POST"])
+#En esta función se guarda el nuevo DF completo, se sube a donde lo lee el Power BI y se generan + envían los PDFs
+def download_users_passwords():
+    try: df_users_passwords = pd.read_csv("data/df_users_passwords.csv")
+    except: df_users_passwords = pd.DataFrame()
+
+    return excel.make_response_from_array(list(df_users_passwords.values), "csv", file_name="users_passwords")
+
 
 if __name__ == "__main__":
+    excel.init_excel(app)
     app.run(debug=False)

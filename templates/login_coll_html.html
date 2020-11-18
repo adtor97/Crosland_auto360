@@ -12,7 +12,7 @@
 
 <div class="container">
   <div class="heading">
-    <form action="/coll_results"  method="POST">
+    <form action="/coll_results"  method="POST" onsubmit="coll_login_button.disabled = true; return true;">
       <h2 class="form__title">Login 360° | Colaborador</h2>
       <div class="form__input-group">
         <input type="text" class="form__input" name = "DNI" placeholder="DNI">
@@ -22,7 +22,7 @@
           <input type="password" class="form__input" name = "password" placeholder="Contraseña">
         </div>
 
-        <button type="submit" class="float">Ver mis resultados</button>
+        <button type="submit" class="float" name="coll_login_button">Ver mis resultados</button>
 
         <h3 class="form__title">¿Aún no creas tu contraseña?</h3>
         <p class="form__text">

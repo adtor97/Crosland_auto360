@@ -197,6 +197,7 @@ td,th {
   text-decoration: none;
   cursor: pointer;
 }
+<<<<<<< HEAD
 
 .title_tables{
     background: #F7F7F7;
@@ -207,3 +208,5 @@ td,th {
     font-weight: bold;
     margin-top: 3rem;
 }
+=======
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0

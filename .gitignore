@@ -2,4 +2,7 @@
 old_data/
 testing_codes/
 google-credentials.json
-PDFs/
+<<<<<<< HEAD
+=======
+static/tmp/
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0

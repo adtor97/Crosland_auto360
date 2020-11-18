@@ -10,12 +10,12 @@
     </div>
 
     <div class="form">
-    <form action="/login_admin"  method="GET">
-      <button type="submit" class="float">Administrador</button>
+    <form action="/login_admin"  method="GET"  onsubmit="admin_button.disabled = true; return true;">
+      <button type="submit" class="float" name="admin_button">Administrador</button>
     </form>
     <br>
-    <form action="/login_coll"  method="GET">
-      <button type="submit" class="float">Colaborador</button>
+    <form action="/login_coll"  method="GET" onsubmit="coll_button.disabled = true; return true;">
+      <button type="submit" class="float" name="coll_button">Colaborador</button>
     </form>
     </div>
     </div>

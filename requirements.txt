@@ -13,3 +13,4 @@ itsdangerous
 redis
 rq
 requests
+Flask-Excel

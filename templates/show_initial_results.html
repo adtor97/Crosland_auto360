@@ -20,22 +20,37 @@
       </div>
     </div>
 
-
+<div style="margin-top: 7%;">
     <h4>Ahora revisa el formato del dataset final</h4>
 
-    {% for table in tables %}
+    {% for table in tables1 %}
               {{ table|safe }}
     {% endfor %}
+
+    <h4>Por acá están las columnas que no coinciden con los datos anteriores</h4>
+
+    {% for table in tables2 %}
+              {{ table|safe }}
+    {% endfor %}
+
+    {% for table in tables3 %}
+              {{ table|safe }}
+    {% endfor %}
+</div>
 
 
 <div class="container">
   <div class="form__input-group">
-    <form action="/final"  method="POST">
+    <form action="/final"  method="POST" onsubmit="update_button.disabled = true; return true;">
       <h3 class="form__title-warning">⚠ Lee Cuidadosamente</h3>
       <p class="form_sub-title">En caso este seguro de que no hay ningún error en el procesamiento y desee realmente actualizar estos resultados a la base de datos principal haga click en
       "ACTUALIZAR" <strong>-- Esta acción no es reversible --</strong> , en caso contrario de click en "VEO ALGO RARO" para volver a procesar los archivos.</p>
+<<<<<<< HEAD
       <button id="buttom_process" type="submit" onclick="this.form.submit();process_once();" class="float_result">Actualizar</button>
       <p id="msg"></p>
+=======
+      <button type="submit" class="float_result" name="update_button">Actualizar</button>
+>>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
     </form>
   </div>
 
