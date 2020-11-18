@@ -15,7 +15,7 @@
 <body>
 <div class="container">
   <div class="heading">
-    <form class= "form"  action="/action_admin"  method="POST">
+    <form class= "form"  action="/action_admin"  method="POST" onsubmit="admin_login_button.disabled = true; return true;">
     <h1 class="form__title">Login 360° | Admin</h1>
 
       <div class="form__input-group">
@@ -28,7 +28,7 @@
         <input type="password" class="form__input" name = "password" placeholder="Contraseña">
       </div>
 
-      <button type="submit" class="float">Iniciar sesión</button>
+      <button type="submit" class="float" name="admin_login_button">Iniciar sesión</button>
 
       </form>
  		</div>

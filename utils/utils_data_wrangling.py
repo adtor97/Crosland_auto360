@@ -548,9 +548,13 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
 
     #df_feedback[columna_dni] = df_feedback[columna_dni].astype(str)
     print("feedback total len: ", len(df_feedback))
-    df_feedback_personal = df_feedback[df_feedback[columna_dni].astype(float)==float(dni)]
-    print("feedback len: ", len(df_feedback_personal))
+    df_feedback[columna_dni] = df_feedback[columna_dni].astype(str).astype(float)
+    df_feedback_personal = df_feedback[df_feedback[columna_dni]==float(str(dni))].copy()
     df_feedback_personal = df_feedback_personal[["feedback"]]
+    print("feedback len: ", len(df_feedback_personal))
+    df_feedback_personal.reset_index(drop=True, inplace=True)
+    #print("feedback len: ", len(df_feedback_personal))
+
     #df_feedback_personal = df_feedback_personal[df_feedback_personal['Periodo'].isin(last_q)]
 
     df_evaluaciones_persona = df_evaluaciones_persona.drop_duplicates(subset=['evaluados'],keep='first')
@@ -560,6 +564,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #df_autoev[columna_dni] = df_autoev['DNI_evaluador'].astype(int).astype(str)
     df_autoev_personal = df_autoev[df_autoev['DNI_evaluador']==float(dni)]
     df_autoev_personal = df_autoev_personal[["Periodo", "value", "Pilar"]]
+    df_autoev_personal.reset_index(drop=True, inplace=True)
     #df_autoev_personal = df_autoev_personal[df_autoev_personal['Periodo'].isin(last_q)]
     '''
 
@@ -570,3 +575,10 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
 
     '''
     return table_score,table_score_by_nivocu,df_feedback_personal,df_autoev_personal
+
+def build_password_df(DNIs):
+    print(DNIs)
+    df_dnis = pd.DataFrame(DNIs, columns = ["DNIs"])
+    print(df_dnis)
+    df_dnis["password"] = df_dnis["DNIs"].apply(tokenizar)
+    return df_dnis

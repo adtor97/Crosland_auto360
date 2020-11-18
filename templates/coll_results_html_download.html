@@ -1,5 +1,5 @@
 {% block stylesheet %}
-    <link rel="stylesheet" type="text/css"  href="C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/static/css.css"/>
+    <link rel="stylesheet" type="text/css"  href="{{ css_path }}"/>
 {% endblock stylesheet %}
 
 <head>
@@ -8,25 +8,19 @@
 </head>
 
 <body>
+
+
+
   <div class="heading" style="text-align: center">
-    <h2>Tus resultados de la 360</h2>
+    <h1>Tus resultados de la 360</h1>
   </div>
 
-
-<div style="width: 100%;align-items:center;">
-    <div class="img" style="height: 60%; width: 45%; display: inline-block;margin:auto;">
-      <img src="{{ radar_name }}"  alt="radar_coll">
-
-    </div>
-    <div class="img" style="height: 60%; width: 45%; display: inline-block;margin:auto;">
-      <img src="{{ line_name }}" alt="line_coll">
-    </div>
-</div>
-
+<div class="tables_result">
 
   {% for table in tables %}
-  {{ titles[loop.index] }}
+  <h3>{{ titles[loop.index] }}</h3>
   {{ table|safe }}
   {% endfor %}
+</div>
 
 </body>

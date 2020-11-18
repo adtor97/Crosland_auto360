@@ -28,11 +28,11 @@ body{
     border-radius: var(--border-radius);
     background: rgba(255,255,255, 0.85);
 }
-.container-panel{
+.   -panel{
 
-    width: 80%;
+    width: 90%;
 		display: flex;
-    max-width: 80%;
+    max-width: 90%;
     margin:3rem;
 		margin-top: 1rem;
 		margin-bottom: 1rem;

@@ -1,5 +1,5 @@
 {% block stylesheet %}
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_colab_results.css') }}"/>
 {% endblock stylesheet %}
 
 <head>
@@ -8,25 +8,76 @@
 </head>
 
 <body>
+
+
+
   <div class="heading" style="text-align: center">
-    <h2>Tus resultados de la 360</h2>
+    <h1>Tus resultados de la 360</h1>
   </div>
 
 
-<div style="width: 100%;align-items:center;">
-    <div class="img" style="height: 60%; width: 45%; display: inline-block;margin:auto;">
-      <img src="{{ radar_name }}"  alt="radar_coll">
+  <div class="container">
+      <div class="img_dashboard" >
 
-    </div>
-    <div class="img" style="height: 60%; width: 45%; display: inline-block;margin:auto;">
-      <img src="{{ line_name }}" alt="line_coll">
-    </div>
-</div>
+          <div class="img">
+            <h3>Comparativo  & Histórico</h3>
+            <img src="{{ radar_name }}"  alt="radar_coll" style="height: 50%; width: 50%; margin:auto;">
+            <img src="{{ line_name }}" alt="line_coll" style="height: 50%; width: 50%; margin:auto;">
+          </div>
+      </div>
+  </div>
 
+<div class="tables_result">
 
   {% for table in tables %}
-  {{ titles[loop.index] }}
+  <h3>{{ titles[loop.index] }}</h3>
   {{ table|safe }}
   {% endfor %}
+</div>
+<div class="all" id="all">
+
+<div class="modal-content">
+  <span class="close">&times;</span>
+  <h3>Tus resultados 360</h3>
+  <p>Hola Crolandero! En la primera parte verás comparativos rápidos de tu Puntaje respecto a Crosland en general y cómo haz evolucionado..</p>
+  <p>Y en las tablas de abajo podrás ver tu puntaje con mejor detalle, usa está información sabiamente!</p>
+</div>
+
+</div>
+<!-- Modal content -->
+
+
+
+<script>
+// Get the modal
+var modal = document.getElementById("all");
+
+// Get the button that opens the modal
+
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button,   open the modal
+window.onload = function(){
+   setTimeout(display, 1000)
+};
+function display() {
+  modal.style.display = "block";
+}
+
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+</script>
 
 </body>
