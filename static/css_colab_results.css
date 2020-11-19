@@ -50,12 +50,10 @@ h1{
     align-items: center;
     width: 1000px;
     max-width: 1000px;
-    margin:auto;
-		margin-top: 1rem;
+    
 		margin-bottom: 1rem;
     padding: 2rem;
 		padding-bottom: 2rem;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
     border-radius: 6px;
     background: rgba(255,255,255, 0.85);
     text-align: center;
@@ -191,13 +189,14 @@ td,th {
   font-weight: bold;
 }
 
+
 .close:hover,
 .close:focus {
   color: #000;
   text-decoration: none;
   cursor: pointer;
 }
-<<<<<<< HEAD
+
 
 .title_tables{
     background: #F7F7F7;
@@ -208,5 +207,3 @@ td,th {
     font-weight: bold;
     margin-top: 3rem;
 }
-=======
->>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0

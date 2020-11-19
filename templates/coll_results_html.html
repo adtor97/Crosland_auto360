@@ -9,11 +9,6 @@
 
 <body>
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
   <div class="heading" style="text-align: center">
     <h1>Tus resultados de la 360</h1>
   </div>
@@ -24,13 +19,10 @@
 
           <div class="img">
             <h3>Comparativo  & Histórico</h3>
-<<<<<<< HEAD
-            <img src="{{ radar_name }}"  alt="radar_coll" style=" margin:auto;">
-            <img src="{{ line_name }}" alt="line_coll" style="margin:auto;">
-=======
-            <img src="{{ radar_name }}"  alt="radar_coll" style="height: 50%; width: 50%; margin:auto;">
-            <img src="{{ line_name }}" alt="line_coll" style="height: 50%; width: 50%; margin:auto;">
->>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
+
+              <img src="{{ radar_name }}"  alt="radar_coll" style=" margin:auto;">
+              <img src="{{ line_name }}" alt="line_coll" style="margin:auto;">
+
           </div>
       </div>
   </div>
@@ -38,19 +30,14 @@
 <div class="tables_result">
 
   {% for table in tables %}
-<<<<<<< HEAD
+
   <div class="title_tables">{{ titles[loop.index] }}</div>
   {{ table|safe }}
   {% endfor %}
 </div>
-  <div class="all" id="all">
-=======
-  <h3>{{ titles[loop.index] }}</h3>
-  {{ table|safe }}
-  {% endfor %}
-</div>
+
 <div class="all" id="all">
->>>>>>> 893c275f247ca0ccd2b1165a926b32942ebcc3c0
+
 
 <div class="modal-content">
   <span class="close">&times;</span>
@@ -69,7 +56,6 @@
 var modal = document.getElementById("all");
 
 // Get the button that opens the modal
-
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
