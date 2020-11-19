@@ -1,5 +1,5 @@
 {% block stylesheet %}
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css.css') }}"/>
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_adm.css') }}"/>
 {% endblock stylesheet %}
 
 <head>
@@ -7,12 +7,17 @@
     <title>Resultados anteriores</title>
 </head>
 
-<div class="login">
-  <h3>Descargar PDFs de colaboradores</h3>
+<div class="container">
+ <div class="heading">
+   <div class="login">
+      <h3>Descargar PDFs de colaboradores</h3>
 
- {% for button in buttons %}
-  <form action="/download_action"  method="POST">
-    <button type="submit" class="float" name="Q_button" value={{button}}>{{button}}</button>
-  </form>
- {% endfor %}
- </div>
+     {% for button in buttons %}
+      <form action="/download_action"  method="POST">
+        <button type="submit" class="float" name="Q_button" value={{button}}>{{button}}</button>
+      </form>
+     {% endfor %}
+     </div>
+     <a href="/action_admin" class="form__link">← Panel admin</a>
+  </div>
+</div>

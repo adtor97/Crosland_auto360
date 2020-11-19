@@ -32,8 +32,10 @@ app = Flask(__name__)
 Bootstrap(app)
 
 pd.options.display.float_format = "{:,.2f}".format
-path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
-wkhtmltopdf_path = "C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe"
+path = "D:/Proyectos/Freelance/Crosland/Github - Produccion/Crosland_auto360/"
+wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+#path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
+#wkhtmltopdf_path = "C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
@@ -95,6 +97,13 @@ def action_admin():
             return render_template("fail_login_admin_html.html")
     except:
         return render_template("fail_login_admin_html.html")
+
+@app.route("/dashboard", methods=["GET"])
+def dashboard():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        return render_template("dashboard_html.html")
+    else: return "Inicia sesión"
+
 
 @app.route("/previous_results", methods=["GET"])
 def download_previous_results():
@@ -204,7 +213,7 @@ def coll_results(DNI):
         line.write_image(path + "/static/tmp/" + line_name)
 
         dfs_show_coll = utils_data_wrangling.personal_reporting(df_results,df_feedback,df_autoev,str(session["DNI"]))
-        dfs_show_coll_html = [x.to_html(classes='data') for x in dfs_show_coll]
+        dfs_show_coll_html = [x.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
         dfs_cols = [x.columns.values for x in dfs_show_coll]
         #for i in dfs_show_coll:
             #print(len(i))
@@ -288,7 +297,7 @@ def see_results():
 
             global df_complete
             df_complete = results[0]
-            df_complete = df_complete.drop("DNI_evaluador", axis = 1)
+            #df_complete = df_complete.drop("DNI_evaluador", axis = 1)
             global df_results
             df_results = df_results
             new_columns = [x for x in df_complete.columns if x not in df_results.columns]
@@ -296,7 +305,7 @@ def see_results():
             old_columns = [x for x in df_results.columns if x not in df_complete.columns]
             df_old_columns = pd.DataFrame(old_columns, columns = ["Columnas faltantes"])
             df_complete["DNI_evaluado"] = df_complete["DNI_evaluado"].astype(int).astype(str)
-            df_complete_show = df_complete.sample(n=10).reset_index(drop=True)
+            df_complete_show = df_complete.sample(n=10).reset_index(drop=True).drop("DNI_evaluador", axis = 1)
 
             global df_feedback
             df_feedback = results[1]

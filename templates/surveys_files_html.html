@@ -13,46 +13,51 @@
   {% endwith %}
 
 
-<head>
-    {% block stylesheet %}
-        <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_adm.css') }}"/>
-    {% endblock stylesheet %}
-    <meta charset="UTF-8">
-    <title>Subir archivos</title>
-</head>
 
-<body>
+  <head>
+      {% block stylesheet %}
+          <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css_adm.css') }}"/>
+      {% endblock stylesheet %}
+
+      <script type="text/javascript" src="{{ url_for('static', filename='javascript.js')}}"></script>
+
+      <meta charset="UTF-8">
+      <title>Subir archivos</title>
+  </head>
+
+  <body>
 
 
-<div class="container">
-  <div class="heading">
+  <div class="container">
+    <div class="heading">
 
-    <form action="/results"  method="POST"  onsubmit="process_button.disabled = true; return true;" enctype=multipart/form-data>
-      <h2 class="form__title">Sube los archivos correspondientes</h2>
-      <div class="form__input-survey">
-        <label for="file_answers">Suba el CSV o Excel con las respuestas:</label>
-        <input type="file" class="form-control" name = "file_answers">
+      <form action="/results"  method="POST"  onsubmit="process_button.disabled = true; return true;" enctype=multipart/form-data>
+        <h2 class="form__title">Sube los archivos correspondientes</h2>
+        <div class="form__input-survey">
+          <label for="file_answers">Suba el CSV o Excel con las respuestas:</label>
+          <input type="file" class="form-control" name = "file_answers">
+            </div>
+
+          <div class="form__input-survey">
+            <label for="file_answers">Suba el CSV o Excel con los colaboradores:</label>
+            <input type="file" class="form-control" name = "file_collaborators">
           </div>
 
-        <div class="form__input-survey">
-          <label for="file_answers">Suba el CSV o Excel con los colaboradores:</label>
-          <input type="file" class="form-control" name = "file_collaborators">
-        </div>
+          <div class="form__input-group">
+            <label for="file_answers">Ahora ingrese el año y el Q correspondientes</label>
 
-        <div class="form__input-group">
-          <label for="file_answers">Ahora ingrese el año y el Q correspondientes</label>
+            <input type="text" class="form__input" name = "year" placeholder="Año. Ejm: 2020">
+            <input type="text" class="form__input" name = "Q" placeholder="Q. Ejm: Q1">
 
-          <input type="text" class="form__input" name = "year" placeholder="Año. Ejm: 2020">
-          <input type="text" class="form__input" name = "Q" placeholder="Q. Ejm: Q1">
+          </div>
 
-        </div>
 
-        <button type="submit" class="float" name="process_button">Procesar</button>
+          <button type="submit" class="float" onClick="this.form.submit();process_once(); " id="buttom_process">Procesar</button>
+          <p id="msg"></p>
+         </form>
+         <a href="/action_admin" class="form__link">← Panel admin</a>
 
-       </form>
-       <a href="/action_admin" class="form__link">← Panel admin</a>
-
- 		</div>
- </div>
- </body>
- </div>
+   		</div>
+   </div>
+   </body>
+   </div>
