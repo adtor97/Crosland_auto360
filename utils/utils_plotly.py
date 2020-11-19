@@ -58,7 +58,7 @@ def build_lines_coll(df_coll):
 
     df_pilares_grouped = df_coll.groupby(["Pilar", "Periodo"], as_index = False).mean()
     df_coll = df_coll.groupby("Periodo", as_index = False).mean()
-    print(df_pilares_grouped)
+    #print(df_pilares_grouped)
     df_pilares_grouped = df_pilares_grouped.sort_values("Periodo").reset_index(drop=True)
 
     fig = go.Figure()

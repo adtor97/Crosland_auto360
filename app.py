@@ -131,9 +131,7 @@ def download_action():
 def login_coll():
     global df_users
     try:
-        #df_users = q.enqueue(utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users")), 'https://auto360.herokuapp.com/')
-        df_users = utils_google.read_ws_data(utils_google.open_ws("Crosland_data_master", "users"))
-        df_users["DNI"] = df_users["DNI"].astype("str")
+        df_users = pd.read_csv("data/df_users_passwords.csv")
     except:
         df_users = pd.DataFrame()
     #print(len(df_users))
@@ -144,15 +142,15 @@ def coll_results_redirect():
 
     if request.method == 'POST':
         try:
-            DNI = str(int(request.form["DNI"]))
+            DNI = int(request.form["DNI"])
         except:
             DNI = str(request.form["DNI"])
         password = str(request.form["password"])
 
-        session["DNI"] = DNI
+        session["DNI"] = int(DNI)
         session["password_coll"] = password
-
-        df_user  = df_users.loc[(df_users["DNI"] == DNI) & (df_users["password"] == password)]
+        #print(df_users.password)
+        df_user  = df_users.loc[(df_users["DNI"].astype(int) == DNI) & (df_users["password"] == password)]
 
         if len(df_user) == 0:
             return render_template("fail_login_coll_html.html")
@@ -166,6 +164,7 @@ def coll_results_redirect():
 
 @app.route("/coll_results/<DNI>", methods=["POST"])
 def coll_results(DNI):
+    DNI = int(DNI)
     try:
         df_results = pd.read_csv("data/df_results.csv")
     except:
@@ -184,10 +183,11 @@ def coll_results(DNI):
     else:
         pass
     #print(df_results.columns)
-    df_results["DNI_evaluado"]  = df_results["DNI_evaluado"].astype(str)
-    df_results_DNI = df_results.loc[df_results["DNI_evaluado"] == str(DNI)]
-
-    df_autoev_DNI = df_autoev.loc[df_autoev["DNI_evaluador"] == str(DNI)]
+    df_results["DNI_evaluado"]  = df_results["DNI_evaluado"].astype(int).values
+    #print("df_results", len(df_results))
+    df_results_DNI = df_results.loc[df_results["DNI_evaluado"] == int(DNI)]
+    #print("df_results_DNI", len(df_results_DNI))
+    df_autoev_DNI = df_autoev.loc[df_autoev["DNI_evaluador"] == int(DNI)]
 
     if (len(df_results_DNI) == 0):
         return render_template("fail_login_coll_html.html")
@@ -354,12 +354,13 @@ def final_page():
         df_feedback = df_feedback
         global df_auto
         df_auto = df_auto
-
+        #print(df_complete)
         df_new = utils_data_wrangling.update(df_complete, "data/df_results.csv")
-        print(df_new)
-        DNIs = [str(int(float(x))) for x in df_new.DNI_evaluado.unique()]
+        #print(df_new)
+        DNIs = [int(x) for x in df_complete.DNI_evaluado.unique()]
         df_users_passwords = utils_data_wrangling.build_password_df(DNIs)
         df_complete = df_new.loc[df_new["Periodo"]<=Periodo]
+        df_complete["DNI_evaluado"]  = df_complete["DNI_evaluado"].astype(int)
         #print(df_users_passwords)
         df_users_passwords.to_csv("data/df_users_passwords.csv", encoding='utf-8', index = False)
         #df_users_passwords = df_users_passwords.to_csv(index = False)
@@ -367,9 +368,10 @@ def final_page():
         #resp_df_users_passwords.headers["Content-Disposition"] = "attachment; filename=export.csv"
         #resp_df_users_passwords.headers["Content-Type"] = "text/csv"
 
-        print("saved users pass")
+        #print("saved users pass")
         df_new_feedback = utils_data_wrangling.update(df_feedback, "data/df_feedback.csv")
         df_feedback = df_new_feedback.loc[df_new_feedback["Periodo"]<=Periodo]
+        df_auto["DNI_evaluador"] = df_auto["DNI_evaluador"].astype(int)
         #df_new_feedback.to_csv("data/df_feedback.csv", index = False)
 
         df_new_auto = utils_data_wrangling.update(df_auto, "data/df_auto.csv")
@@ -383,30 +385,38 @@ def final_page():
 
         config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
 
-        for DNI in df_complete["DNI_evaluado"].head().unique():
+        i = 0
+        print(len(DNIs))
+        for DNI in DNIs:
+            i+=1
+            print(DNI, i)
             #sleep(5)
-            df_complete["DNI_evaluado"]  = df_complete["DNI_evaluado"].astype(str)
-            df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == str(DNI)]
 
-            df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == str(DNI)]
+            df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == int(DNI)]
+
+
+            df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == int(DNI)]
 
             if (len(df_complete_DNI) == 0):
+                print("no results 1")
                 render = render_template("no_results.html")
                 pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
 
             else:
                 try:
 
-                    radar = utils_plotly.build_radar_coll(df_new[["Pilar", "value"]], df_complete_DNI[["Pilar", "value"]], df_auto_DNI[["Pilar", "value"]])
-                    line = utils_plotly.build_lines_coll(df_complete_DNI[["Pilar", "value", "Periodo"]])
+                    #radar = utils_plotly.build_radar_coll(df_new[["Pilar", "value"]], df_complete_DNI[["Pilar", "value"]], df_auto_DNI[["Pilar", "value"]])
+                    #line = utils_plotly.build_lines_coll(df_complete_DNI[["Pilar", "value", "Periodo"]])
 
-                    radar_name = "radar_" + str(DNI) + ".png"
-                    line_name = "line_" + str(DNI) + ".png"
+                    #radar_name = "radar_" + str(DNI) + ".png"
+                    #line_name = "line_" + str(DNI) + ".png"
 
-                    radar.write_image(path + "/static/tmp/" + radar_name)
-                    line.write_image(path + "/static/tmp/" + line_name)
+                    #radar.write_image(path + "/static/tmp/" + radar_name)
+                    #line.write_image(path + "/static/tmp/" + line_name)
 
-                    dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,str(DNI))
+                    dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
+                    for dff in dfs_show_coll: print(len(dff))
+                    #print(dfs_show_coll)
                     dfs_show_coll_html = [x.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
                     dfs_cols = [x.columns.values for x in dfs_show_coll]
                     #for i in dfs_show_coll:
@@ -419,11 +429,25 @@ def final_page():
                     pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=path + "/static/css.css")
 
                 except:
+                    print("no results 2")
                     render = render_template("no_results.html")
                     pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
 
 
-        return excel.make_response_from_array(list(df_users_passwords.values), "csv", file_name="users_passwords")#, render_template('final_html.html')
+        global df_results
+        df_results = pd.read_csv("data/df_results.csv")
+
+        global df_feedback_old
+        df_feedback_old = pd.read_csv("data/df_feedback.csv")
+
+        global df_auto_old
+        df_auto_old = pd.read_csv("data/df_auto.csv")
+
+        global Qs
+        Qs = list(df_results.Periodo.unique())
+        Qs.sort()
+
+        return render_template('final_html.html')
 
 @app.route("/download_users_passwords", methods=["GET", "POST"])
 #En esta función se guarda el nuevo DF completo, se sube a donde lo lee el Power BI y se generan + envían los PDFs
