@@ -120,7 +120,7 @@ def download_action():
         Q = request.form["Q_button"]
         file_path = path + "/PDFs/" + Q
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        fileName = "my_data_dump_{}.zip".format(timestr)
+        fileName = "reportes_360_{}.zip".format(timestr)
         memory_file = io.BytesIO()
 
         with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
