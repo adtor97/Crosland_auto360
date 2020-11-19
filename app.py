@@ -432,7 +432,8 @@ def final_page():
                         #print(len(i))
                     #return "hola"
                     css_path = path + "\static\css_colab_results.css"
-                    render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,
+                    logo_path = path + "\static\pictures\crosland.png"
+                    render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                             titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
                     #print(DNI, len())
                     pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=path + "/static/css.css")
