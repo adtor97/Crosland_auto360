@@ -31,11 +31,26 @@ body{
 
 
 h1{
-    background: #ffffff;
+    background-color: #0453a4;
+    color: #ffffff;
     width:100%;
     padding: 20px;
+    margin: 20px;
+    border-radius: 5px;
 }
 
+.logo{
+  border-top-left-radius: 50% 50%;
+  border-top-right-radius: 50% 50%;
+  border-bottom-right-radius: 50% 50%;
+  border-bottom-left-radius: 50% 50%;
+  max-width:10%;
+  height:auto;
+  margin-top: -80px;
+  margin-right: -70%;
+  margin-bottom: 25px;
+
+}
 
 #dashboard{
     width:100%;
