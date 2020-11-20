@@ -470,6 +470,36 @@ def download_users_passwords():
     return excel.make_response_from_array(list(df_users_passwords.values), "csv", file_name="users_passwords")
 
 
+@app.route("/download/RcFE9jRH/ukLas/j8n3k", methods=["GET", "POST"])
+#Link de descargar df_results
+def down_results():
+    try: #df_auto = pd.read_csv("data/df_auto.csv")
+        df_auto = pd.read_csv("data/df_results.csv")
+        resp = make_response(df_auto.to_csv(index=False))
+        resp.headers["Content-Disposition"] = "attachment; filename=df_results.csv"
+        resp.headers["Content-Type"] = "text/csv"
+
+    except:pass
+    
+    #return excel.make_response_from_array(list(df_auto.values), "csv", file_name="df_results")
+    return resp
+
+
+@app.route("/download/lWdREEWWOuI/r0j8n3k/j8n3k", methods=["GET", "POST"])
+#Link de descargar df_results
+def down_auto():
+    try: #df_auto = pd.read_csv("data/df_auto.csv")
+        df_auto = pd.read_csv("data/df_auto.csv")
+        resp = make_response(df_auto.to_csv(index=False))
+        resp.headers["Content-Disposition"] = "attachment; filename=df_auto.csv"
+        resp.headers["Content-Type"] = "text/csv"
+
+    except:pass
+    
+    #return excel.make_response_from_array(list(df_auto.values), "csv", file_name="df_results")
+    return resp
+
+
 if __name__ == "__main__":
     excel.init_excel(app)
     app.run(debug=False)
