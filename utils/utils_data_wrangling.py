@@ -118,19 +118,28 @@ def df_split(df_survey):
 
 
     if len(df_autoev.columns)<2:
-        df_autoev.loc[:,"Autoevaluación | Contagiamos pasión: Te atreves a probar cosas nuevas, levantas la mano cuando tienes alguna idea y si crees que puedes generar un impacto positivo, la ejecutas. Estás siempre dispuesto a asumir nuevos retos e impulsas al resto de tus compañeros a que actúen con esa misma motivación.?"] = 0
-        df_autoev.loc[:,"Autoevaluación | Trabajamos juntos: Eres una persona que busca relacionarte con el resto de tus compañeros y siempre estás dispuesto a trabajar en equipo. Respeta a los demás y ves en el logro de uno, el logro de todos."] = 0
-        df_autoev.loc[:,"Autoevaluación | Buscamos la excelencia: Eres una persona que no está contenta solo con cumplir sus objetivos en el tiempo y calidad esperados, sino que intenta siempre ir más allá. Estás dispuesto a aprender nuevas cosas y, desde la posición en la que te encuentras, buscas hacer uso de tus fortalezas para contribuir con la meta de tu equipo y de la empresa. Saca de cada experiencia algún aprendizaje y lo comparte con los demás."] = 0
-        df_autoev.loc[:,"Autoevaluación | Vivimos y disfrutamos: Encuentras el balance entre el trabajo y tus motivaciones personales. Te enfocas en lo positivo de la vida y le transmites ese estado de ánimo a los demás."] = 0
+        df_autoev.loc[:,"Puntaje:Autoevaluación | Contagiamos pasión: Te atreves a probar cosas nuevas, levantas la mano cuando tienes alguna idea y si crees que puedes generar un impacto positivo, la ejecutas. Estás siempre dispuesto a asumir nuevos retos e impulsas al resto de tus compañeros a que actúen con esa misma motivación.?"] = 0
+        df_autoev.loc[:,"Puntaje:Autoevaluación | Trabajamos juntos: Eres una persona que busca relacionarte con el resto de tus compañeros y siempre estás dispuesto a trabajar en equipo. Respeta a los demás y ves en el logro de uno, el logro de todos."] = 0
+        df_autoev.loc[:,"Puntaje:Autoevaluación | Buscamos la excelencia: Eres una persona que no está contenta solo con cumplir sus objetivos en el tiempo y calidad esperados, sino que intenta siempre ir más allá. Estás dispuesto a aprender nuevas cosas y, desde la posición en la que te encuentras, buscas hacer uso de tus fortalezas para contribuir con la meta de tu equipo y de la empresa. Saca de cada experiencia algún aprendizaje y lo comparte con los demás."] = 0
+        df_autoev.loc[:,"Puntaje:Autoevaluación | Vivimos y disfrutamos: Encuentras el balance entre el trabajo y tus motivaciones personales. Te enfocas en lo positivo de la vida y le transmites ese estado de ánimo a los demás."] = 0
     else:
         None
-
+    
     for col in df_autoev.columns[1:]:
-        df_autoev.rename(columns={str(col):str(re.split('[|\-:]+',col)[1].strip())},inplace=True)
+        df_autoev.rename(columns={str(col):str(re.split('[|\-:]+',col)[2].strip())},inplace=True)
 
     df_autoev.rename(columns={str(df_survey.columns[df_survey.columns.str.contains('DNI',regex=True)][0]):'DNI_evaluador'},inplace=True)
     df_autoev = df_autoev.melt(id_vars='DNI_evaluador',var_name='Pilar')
-
+    df_autoev.dropna(inplace=True)
+    
+    #r-scale segun Logica de 2020 Q4
+    df_autoev.loc[df_autoev['value'] == 0,'value'] = 0 #Conversion especial de puntaje vacío
+    df_autoev.loc[df_autoev['value'] == 1,'value'] = 20
+    df_autoev.loc[df_autoev['value'] == 2,'value'] = 40
+    df_autoev.loc[df_autoev['value'] == 3,'value'] = 60
+    df_autoev.loc[df_autoev['value'] == 4,'value'] = 80
+    df_autoev.loc[df_autoev['value'] == 5,'value'] = 100
+    
     # SPLIT ONLY DF SURVEY
     only_col_autoev = df_survey.columns[df_survey.columns.str.contains('Autoevaluación',regex=True)]
     df_survey = df_survey.drop(columns = only_col_autoev)
