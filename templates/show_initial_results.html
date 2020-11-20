@@ -16,11 +16,13 @@
 
     <h3 class="form__title">El promedio general de este Q ha sido {{ prom }}</h3>
 
+    <div class="container">
 
       <div class="img" style="height: 50%; width: 100%; display: block;margin-bottom:15px;align-items:center;">
         <img src="{{ radar_name }}"  alt="radar_Q" style="max-width: 50%; height:auto ;align-items:center;">
       </div>
 
+    </div>
 
 <div style="margin-top: 7%;">
     <h4>Ahora revisa el formato del dataset final</h4>
@@ -47,7 +49,7 @@
       <h3 class="form__title-warning">⚠ Lee Cuidadosamente</h3>
       <p class="form_sub-title">En caso este seguro de que no hay ningún error en el procesamiento y desee realmente actualizar estos resultados a la base de datos principal haga click en
       "ACTUALIZAR" <strong>-- Esta acción no es reversible --</strong> , en caso contrario de click en "VEO ALGO RARO" para volver a procesar los archivos.</p>
-      <button id="buttom_process" type="submit" onclick="this.form.submit();process_once();" class="float_result">Actualizar</button>
+      <button id="buttom_process" type="submit" onclick="this.form.submit();process_once()" class="float_result">Actualizar y Generar Reportes</button>
       <p id="msg"></p>
     </form>
   </div>
@@ -60,5 +62,42 @@
     </div>
      <a href="/action_admin" class="form__link">← Panel admin</a>
 </div>
+
+<div class="all" id="all">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3 class="form__title-warning"> ⚠ Leer atentamene ⚠ </h3>
+        <p>Antes de actualizar, lee el reporte de columnas en la parte inferior, asegurate de corregir las observaciones antes de actualizar.</p>
+        <p>.La acción de "Actualizar y Generar Reportes" demorará varios minutos(hasta 15 min) , los reportes pdf's de todos los colaboradores también son generados en este tiempo.
+           Es importante no cancelar la acción, esto podría generar errores en los resultados y en los reportes.</p>
+        <p>Cuando haya finalizado verás la pagina de Actualización exitosa y podrás descargar los resultados en la página de Reportes así cómo actualizar el dashboard con los últimos resultados</p>
+    </div>
+</div>
+
+
+<script>
+// Get the modal
+var modal = document.getElementById("all");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+window.onload = function(){
+   setTimeout(display, 1000)
+};
+
+function display() {
+  modal.style.display = "block";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+</script>
 
 </body>

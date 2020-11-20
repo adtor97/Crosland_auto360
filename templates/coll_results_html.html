@@ -34,8 +34,9 @@
   {{ table|safe }}
   {% endfor %}
 </div>
-<div class="all" id="all">
 
+<div class="all" id="all">
+<!-- Modal content -->
 <div class="modal-content">
   <span class="close">&times;</span>
   <h3>Tus resultados 360</h3>
@@ -44,7 +45,7 @@
 </div>
 
 </div>
-<!-- Modal content -->
+
 
 
 
@@ -52,16 +53,14 @@
 // Get the modal
 var modal = document.getElementById("all");
 
-// Get the button that opens the modal
-
-
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
-// When the user clicks the button,   open the modal
+// When the user wait
 window.onload = function(){
    setTimeout(display, 1000)
 };
+
 function display() {
   modal.style.display = "block";
 }

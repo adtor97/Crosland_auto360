@@ -348,7 +348,7 @@ def final_page():
     if request.method == 'POST':
 
         year = session["year"]
-        Q = session["Q"]
+        Q = session["Q"]        
         Periodo = str(session["year"]) + "-" + session["Q"]
 
         Periodo_path = path + "/PDFs/"+Periodo
@@ -394,7 +394,7 @@ def final_page():
         path_wkthmltopdf = wkhtmltopdf_path
 
         config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-
+        
         i = 0
         print(len(DNIs))
         for DNI in DNIs:
