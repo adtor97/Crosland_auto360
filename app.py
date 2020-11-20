@@ -208,11 +208,12 @@ def coll_results(DNI):
 
         radar_name = "radar_" + str(DNI) + ".png"
         line_name = "line_" + str(DNI) + ".png"
-
+        
         radar.write_image(path + "/static/tmp/" + radar_name)
         line.write_image(path + "/static/tmp/" + line_name)
 
         dfs_show_coll = utils_data_wrangling.personal_reporting(df_results,df_feedback,df_autoev,str(session["DNI"]))
+        dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
         dfs_show_coll_html = [x.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
         dfs_cols = [x.columns.values for x in dfs_show_coll]
         #for i in dfs_show_coll:
@@ -424,6 +425,7 @@ def final_page():
                     #line.write_image(path + "/static/tmp/" + line_name)
 
                     dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
+                    dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
                     for dff in dfs_show_coll: print(len(dff))
                     #print(dfs_show_coll)
                     dfs_show_coll_html = [x.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]

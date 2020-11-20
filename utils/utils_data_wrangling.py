@@ -474,12 +474,14 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     '''
     return [df_evaluaciones, table_feedback]
 
+
 def validation_Q(df, year , Q):
     Periodo = str(year)+'-'+str(Q)
     if Periodo in list(df.Periodo):
         return True
     else:
         return False
+
 
 def update(df_new, df_master_path):
     year    = int(df_new.year.unique()[0])
@@ -526,7 +528,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_evaluaciones[columna_dni] = df_evaluaciones[columna_dni].astype(int)
     df_evaluaciones_persona = df_evaluaciones[df_evaluaciones[columna_dni]==dni].copy()
     #print(df_evaluaciones_persona, len(df_evaluaciones_persona))
-    #print(len(df_evaluaciones_persona))
+    
     table_score = df_evaluaciones_persona.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
     #print(table_score, len(table_score))
     # Normalizar Nombre de columnas
@@ -546,10 +548,11 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     # Normalizar Nombre de columnas
     table_score_by_nivocu.reset_index(inplace=True)
     table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
+    
     table_score_by_nivocu.rename(columns={'Periodo-':'Periodo','DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)
     table_score_by_nivocu = table_score_by_nivocu[[table_score_by_nivocu.columns[0], table_score_by_nivocu.columns[1], table_score_by_nivocu.columns[2], table_score_by_nivocu.columns[3], table_score_by_nivocu.columns[7], table_score_by_nivocu.columns[4], table_score_by_nivocu.columns[8], table_score_by_nivocu.columns[5], table_score_by_nivocu.columns[9], table_score_by_nivocu.columns[6], table_score_by_nivocu.columns[10]]]
     table_score_by_nivocu = rename_count_mean_columns(table_score_by_nivocu)
-    table_score_by_nivocu = table_score_by_nivocu.rename(columns={"Nivel Ocupacional_evaluado":"Rango"})
+    table_score_by_nivocu = table_score_by_nivocu.rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True)
     try: table_score_by_nivocu.drop(["evaluados"], axis = 1, inplace = True)
     except: pass
     #print("table_score_by_nivocu", len(table_score_by_nivocu))
@@ -600,6 +603,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     '''
     return table_score,table_score_by_nivocu,df_feedback_personal,df_autoev_personal
 
+
 def build_password_df(DNIs):
     #print(DNIs)
     df_dnis = pd.DataFrame(DNIs, columns = ["DNI"])
@@ -614,11 +618,13 @@ def rename_count_mean_columns(df):
     #print("rename_count_mean_columns")
     mean_columns = [x for x in df.columns if "mean" in x]
     count_columns = [x for x in df.columns if "count" in x]
-
+    nivocu_columns = [x for x in df.columns if "Nivel Ocupacional_evaluador-" in x]
+    
     new_mean_columns = [x.replace("mean-", "") for x in mean_columns]
     new_count_columns = ["#" for x in count_columns]
+    new_nivocu_columns = [x.replace("Nivel Ocupacional_evaluador-","Rango") for x in nivocu_columns]
 
-    zip_dict_columns = zip(mean_columns+count_columns, new_mean_columns+new_count_columns)
+    zip_dict_columns = zip(mean_columns+count_columns+nivocu_columns, new_mean_columns+new_count_columns+new_nivocu_columns)
     dict_columns = dict(zip_dict_columns)
     #print(dict_columns)
 
