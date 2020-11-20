@@ -172,7 +172,9 @@ td,th {
 
 }
 
-
+table.tbl tr td:first-child {
+  display: none;
+}
  /* POP UP */
 
 .all {
