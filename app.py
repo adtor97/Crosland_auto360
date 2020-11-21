@@ -32,8 +32,8 @@ app = Flask(__name__)
 Bootstrap(app)
 
 pd.options.display.float_format = "{:,.2f}".format
-path = "D:/Proyectos/Freelance/Crosland/Github - Produccion/Crosland_auto360/"
-wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+path = os.environ['path']
+wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
 #path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
 #wkhtmltopdf_path = "C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
@@ -208,7 +208,7 @@ def coll_results(DNI):
 
         radar_name = "radar_" + str(DNI) + ".png"
         line_name = "line_" + str(DNI) + ".png"
-        
+
         radar.write_image(path + "/static/tmp/" + radar_name)
         line.write_image(path + "/static/tmp/" + line_name)
 
@@ -348,7 +348,7 @@ def final_page():
     if request.method == 'POST':
 
         year = session["year"]
-        Q = session["Q"]        
+        Q = session["Q"]
         Periodo = str(session["year"]) + "-" + session["Q"]
 
         Periodo_path = path + "/PDFs/"+Periodo
@@ -394,7 +394,7 @@ def final_page():
         path_wkthmltopdf = wkhtmltopdf_path
 
         config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-        
+
         i = 0
         print(len(DNIs))
         for DNI in DNIs:
@@ -480,7 +480,7 @@ def down_results():
         resp.headers["Content-Type"] = "text/csv"
 
     except:pass
-    
+
     #return excel.make_response_from_array(list(df_auto.values), "csv", file_name="df_results")
     return resp
 
@@ -495,7 +495,7 @@ def down_auto():
         resp.headers["Content-Type"] = "text/csv"
 
     except:pass
-    
+
     #return excel.make_response_from_array(list(df_auto.values), "csv", file_name="df_results")
     return resp
 
