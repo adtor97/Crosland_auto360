@@ -14,3 +14,5 @@ redis
 rq
 requests
 Flask-Excel
+Flask-Bootstrap
+pdfkit
