@@ -275,7 +275,7 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     # CARGA DE BBDD MAMBEROS Y WUF
 
     df_colaboradores.rename(columns={columna_documento_colaboradores:'DNI'},inplace=True)
-    df_colaboradores['DNI'] = df_colaboradores.DNI.astype(str)
+    df_colaboradores['DNI'] = df_colaboradores["DNI"].astype(str)
 
     #Eliminamos filas con contenido vacio
     df_colaboradores.drop(df_colaboradores[df_colaboradores.DNI.isnull()].index, inplace = True)
