@@ -33,10 +33,10 @@ app = Flask(__name__)
 Bootstrap(app)
 
 pd.options.display.float_format = "{:,.2f}".format
-wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
-path_crosland = os.environ['path_crosland']
-#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
-#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
+#wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
+#path_crosland = os.environ['path_crosland']
+wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
 
 #path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
 #wkhtmltopdf_path = "C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe"
