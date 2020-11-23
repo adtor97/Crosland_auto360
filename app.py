@@ -12,7 +12,7 @@ from datetime import date
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os, io, zipfile, time
-import plotly_express as px
+#import plotly_express as px
 import requests
 from flask_bootstrap import Bootstrap
 import pdfkit
@@ -20,20 +20,24 @@ from time import sleep
 import plotly
 import shutil
 import flask_excel as excel
+import numpy as np
 
 #from rq import Queue
 #from worker import conn
 #from flask_login import LoginManager
 #from requests import request
 
-from utils import utils_google, utils_data_wrangling, utils_plotly, utils_validations
+from utils import utils_data_wrangling, utils_plotly, utils_validations#, utils_google
 
 app = Flask(__name__)
 Bootstrap(app)
 
 pd.options.display.float_format = "{:,.2f}".format
-path_crosland = os.environ['path_crosland']
-wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
+#wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
+#path_crosland = os.environ['path_crosland']
+wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
+
 #path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
 #wkhtmltopdf_path = "C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
@@ -89,6 +93,8 @@ def action_admin():
             session['password'] = request.form["password"]
         except:
             pass
+    else:
+        pass
 
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
@@ -294,9 +300,7 @@ def see_results():
         Periodo = str(session["year"]) + "-" + session["Q"]
 
         try:
-            #results = q.enqueue(utils_data_wrangling.auto360(df_answers, df_coll), 'http://heroku.com')
             dfs_auto_survey = utils_data_wrangling.df_split(df_answers)
-
             global df_auto
             df_auto = utils_data_wrangling.agregar_Q(dfs_auto_survey[0], session["year"], session["Q"])
             df_survey = dfs_auto_survey[1]
@@ -312,7 +316,10 @@ def see_results():
             df_new_columns = pd.DataFrame(new_columns, columns = ["Columnas nuevas"])
             old_columns = [x for x in df_results.columns if x not in df_complete.columns]
             df_old_columns = pd.DataFrame(old_columns, columns = ["Columnas faltantes"])
-            df_complete["DNI_evaluado"] = df_complete["DNI_evaluado"].astype(int).astype(str)
+            print(df_complete["DNI_evaluado"].unique())
+            df_complete.replace([np.inf, -np.inf], np.nan, inplace=True)
+            df_complete = df_complete.dropna(subset=["DNI_evaluado"])
+            df_complete["DNI_evaluado"] = df_complete["DNI_evaluado"].apply(utils_data_wrangling.try_int_str)
             df_complete_show = df_complete.sample(n=10).reset_index(drop=True).drop("DNI_evaluador", axis = 1)
 
             global df_feedback
@@ -324,7 +331,6 @@ def see_results():
             prom = round(df_complete.value.mean(), 2)
             #print("pre radar")
             radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
-
             radar_name = "radar_" + str(Periodo) + ".png"
             radar.write_image(path_crosland + "/static/tmp/" + radar_name)
 
@@ -333,15 +339,15 @@ def see_results():
             #print(df_complete_show.to_html(classes='data'))
 
             return render_template('show_initial_results.html',
-                                    tables1=[df_complete_show.to_html(classes='data')],
-                                    titles1=df_complete_show.columns.values,
-                                    prom = prom,
-                                    radar_name = "/static/tmp/" + radar_name,
-                                    tables2=[df_new_columns.to_html(classes='data')],
-                                    titles2=df_new_columns.columns.values,
-                                    tables3=[df_old_columns.to_html(classes='data')],
-                                    titles3=df_old_columns.columns.values,
-                                    )
+                                                tables1=[df_complete_show.to_html(classes='data')],
+                                                titles1=df_complete_show.columns.values,
+                                                prom = prom,
+                                                radar_name = "/static/tmp/" + radar_name,
+                                                tables2=[df_new_columns.to_html(classes='data')],
+                                                titles2=df_new_columns.columns.values,
+                                                tables3=[df_old_columns.to_html(classes='data')],
+                                                titles3=df_old_columns.columns.values,
+                                                )
 
         except:
             return render_template('fail_data_process.html')
@@ -432,11 +438,13 @@ def final_page():
                     #line.write_image(path + "/static/tmp/" + line_name)
 
                     dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
-                    dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
-                    for dff in dfs_show_coll: print(len(dff))
+                    #print(dfs_show_coll)
+                    #dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
+                    #print(dfs_show_coll[1])
                     #print(dfs_show_coll)
                     dfs_show_coll_html = [x.to_html(classes='data',index=False).replace('border="1"','border="0"') for x in dfs_show_coll]
                     dfs_cols = [x.columns.values for x in dfs_show_coll]
+                    #print(dfs_cols)
                     #for i in dfs_show_coll:
                         #print(len(i))
                     #return "hola"
@@ -445,7 +453,7 @@ def final_page():
                     render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                             titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
                     #print(DNI, len())
-                    pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=path + "/static/css.css")
+                    pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=css_path)
 
                 except:
                     print("no results 2")
@@ -474,7 +482,11 @@ def download_users_passwords():
     try: df_users_passwords = pd.read_csv("data/df_users_passwords.csv")
     except: df_users_passwords = pd.DataFrame()
 
-    return excel.make_response_from_array(list(df_users_passwords.values), "csv", file_name="users_passwords")
+    resp = make_response(df_users_passwords.to_csv(index=False))
+    resp.headers["Content-Disposition"] = "attachment; filename=df_users_passwords.csv"
+    resp.headers["Content-Type"] = "text/csv"
+
+    return resp
 
 
 @app.route("/download/RcFE9jRH/ukLas/j8n3k", methods=["GET", "POST"])
@@ -486,10 +498,12 @@ def down_results():
         resp.headers["Content-Disposition"] = "attachment; filename=df_results.csv"
         resp.headers["Content-Type"] = "text/csv"
 
-    except:pass
+        return resp
+
+    except: return "Error al leer archivo"
 
     #return excel.make_response_from_array(list(df_auto.values), "csv", file_name="df_results")
-    return resp
+
 
 
 @app.route("/download/lWdREEWWOuI/r0j8n3k/j8ndsad3k", methods=["GET", "POST"])
@@ -501,10 +515,12 @@ def down_auto():
         resp.headers["Content-Disposition"] = "attachment; filename=df_auto.csv"
         resp.headers["Content-Type"] = "text/csv"
 
-    except:pass
+        return resp
+
+    except: return "Error al leer archivo"
 
     #return excel.make_response_from_array(list(df_auto.values), "csv", file_name="df_results")
-    return resp
+
 
 
 if __name__ == "__main__":

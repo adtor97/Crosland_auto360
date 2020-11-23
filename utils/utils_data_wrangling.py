@@ -124,14 +124,14 @@ def df_split(df_survey):
         df_autoev.loc[:,"Puntaje:Autoevaluación | Vivimos y disfrutamos: Encuentras el balance entre el trabajo y tus motivaciones personales. Te enfocas en lo positivo de la vida y le transmites ese estado de ánimo a los demás."] = 0
     else:
         None
-    
+
     for col in df_autoev.columns[1:]:
         df_autoev.rename(columns={str(col):str(re.split('[|\-:]+',col)[2].strip())},inplace=True)
 
     df_autoev.rename(columns={str(df_survey.columns[df_survey.columns.str.contains('DNI',regex=True)][0]):'DNI_evaluador'},inplace=True)
     df_autoev = df_autoev.melt(id_vars='DNI_evaluador',var_name='Pilar')
     df_autoev.dropna(inplace=True)
-    
+
     #r-scale segun Logica de 2020 Q4
     df_autoev.loc[df_autoev['value'] == 0,'value'] = 0 #Conversion especial de puntaje vacío
     df_autoev.loc[df_autoev['value'] == 1,'value'] = 20
@@ -139,7 +139,7 @@ def df_split(df_survey):
     df_autoev.loc[df_autoev['value'] == 3,'value'] = 60
     df_autoev.loc[df_autoev['value'] == 4,'value'] = 80
     df_autoev.loc[df_autoev['value'] == 5,'value'] = 100
-    
+
     # SPLIT ONLY DF SURVEY
     only_col_autoev = df_survey.columns[df_survey.columns.str.contains('Autoevaluación',regex=True)]
     df_survey = df_survey.drop(columns = only_col_autoev)
@@ -532,12 +532,13 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     # df_evaluaciones[columna_dni] = df_evaluaciones[columna_dni].astype(float)
 
     dni = int(dni)
+    #print(dni)
     #print(df_evaluaciones[columna_dni])
     #filtramos el df_evaluaciones por dni
-    df_evaluaciones[columna_dni] = df_evaluaciones[columna_dni].astype(int)
+    df_evaluaciones[columna_dni] = df_evaluaciones[columna_dni].astype(int).values
     df_evaluaciones_persona = df_evaluaciones[df_evaluaciones[columna_dni]==dni].copy()
     #print(df_evaluaciones_persona, len(df_evaluaciones_persona))
-    
+
     table_score = df_evaluaciones_persona.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
     #print(table_score, len(table_score))
     # Normalizar Nombre de columnas
@@ -557,11 +558,15 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     # Normalizar Nombre de columnas
     table_score_by_nivocu.reset_index(inplace=True)
     table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
-    
+    #print("table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]")
+
     table_score_by_nivocu.rename(columns={'Periodo-':'Periodo','DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)
+    #print("table_score_by_nivocu.rename(columns={'Periodo-':'Periodo','DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)")
     table_score_by_nivocu = table_score_by_nivocu[[table_score_by_nivocu.columns[0], table_score_by_nivocu.columns[1], table_score_by_nivocu.columns[2], table_score_by_nivocu.columns[3], table_score_by_nivocu.columns[7], table_score_by_nivocu.columns[4], table_score_by_nivocu.columns[8], table_score_by_nivocu.columns[5], table_score_by_nivocu.columns[9], table_score_by_nivocu.columns[6], table_score_by_nivocu.columns[10]]]
+    #print("table_score_by_nivocu = table_score_by_nivocu[[table_score_by_nivocu.columns[0], table_score_by_nivocu.columns[1], table_score_by_nivocu.columns[2], table_score_by_nivocu.columns[3], table_score_by_nivocu.columns[7], table_score_by_nivocu.columns[4], table_score_by_nivocu.columns[8], table_score_by_nivocu.columns[5], table_score_by_nivocu.columns[9], table_score_by_nivocu.columns[6], table_score_by_nivocu.columns[10]]]")
     table_score_by_nivocu = rename_count_mean_columns(table_score_by_nivocu)
-    table_score_by_nivocu = table_score_by_nivocu.rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True)
+    #print("table_score_by_nivocu = rename_count_mean_columns(table_score_by_nivocu)")
+    table_score_by_nivocu.rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True)
     try: table_score_by_nivocu.drop(["evaluados"], axis = 1, inplace = True)
     except: pass
     #print("table_score_by_nivocu", len(table_score_by_nivocu))
@@ -576,11 +581,13 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #print(dni, type(dni))
     #if 40031813 in df_feedback[columna_dni]:print("yes")
     #else: print ("no")
-    df_feedback_personal = df_feedback.loc[df_feedback[columna_dni].values==dni]
-    #print("feedback len: ", len(df_feedback_personal))
+    df_feedback_personal = df_feedback.loc[df_feedback[columna_dni]==int(dni)]
+    #print("feedback len: ", len(df_feedback))
     df_feedback_personal = df_feedback_personal[["feedback"]]
     #print("feedback len: ", len(df_feedback_personal))
     df_feedback_personal.reset_index(drop=True, inplace=True)
+    try: df_feedback_personal = df_feedback_personal[df_feedback_personal.index==df_feedback_personal.index.max()]
+    except: pass
     ##print("feedback len: ", len(df_feedback_personal))
 
     #df_feedback_personal = df_feedback_personal[df_feedback_personal['Periodo'].isin(last_q)]
@@ -594,11 +601,14 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #print(len(df_autoev), df_autoev)
     df_autoev_personal = df_autoev[df_autoev['DNI_evaluador']==int(dni)]
     #print(len(df_autoev_personal), df_autoev_personal)
-    df_autoev_personal = df_autoev_personal[["Periodo", "Pilar", "value"]].pivot(index='Periodo', columns='Pilar', values='value')
-    #print(len(df_autoev_personal), df_autoev_personal)
+    df_autoev_personal = df_autoev_personal[["Periodo", "Pilar", "value"]].pivot_table(index='Periodo', columns='Pilar', values='value', aggfunc='mean')
+    #print("df_autoev_personal = df_autoev_personal[[...]].pivot(index='Periodo', columns='Pilar', values='value')")
     #df_autoev_personal = df_autoev_personal.rename(columns = {"value":"Autoevaluación"})
     df_autoev_personal.reset_index(inplace=True)
+    df_autoev_personal = df_autoev_personal.loc[df_autoev_personal["Periodo"]>="2020-Q4"]
+    #print("df_autoev_personal.reset_index(inplace=True)")
     df_autoev_personal.columns.name = ""
+    #print("df_autoev_personal.columns.name = ''")
     #print(df_autoev_personal.columns.name)
     #df_autoev_personal = df_autoev_personal[df_autoev_personal['Periodo'].isin(last_q)]
     #print("df_autoev_personal", len(df_autoev_personal))
@@ -610,6 +620,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     # table_score_by_nivocu
 
     '''
+    print("final personal_reporting")
     return table_score,table_score_by_nivocu,df_feedback_personal,df_autoev_personal
 
 
@@ -618,7 +629,8 @@ def build_password_df(DNIs):
     df_dnis = pd.DataFrame(DNIs, columns = ["DNI"])
     #print(df_dnis)
     df_dnis["password"] = df_dnis["DNI"].apply(tokenizar)
-    df_dnis["password"] = df_dnis["password"].apply(lambda x: x[:-1])
+    df_dnis["password"] = df_dnis["password"].apply(lambda x: x[1:-1] if x[0].isin(["+", "-", "="]) else x[:-1])
+    df_dnis["password"] = df_dnis["password"]
     #print(df_dnis["password"])
     return df_dnis
 
@@ -628,7 +640,7 @@ def rename_count_mean_columns(df):
     mean_columns = [x for x in df.columns if "mean" in x]
     count_columns = [x for x in df.columns if "count" in x]
     nivocu_columns = [x for x in df.columns if "Nivel Ocupacional_evaluador-" in x]
-    
+
     new_mean_columns = [x.replace("mean-", "") for x in mean_columns]
     new_count_columns = ["#" for x in count_columns]
     new_nivocu_columns = [x.replace("Nivel Ocupacional_evaluador-","Rango") for x in nivocu_columns]
@@ -641,3 +653,9 @@ def rename_count_mean_columns(df):
     #print(df)
     #print("final")
     return df
+
+def try_int_str(x):
+    try: str(int(x))
+    except: str(x)
+
+    return x

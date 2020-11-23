@@ -1,9 +1,12 @@
 # Don't track content of these folders
-old_data/
+old_data/*
 testing_codes/
 google-credentials.json
-static/tmp/
-PDFs/
-tmp/
+static/tmp/*
+PDFs/*
+tmp/*
 .ipynb_checkpoints/
 __pycache__/
+data/*
+utils/__pycache__
+utils/utils_google.py

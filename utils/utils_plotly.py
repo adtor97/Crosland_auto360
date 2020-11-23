@@ -1,6 +1,6 @@
 from plotly import graph_objects as go
 import pandas as pd
-import plotly_express as px
+#import plotly_express as px
 
 
 def build_radar_coll(df_total, df_coll, df_auto):
