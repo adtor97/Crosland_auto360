@@ -299,6 +299,65 @@ def see_results():
 
         Periodo = str(session["year"]) + "-" + session["Q"]
 
+        #Try from here
+        dfs_auto_survey = utils_data_wrangling.df_split(df_answers)
+        global df_auto
+        df_auto = utils_data_wrangling.agregar_Q(dfs_auto_survey[0], session["year"], session["Q"])
+        df_survey = dfs_auto_survey[1]
+
+        results = utils_data_wrangling.auto360(df_survey, df_coll, session["year"], session["Q"])
+
+        global df_complete
+        df_complete = results[0]
+        #df_complete = df_complete.drop("DNI_evaluador", axis = 1)
+        global df_results
+        df_results = df_results
+        new_columns = [x for x in df_complete.columns if x not in df_results.columns]
+        df_new_columns = pd.DataFrame(new_columns, columns = ["Columnas nuevas"])
+        old_columns = [x for x in df_results.columns if x not in df_complete.columns]
+        df_old_columns = pd.DataFrame(old_columns, columns = ["Columnas faltantes"])
+        print(df_complete["DNI_evaluado"].unique())
+        df_complete.replace([np.inf, -np.inf], np.nan, inplace=True)
+        print("df_complete.replace([np.inf, -np.inf], np.nan, inplace=True")
+        df_complete = df_complete.dropna(subset=["DNI_evaluado"])
+        print("df_complete = df_complete.dropna(subset=[DNI_evaluado])")
+        df_complete["DNI_evaluado"] = df_complete["DNI_evaluado"].apply(utils_data_wrangling.try_int_str)
+        print("df_complete[DNI_evaluado] = df_complete[DNI_evaluado].apply(utils_data_wrangling.try_int_str)")
+        df_complete_show = df_complete.sample(n=10).reset_index(drop=True).drop("DNI_evaluador", axis = 1)
+        print("df_complete_show = df_complete.sample(n=10).reset_index(drop=True).drop(DNI_evaluador, axis = 1)")
+        global df_feedback
+        print("global df_feedback")
+        df_feedback = results[1]
+        print("df_feedback = results[1]")
+
+        #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
+        #utils_google.pandas_to_sheets(df_complete, ws_temp)
+
+        prom = round(df_complete.value.mean(), 2)
+        print("prom = round(df_complete.value.mean(), 2)")
+
+        #print("pre radar")
+        radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
+        print("radar = utils_plotly.build_radar_general(df_complete[[Pilar, value]])")
+        radar_name = "radar_" + str(Periodo) + ".png"
+        print("radar_name = radar_ + str(Periodo) + .png")
+        radar.write_image(path_crosland + "/static/tmp/" + radar_name)
+        print("radar.write_image(path_crosland + /static/tmp/ + radar_name)")
+        #print("pre render")
+        #print(df_complete.head())
+        #print(df_complete_show.to_html(classes='data'))
+
+        return render_template('show_initial_results.html',
+                                            tables1=[df_complete_show.to_html(classes='data')],
+                                            titles1=df_complete_show.columns.values,
+                                            prom = prom,
+                                            radar_name = "/static/tmp/" + radar_name,
+                                            tables2=[df_new_columns.to_html(classes='data')],
+                                            titles2=df_new_columns.columns.values,
+                                            tables3=[df_old_columns.to_html(classes='data')],
+                                            titles3=df_old_columns.columns.values,
+                                            )
+
         try:
             dfs_auto_survey = utils_data_wrangling.df_split(df_answers)
             global df_auto
