@@ -20,13 +20,29 @@ body{
 
 
 .container {
+    animation-duration: 3s;
+    animation-name: slidein;
     width: 400px;
     max-width: 400px;
     margin:1rem;
     padding: 2rem;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
     border-radius: var(--border-radius);
-    background: rgba(255,255,255, 0.85);
+    background: rgba(0,0,0, 0.7);\
+    color : rgba(257,257,257);
+}
+
+
+@keyframes slidein {
+  from {
+    margin-left: 100%;
+    width: 400px;
+  }
+
+  to {
+    margin-left: 0%;
+    width: 400px;
+  }
 }
 
 
