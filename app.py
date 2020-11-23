@@ -317,23 +317,32 @@ def see_results():
             old_columns = [x for x in df_results.columns if x not in df_complete.columns]
             df_old_columns = pd.DataFrame(old_columns, columns = ["Columnas faltantes"])
             print(df_complete["DNI_evaluado"].unique())
-            df_complete.replace([np.inf, -np.inf], np.nan, inplace=True)
+            df_complete.replace([np.inf, -np.inf], np.nan, inplace=True
+            print("df_complete.replace([np.inf, -np.inf], np.nan, inplace=True")
             df_complete = df_complete.dropna(subset=["DNI_evaluado"])
+            print("df_complete = df_complete.dropna(subset=[DNI_evaluado])")
             df_complete["DNI_evaluado"] = df_complete["DNI_evaluado"].apply(utils_data_wrangling.try_int_str)
+            print("df_complete[DNI_evaluado] = df_complete[DNI_evaluado].apply(utils_data_wrangling.try_int_str)")
             df_complete_show = df_complete.sample(n=10).reset_index(drop=True).drop("DNI_evaluador", axis = 1)
-
+            print("df_complete_show = df_complete.sample(n=10).reset_index(drop=True).drop(DNI_evaluador, axis = 1)")
             global df_feedback
+            print("global df_feedback")
             df_feedback = results[1]
+            print("df_feedback = results[1]")
 
             #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
             #utils_google.pandas_to_sheets(df_complete, ws_temp)
 
             prom = round(df_complete.value.mean(), 2)
+            print("prom = round(df_complete.value.mean(), 2)")
+
             #print("pre radar")
             radar = utils_plotly.build_radar_general(df_complete[["Pilar", "value"]])
+            print("radar = utils_plotly.build_radar_general(df_complete[[Pilar, value]])")
             radar_name = "radar_" + str(Periodo) + ".png"
+            print("radar_name = radar_ + str(Periodo) + .png")
             radar.write_image(path_crosland + "/static/tmp/" + radar_name)
-
+            print("radar.write_image(path_crosland + /static/tmp/ + radar_name)")
             #print("pre render")
             #print(df_complete.head())
             #print(df_complete_show.to_html(classes='data'))
