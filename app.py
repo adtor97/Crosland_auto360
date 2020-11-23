@@ -360,16 +360,16 @@ def see_results():
 
         try:
             dfs_auto_survey = utils_data_wrangling.df_split(df_answers)
-            global df_auto
+            #global df_auto
             df_auto = utils_data_wrangling.agregar_Q(dfs_auto_survey[0], session["year"], session["Q"])
             df_survey = dfs_auto_survey[1]
 
             results = utils_data_wrangling.auto360(df_survey, df_coll, session["year"], session["Q"])
 
-            global df_complete
+            #global df_complete
             df_complete = results[0]
             #df_complete = df_complete.drop("DNI_evaluador", axis = 1)
-            global df_results
+            #global df_results
             df_results = df_results
             new_columns = [x for x in df_complete.columns if x not in df_results.columns]
             df_new_columns = pd.DataFrame(new_columns, columns = ["Columnas nuevas"])
@@ -384,7 +384,7 @@ def see_results():
             print("df_complete[DNI_evaluado] = df_complete[DNI_evaluado].apply(utils_data_wrangling.try_int_str)")
             df_complete_show = df_complete.sample(n=10).reset_index(drop=True).drop("DNI_evaluador", axis = 1)
             print("df_complete_show = df_complete.sample(n=10).reset_index(drop=True).drop(DNI_evaluador, axis = 1)")
-            global df_feedback
+            #global df_feedback
             print("global df_feedback")
             df_feedback = results[1]
             print("df_feedback = results[1]")
