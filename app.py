@@ -317,7 +317,7 @@ def see_results():
             old_columns = [x for x in df_results.columns if x not in df_complete.columns]
             df_old_columns = pd.DataFrame(old_columns, columns = ["Columnas faltantes"])
             print(df_complete["DNI_evaluado"].unique())
-            df_complete.replace([np.inf, -np.inf], np.nan, inplace=True
+            df_complete.replace([np.inf, -np.inf], np.nan, inplace=True)
             print("df_complete.replace([np.inf, -np.inf], np.nan, inplace=True")
             df_complete = df_complete.dropna(subset=["DNI_evaluado"])
             print("df_complete = df_complete.dropna(subset=[DNI_evaluado])")
