@@ -629,7 +629,7 @@ def build_password_df(DNIs):
     df_dnis = pd.DataFrame(DNIs, columns = ["DNI"])
     #print(df_dnis)
     df_dnis["password"] = df_dnis["DNI"].apply(tokenizar)
-    df_dnis["password"] = df_dnis["password"].apply(lambda x: x[1:-1] if x[0].isin(["+", "-", "="]) else x[:-1])
+    df_dnis["password"] = df_dnis["password"].apply(lambda x: x[1:-1] if x[0] in ["+", "-", "="] else x[:-1])
     df_dnis["password"] = df_dnis["password"]
     #print(df_dnis["password"])
     return df_dnis
