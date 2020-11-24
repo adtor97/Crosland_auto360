@@ -441,24 +441,6 @@ def final_page():
                 pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
 
             else:
-                #Try from here
-                dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
-                #print(dfs_show_coll)
-                #dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
-                #print(dfs_show_coll[1])
-                #print(dfs_show_coll)
-                dfs_show_coll_html = [x.to_html(classes='data',index=False).replace('border="1"','border="0"') for x in dfs_show_coll]
-                dfs_cols = [x.columns.values for x in dfs_show_coll]
-                #print(dfs_cols)
-                #for i in dfs_show_coll:
-                    #print(len(i))
-                #return "hola"
-                css_path = path_crosland + "crosland_app/static/css_colab_results.css"
-                logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
-                render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
-                                        titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
-                #print(DNI, len())
-                pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=css_path)
 
                 try:
 
