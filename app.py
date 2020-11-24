@@ -435,7 +435,7 @@ def final_page():
 
             if (len(df_complete_DNI) == 0):
                 print("no results 1")
-                render = render_template("no_results.html")
+                render = render_template("home_html.html")
                 pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
 
             else:
