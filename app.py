@@ -396,7 +396,8 @@ def final_page():
         df_new = utils_data_wrangling.update(df_complete, "data/df_results.csv")
         #print(df_new)
         DNIs = [int(x) for x in df_complete.DNI_evaluado.unique()]
-        df_users_passwords = utils_data_wrangling.build_password_df(DNIs)
+        DNIs_all = [int(x) for x in df_new.DNI_evaluado.unique()]
+        df_users_passwords = utils_data_wrangling.build_password_df(DNIs_all)
         df_complete = df_new.loc[df_new["Periodo"]<=Periodo]
         df_complete["DNI_evaluado"]  = df_complete["DNI_evaluado"].astype(int)
         #print(df_users_passwords)
