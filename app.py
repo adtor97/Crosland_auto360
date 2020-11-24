@@ -453,8 +453,8 @@ def final_page():
                 #for i in dfs_show_coll:
                     #print(len(i))
                 #return "hola"
-                css_path = path_crosland + "crosland_app\static\css_colab_results.css"
-                logo_path = path_crosland + "crosland_app\static\pictures\crosland.png"
+                css_path = path_crosland + "crosland_app/static/css_colab_results.css"
+                logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
                 render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                         titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
                 #print(DNI, len())
@@ -482,8 +482,8 @@ def final_page():
                     #for i in dfs_show_coll:
                         #print(len(i))
                     #return "hola"
-                    css_path = path_crosland + "crosland_app\static\css_colab_results.css"
-                    logo_path = path_crosland + "crosland_app\static\pictures\crosland.png"
+                    css_path = path_crosland + "crosland_app/static/css_colab_results.css"
+                    logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
                     render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                             titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
                     #print(DNI, len())
