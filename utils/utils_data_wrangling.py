@@ -586,8 +586,8 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_feedback_personal = df_feedback_personal[["feedback"]]
     #print("feedback len: ", len(df_feedback_personal))
     df_feedback_personal.reset_index(drop=True, inplace=True)
-    try: df_feedback_personal = df_feedback_personal[df_feedback_personal.index==df_feedback_personal.index.max()]
-    except: pass
+    #try: df_feedback_personal = df_feedback_personal[df_feedback_personal.index==df_feedback_personal.index.max()]
+    #except: pass
     ##print("feedback len: ", len(df_feedback_personal))
 
     #df_feedback_personal = df_feedback_personal[df_feedback_personal['Periodo'].isin(last_q)]
