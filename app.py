@@ -332,6 +332,8 @@ def see_results():
             global df_feedback
             #print("global df_feedback")
             df_feedback = results[1]
+            df_feedback = df_feedback.dropna(subset=["DNI_evaluado"])
+            df_feedback["DNI_evaluado"] = df_feedback["DNI_evaluado"].apply(utils_data_wrangling.try_int_str)
             #print("df_feedback = results[1]")
 
             #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
