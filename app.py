@@ -37,11 +37,15 @@ app = Flask(__name__)
 Bootstrap(app)
 
 pd.options.display.float_format = "{:,.2f}".format
-wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
-path_crosland = os.environ['path_crosland']
-#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe/"
-#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360/"
+# Env.
+#wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
+#path_crosland = os.environ['path_crosland']
 
+# Local @Cesar
+wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+path_crosland = "D:/Proyectos/Freelance/Crosland/Github - Produccion 2/Crosland_auto360"
+
+# Local @Adrian
 #path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
 #wkhtmltopdf_path = "C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
@@ -506,6 +510,35 @@ def download_users_passwords():
     return resp
 
 
+@app.route("/pdf_tutorial", methods=["GET", "POST"])
+# DESCARGA TUTORIAL PDF
+def pdf_tutorial():
+    try:
+        if utils_validations.validate_admin(session['user'], session['password']):
+            return send_file(path_crosland+"/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
+
+        else:
+            return render_template("fail_login_admin_html.html")
+        
+    except:
+        return "Error al leer archivo/Inicie sesión como administrador"
+
+
+@app.route("/template_pbix", methods=["GET", "POST"])
+# DESCARGA TEMPLATE DASHBOARD_360.pbix
+def template_dashboard_360():
+    try:
+        if utils_validations.validate_admin(session['user'], session['password']):
+            return send_file(path_crosland+"/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
+
+        else:
+            return render_template("fail_login_admin_html.html")
+        
+    except:
+        return "Error al leer archivo/Inicie sesión como administrador"
+
+
+
 @app.route("/download/RcFE9jRH/ukLas/j8n3k", methods=["GET", "POST"])
 #Link de descargar df_results
 def down_results():
@@ -536,7 +569,9 @@ def down_auto():
 
     except: return "Error al leer archivo"
 
-    #return excel.make_response_from_array(list(df_auto.values), "csv", file_name="df_results")
+
+
+
 
 
 
