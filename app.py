@@ -133,7 +133,9 @@ def download_action():
     if utils_validations.validate_admin(session['user'], session['password']):
         try:
             Q = request.form["Q_button"]
-            file_path = path_crosland + "crosland_app/PDFs/" + Q
+            #file_path = path_crosland + "crosland_app/PDFs/" + Q
+            file_path = path_crosland + "/PDFs/" + Q # local_path
+            
             timestr = time.strftime("%Y%m%d-%H%M%S")
             fileName = "reportes_360_{}.zip".format(timestr)
             memory_file = io.BytesIO()
@@ -230,18 +232,26 @@ def coll_results(DNI):
         radar_name = "radar_" + str(DNI) + ".png"
         line_name = "line_" + str(DNI) + ".png"
 
-        radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
-        line.write_image(path_crosland + "crosland_app/static/tmp/" + line_name)
-
+        #radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+        #line.write_image(path_crosland + "crosland_app/static/tmp/" + line_name)
+        
+        radar.write_image(path_crosland + "/static/tmp/" + radar_name)
+        line.write_image(path_crosland + "/static/tmp/" + line_name)
+        
         dfs_show_coll = utils_data_wrangling.personal_reporting(df_results,df_feedback,df_autoev,str(session["DNI"]))
         dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
-        dfs_show_coll_html = [x.to_html(classes='data',index=False).replace('border="1"','border="0"') for x in dfs_show_coll]
+        
+        
+        print(dfs_show_coll)
+        
+        
+        dfs_show_coll_html = [x.set_index(x.columns[0]).T.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
         dfs_cols = [x.columns.values for x in dfs_show_coll]
         #for i in dfs_show_coll:
             #print(len(i))
         #return "hola"
         return render_template("coll_results_html.html", radar_name = "/static/tmp/" + radar_name, line_name = "/static/tmp/" + line_name, tables=dfs_show_coll_html,
-        titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
+        titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
 
 
 @app.route("/surveys", methods=["GET", "POST"])
@@ -351,7 +361,10 @@ def see_results():
             #print("radar = utils_plotly.build_radar_general(df_complete[[Pilar, value]])")
             radar_name = "radar_" + str(Periodo) + ".png"
             #print("radar_name = radar_ + str(Periodo) + .png")
-            radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+            
+            #radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+            radar.write_image(path_crosland + "/static/tmp/" + radar_name) # local_path
+            
             #print("radar.write_image(path_crosland + /static/tmp/ + radar_name)")
             #print("pre render")
             #print(df_complete.head())
@@ -383,8 +396,8 @@ def final_page():
         Q = session["Q"]
         Periodo = str(session["year"]) + "-" + session["Q"]
 
-        Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
-
+        #Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
+        Periodo_path = path_crosland + "/PDFs/"+Periodo # local_path
         try:
             shutil.rmtree(Periodo_path, ignore_errors=True)
         except: pass
@@ -463,16 +476,21 @@ def final_page():
                     #dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
                     #print(dfs_show_coll[1])
                     #print(dfs_show_coll)
-                    dfs_show_coll_html = [x.to_html(classes='data',index=False).replace('border="1"','border="0"') for x in dfs_show_coll]
+                    
+                    dfs_show_coll_html = [x.set_index(x.columns[0]).T.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
                     dfs_cols = [x.columns.values for x in dfs_show_coll]
                     #print(dfs_cols)
                     #for i in dfs_show_coll:
                         #print(len(i))
                     #return "hola"
-                    css_path = path_crosland + "crosland_app/static/css_colab_results.css"
-                    logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
+                    #css_path = path_crosland + "crosland_app/static/css_colab_results.css"
+                    #logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
+                    
+                    css_path = path_crosland + "/static/css_colab_results.css"
+                    logo_path = path_crosland + "/static/pictures/crosland.png"
+                    
                     render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
-                                            titles=["", "Por pilar", "Por nivel ocupacional", "Feedback", "Autoevaluación"])
+                                            titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
                     #print(DNI, len())
                     pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=css_path)
 
@@ -485,12 +503,15 @@ def final_page():
         global df_results
         df_results = pd.read_csv("data/df_results.csv")
 
+
         global df_feedback_old
         df_feedback_old = pd.read_csv("data/df_feedback.csv")
+
 
         global df_auto_old
         df_auto_old = pd.read_csv("data/df_auto.csv")
 
+        
         global Qs
         Qs = list(df_results.Periodo.unique())
         Qs.sort()
@@ -506,7 +527,7 @@ def download_users_passwords():
     resp = make_response(df_users_passwords.to_csv(index=False))
     resp.headers["Content-Disposition"] = "attachment; filename=df_users_passwords.csv"
     resp.headers["Content-Type"] = "text/csv"
-
+    
     return resp
 
 
