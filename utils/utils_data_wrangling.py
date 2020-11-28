@@ -92,7 +92,7 @@ def agregar_Q(df,year,Q):
     df['Q'] = Q
     return df
 
-def last_n_q(df,n=4,columna_periodo='Periodo'):
+def last_n_q(df,n,columna_periodo='Periodo'):
     #Formato periodo Year-Q4
     periodos_activos = df['Periodo'].drop_duplicates(keep='first')
     periodos_activos = periodos_activos.reset_index()
@@ -103,7 +103,7 @@ def last_n_q(df,n=4,columna_periodo='Periodo'):
 
     # Las 'n' Q
 
-    periodos_activos.nlargest(n,['Year','Q'])
+    periodos_activos = periodos_activos.nlargest(n,['Year','Q'])
     periodos_activos['Periodo']=periodos_activos['Year'].astype(str)+'-Q'+periodos_activos['Q'].astype(str)
     periodo_list = periodos_activos['Periodo'].to_list()
 
@@ -132,6 +132,7 @@ def df_split(df_survey):
     df_autoev.dropna(inplace=True)
     
     #r-scale segun Logica de 2020 Q4
+    
     df_autoev.loc[df_autoev['value'] == 0,'value'] = 0 #Conversion especial de puntaje vacío
     df_autoev.loc[df_autoev['value'] == 1,'value'] = 20
     df_autoev.loc[df_autoev['value'] == 2,'value'] = 40
@@ -183,7 +184,7 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     # =============================================================================
     # Periodo: Year-Q, se usa para discriminar la transformacion de las puntuaciones originales.
     #          a pedido de Crosland segun a partir de determinado periodo seria una transformacion diferente.
-
+    
     #Seccion Tratamiento de Respuestas 360
     # df_survey : Es el CSV que arroja Survey Gizmo de la encuesta 360
     # df_colaboradores: es (excel) de colaboradores con sus datos personales
@@ -525,8 +526,10 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #filtramos el df_evaluaciones por dni
     df_evaluaciones[columna_dni] = df_evaluaciones[columna_dni].astype(int).values
     df_evaluaciones_persona = df_evaluaciones[df_evaluaciones[columna_dni]==dni].copy()
+    #MOSTRAMOS LOS ULTIMOS 4 RESULTADOS | n=4.
+    df_evaluaciones_persona = df_evaluaciones_persona.loc[df_evaluaciones_persona['Periodo'].isin(last_n_q(df_evaluaciones_persona,n=4))]
+    
     #print(df_evaluaciones_persona, len(df_evaluaciones_persona))
-
     table_score = df_evaluaciones_persona.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
     #print(table_score, len(table_score))
     # Normalizar Nombre de columnas
@@ -592,13 +595,9 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_autoev_personal = df_autoev_personal.loc[df_autoev_personal["Periodo"]>="2020-Q4"]
     #print("df_autoev_personal.reset_index(inplace=True)")
     df_autoev_personal.columns.name = ""
-    #print("df_autoev_personal.columns.name = ''")
-    #print(df_autoev_personal.columns.name)
-    #df_autoev_personal = df_autoev_personal[df_autoev_personal['Periodo'].isin(last_q)]
-    #print("df_autoev_personal", len(df_autoev_personal))
     
     #Datos Personales
-    df_evaluaciones_persona = df_evaluaciones_persona.head(1)[['DNI_evaluado','Nombre Completo_evaluado','Area_evaluado','Descripción Puesto_evaluado','Periodo']]
+    df_evaluaciones_persona = df_evaluaciones_persona.head(1)[['DNI_evaluado','Nombre Completo_evaluado','Area_evaluado','Descripción Puesto_evaluado']]
     df_evaluaciones_persona.rename(columns={'DNI_evaluado':'DNI','Nombre Completo_evaluado':'Nombre Completo','Area_evaluado':'Area','Descripción Puesto_evaluado':'Puesto'},inplace=True)
     
     #Promedio General por periodo
