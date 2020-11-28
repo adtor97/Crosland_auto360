@@ -198,7 +198,9 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
 
     #Critico
     df_survey = df_survey.loc[df_survey['Status']=='Complete']
-
+    
+    survey=df_survey.copy()
+    
     df_survey = df_survey.iloc[:,19:columns_len]
     df_survey = df_survey.loc[:,~df_survey.columns.str.contains('que has trabajado los últimos tres meses',case=False)]
 
@@ -259,7 +261,8 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
 
     ##print('# DNI unico Evaluadores - pre merge: '+str(len(df_values['DNI_evaluador'].unique())))  # Punto de revision
 
-    df_feedback = df_melt.copy()
+    
+    
 
     # =============================================================================
     # TREATMENT
@@ -426,12 +429,21 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     # =============================================================================
 
     # Treatment Feedbak por Colaborador
-
-    df_feedback= df_feedback[df_feedback['evaluados'].str.contains(r'mejorar')]
-    df_feedback.value = df_feedback.value.astype(str)
-    df_feedback.evaluados = df_melt.evaluados.str.split('¿',expand=True)[0]
-    table_feedback = df_feedback.groupby(['evaluados'])['value'].apply(lambda x: ' | = | '.join(x))
-
+    # Nuevo procesamiento
+    #survey copia del df_survey
+    df_feedback = survey[survey.columns[survey.columns.str.contains('mejorar')]]
+    df_feedback = df_feedback.melt()
+    df_feedback=df_feedback.dropna(axis=0)
+    #split
+    df_feedback.variable = df_feedback.variable.str.split(':|¿|,',expand=True)[0]
+    table_feedback = df_feedback.groupby(['variable'])['value'].apply(lambda x: ' | = | '.join(x))
+    
+    #--------------------
+    #df_feedback= df_feedback[df_feedback['evaluados'].str.contains(r'mejorar')]
+    #df_feedback.value = df_feedback.value.astype(str)
+    #df_feedback.evaluados = df_melt.evaluados.str.split('¿',expand=True)[0]
+    #table_feedback = df_feedback.groupby(['evaluados'])['value'].apply(lambda x: ' | = | '.join(x))
+    #---
     # Convertir el group by to Dataframe
 
     table_feedback = pd.DataFrame({'evaluados':table_feedback.index,'feedback':table_feedback.values})
