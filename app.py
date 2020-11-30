@@ -38,12 +38,12 @@ Bootstrap(app)
 
 pd.options.display.float_format = "{:,.2f}".format
 # Env.
-#wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
-#path_crosland = os.environ['path_crosland']
+wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
+path_crosland = os.environ['path_crosland']
 
 # Local @Cesar
-wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
-path_crosland = "D:/Proyectos/Freelance/Crosland/Github - Produccion 2/Crosland_auto360"
+#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
 
 # Local @Adrian
 #path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
@@ -133,9 +133,9 @@ def download_action():
     if utils_validations.validate_admin(session['user'], session['password']):
         try:
             Q = request.form["Q_button"]
-            #file_path = path_crosland + "crosland_app/PDFs/" + Q
-            file_path = path_crosland + "/PDFs/" + Q # local_path
-            
+            file_path = path_crosland + "crosland_app/PDFs/" + Q
+            #file_path = path_crosland + "/PDFs/" + Q # local_path
+
             timestr = time.strftime("%Y%m%d-%H%M%S")
             fileName = "reportes_360_{}.zip".format(timestr)
             memory_file = io.BytesIO()
@@ -232,19 +232,19 @@ def coll_results(DNI):
         radar_name = "radar_" + str(DNI) + ".png"
         line_name = "line_" + str(DNI) + ".png"
 
-        #radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
-        #line.write_image(path_crosland + "crosland_app/static/tmp/" + line_name)
-        
-        radar.write_image(path_crosland + "/static/tmp/" + radar_name)
-        line.write_image(path_crosland + "/static/tmp/" + line_name)
-        
+        radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+        line.write_image(path_crosland + "crosland_app/static/tmp/" + line_name)
+
+        #radar.write_image(path_crosland + "/static/tmp/" + radar_name)
+        #line.write_image(path_crosland + "/static/tmp/" + line_name)
+
         dfs_show_coll = utils_data_wrangling.personal_reporting(df_results,df_feedback,df_autoev,str(session["DNI"]))
         dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
-        
-        
+
+
         print(dfs_show_coll)
-        
-        
+
+
         dfs_show_coll_html = [x.set_index(x.columns[0]).T.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
         dfs_cols = [x.columns.values for x in dfs_show_coll]
         #for i in dfs_show_coll:
@@ -361,10 +361,10 @@ def see_results():
             #print("radar = utils_plotly.build_radar_general(df_complete[[Pilar, value]])")
             radar_name = "radar_" + str(Periodo) + ".png"
             #print("radar_name = radar_ + str(Periodo) + .png")
-            
-            #radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
-            radar.write_image(path_crosland + "/static/tmp/" + radar_name) # local_path
-            
+
+            radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+            #radar.write_image(path_crosland + "/static/tmp/" + radar_name) # local_path
+
             #print("radar.write_image(path_crosland + /static/tmp/ + radar_name)")
             #print("pre render")
             #print(df_complete.head())
@@ -396,8 +396,8 @@ def final_page():
         Q = session["Q"]
         Periodo = str(session["year"]) + "-" + session["Q"]
 
-        #Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
-        Periodo_path = path_crosland + "/PDFs/"+Periodo # local_path
+        Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
+        #Periodo_path = path_crosland + "/PDFs/"+Periodo # local_path
         try:
             shutil.rmtree(Periodo_path, ignore_errors=True)
         except: pass
@@ -476,20 +476,20 @@ def final_page():
                     #dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
                     #print(dfs_show_coll[1])
                     #print(dfs_show_coll)
-                    
+
                     dfs_show_coll_html = [x.set_index(x.columns[0]).T.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
                     dfs_cols = [x.columns.values for x in dfs_show_coll]
                     #print(dfs_cols)
                     #for i in dfs_show_coll:
                         #print(len(i))
                     #return "hola"
-                    
-                    #css_path = path_crosland + "crosland_app/static/css_colab_results.css"
-                    #logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
-                    
-                    css_path = path_crosland + "/static/css_colab_results.css"
-                    logo_path = path_crosland + "/static/pictures/crosland.png"
-                    
+
+                    css_path = path_crosland + "crosland_app/static/css_colab_results.css"
+                    logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
+
+                    #css_path = path_crosland + "/static/css_colab_results.css"
+                    #logo_path = path_crosland + "/static/pictures/crosland.png"
+
                     render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                             titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
                     #print(DNI, len())
@@ -512,7 +512,7 @@ def final_page():
         global df_auto_old
         df_auto_old = pd.read_csv("data/df_auto.csv")
 
-        
+
         global Qs
         Qs = list(df_results.Periodo.unique())
         Qs.sort()
@@ -528,7 +528,7 @@ def download_users_passwords():
     resp = make_response(df_users_passwords.to_csv(index=False))
     resp.headers["Content-Disposition"] = "attachment; filename=df_users_passwords.csv"
     resp.headers["Content-Type"] = "text/csv"
-    
+
     return resp
 
 
@@ -537,11 +537,11 @@ def download_users_passwords():
 def pdf_tutorial():
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
-            return send_file(path_crosland+"/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
+            return send_file(path_crosland+"crosland_app/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
 
         else:
             return render_template("fail_login_admin_html.html")
-        
+
     except:
         return "Error al leer archivo/Inicie sesión como administrador"
 
@@ -551,11 +551,11 @@ def pdf_tutorial():
 def template_dashboard_360():
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
-            return send_file(path_crosland+"/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
+            return send_file(path_crosland+"crosland_app/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
 
         else:
             return render_template("fail_login_admin_html.html")
-        
+
     except:
         return "Error al leer archivo/Inicie sesión como administrador"
 
