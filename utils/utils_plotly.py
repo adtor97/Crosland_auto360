@@ -4,6 +4,7 @@ import pandas as pd
 
 
 def build_radar_coll(df_total, df_coll, df_auto):
+    df_auto = df_auto[df_auto["Periodo"] >= "2020-Q4"]
 
     df_pilares_grouped = df_total.groupby("Pilar", as_index = False).mean()
     df_pilares_coll_grouped = df_coll.groupby("Pilar", as_index = False).mean()
