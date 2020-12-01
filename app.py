@@ -46,8 +46,8 @@ path_crosland = os.environ['path_crosland']
 #path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
 
 # Local @Adrian
-#path = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
-#wkhtmltopdf_path = "C:/Users/Usuario/anaconda3/envs/Crosland_auto360/lib/site-packages/wkhtmltopdf/bin/wkhtmltopdf.exe"
+#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
+#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
@@ -226,7 +226,7 @@ def coll_results(DNI):
 
     else:
 
-        radar = utils_plotly.build_radar_coll(df_results[["Pilar", "value"]], df_results_DNI[["Pilar", "value"]], df_autoev_DNI[["Pilar", "value"]])
+        radar = utils_plotly.build_radar_coll(df_results[["Pilar", "value"]], df_results_DNI[["Pilar", "value"]], df_autoev_DNI[["Pilar", "value", "Periodo"]])
         line = utils_plotly.build_lines_coll(df_results_DNI[["Pilar", "value", "Periodo"]])
 
         radar_name = "radar_" + str(DNI) + ".png"
@@ -538,6 +538,7 @@ def pdf_tutorial():
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
             return send_file(path_crosland+"crosland_app/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
+            #return send_file(path_crosland+"/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
 
         else:
             return render_template("fail_login_admin_html.html")
@@ -552,6 +553,7 @@ def template_dashboard_360():
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
             return send_file(path_crosland+"crosland_app/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
+            #return send_file(path_crosland+"/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
 
         else:
             return render_template("fail_login_admin_html.html")
