@@ -123,23 +123,23 @@ def df_split(df_survey):
         df_autoev.loc[:,"Puntaje:Autoevaluación | Vivimos y disfrutamos: Encuentras el balance entre el trabajo y tus motivaciones personales. Te enfocas en lo positivo de la vida y le transmites ese estado de ánimo a los demás."] = 0
     else:
         None
-        
+
     for col in df_autoev.columns[1:]:
         df_autoev.rename(columns={str(col):str(re.split('[|\-:]+',col)[2].strip())},inplace=True)
 
     df_autoev.rename(columns={str(df_survey.columns[df_survey.columns.str.contains('DNI',regex=True)][0]):'DNI_evaluador'},inplace=True)
     df_autoev = df_autoev.melt(id_vars='DNI_evaluador',var_name='Pilar')
     df_autoev.dropna(inplace=True)
-    
+
     #r-scale segun Logica de 2020 Q4
-    
+
     df_autoev.loc[df_autoev['value'] == 0,'value'] = 0 #Conversion especial de puntaje vacío
     df_autoev.loc[df_autoev['value'] == 1,'value'] = 20
     df_autoev.loc[df_autoev['value'] == 2,'value'] = 40
     df_autoev.loc[df_autoev['value'] == 3,'value'] = 60
     df_autoev.loc[df_autoev['value'] == 4,'value'] = 80
     df_autoev.loc[df_autoev['value'] == 5,'value'] = 100
-    
+
     # SPLIT ONLY DF SURVEY
     only_col_autoev = df_survey.columns[df_survey.columns.str.contains('Autoevalu',regex=True)]
     df_survey = df_survey.drop(columns = only_col_autoev)
@@ -184,23 +184,23 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     # =============================================================================
     # Periodo: Year-Q, se usa para discriminar la transformacion de las puntuaciones originales.
     #          a pedido de Crosland segun a partir de determinado periodo seria una transformacion diferente.
-    
+
     #Seccion Tratamiento de Respuestas 360
     # df_survey : Es el CSV que arroja Survey Gizmo de la encuesta 360
     # df_colaboradores: es (excel) de colaboradores con sus datos personales
     #                   este aun falta actualizarse para leer los datos del archivo que arroja en bruto su sistema de RRHH
     #
-    
+
     df_survey.rename(columns={df_survey.columns[df_survey.columns.str.contains('DNI')][0]:'DNI_evaluador'},inplace=True)
-    
+
     # Limpieza y Estructuración de data
     columns_len = df_survey.shape[1]
 
     #Critico
     df_survey = df_survey.loc[df_survey['Status']=='Complete']
-    
+
     survey=df_survey.copy()
-    
+
     df_survey = df_survey.iloc[:,19:columns_len]
     df_survey = df_survey.loc[:,~df_survey.columns.str.contains('que has trabajado los últimos tres meses',case=False)]
 
@@ -261,8 +261,8 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
 
     ##print('# DNI unico Evaluadores - pre merge: '+str(len(df_values['DNI_evaluador'].unique())))  # Punto de revision
 
-    
-    
+
+
 
     # =============================================================================
     # TREATMENT
@@ -437,7 +437,7 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     #split
     df_feedback.variable = df_feedback.variable.str.split(':|¿|,',expand=True)[0]
     table_feedback = df_feedback.groupby(['variable'])['value'].apply(lambda x: ' | = | '.join(x))
-    
+
     #--------------------
     #df_feedback= df_feedback[df_feedback['evaluados'].str.contains(r'mejorar')]
     #df_feedback.value = df_feedback.value.astype(str)
@@ -540,7 +540,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_evaluaciones_persona = df_evaluaciones[df_evaluaciones[columna_dni]==dni].copy()
     #MOSTRAMOS LOS ULTIMOS 4 RESULTADOS | n=4.
     df_evaluaciones_persona = df_evaluaciones_persona.loc[df_evaluaciones_persona['Periodo'].isin(last_n_q(df_evaluaciones_persona,n=4))]
-    
+
     #print(df_evaluaciones_persona, len(df_evaluaciones_persona))
     table_score = df_evaluaciones_persona.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
     #print(table_score, len(table_score))
@@ -593,7 +593,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_feedback_personal.rename(columns={'index':''},inplace=True)
     #print("df_feedback_personal", len(df_feedback_personal))
     df_evaluaciones_persona = df_evaluaciones_persona.drop_duplicates(subset=['evaluados'],keep='first')
-    
+
     # AUTOEVALUACION
     #autoev[autoev['DNI_evaluador']==40646048]
     #df_autoev[columna_dni] = df_autoev['DNI_evaluador'].astype(int).astype(str)
@@ -607,21 +607,21 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_autoev_personal = df_autoev_personal.loc[df_autoev_personal["Periodo"]>="2020-Q4"]
     #print("df_autoev_personal.reset_index(inplace=True)")
     df_autoev_personal.columns.name = ""
-    
+
     #Datos Personales
     df_evaluaciones_persona = df_evaluaciones_persona.head(1)[['DNI_evaluado','Nombre Completo_evaluado','Area_evaluado','Descripción Puesto_evaluado']]
     df_evaluaciones_persona.rename(columns={'DNI_evaluado':'DNI','Nombre Completo_evaluado':'Nombre Completo','Area_evaluado':'Area','Descripción Puesto_evaluado':'Puesto'},inplace=True)
-    
+
     #Promedio General por periodo
     df_evaluaciones_q = df_evaluaciones.groupby(['Periodo','Pilar']).mean().iloc[:,0:1].reset_index()
     df_evaluaciones_q = df_evaluaciones.reset_index().pivot_table(index=['Periodo'],values='value',columns='Pilar').reset_index()
     #row_1 = pd.DataFrame([df_evaluaciones_q.reset_index().columns.to_list()],columns=df_evaluaciones_q.reset_index().columns.to_list())
     #df_evaluaciones_q = row_1.append(df_evaluaciones_q).T
     #df_evaluaciones_q = df_evaluaciones_q.pivot_table(index=['Pilar'],values='value',columns='Periodo').T
-    
-    
+
+
     '''
-    
+
     OUTPUT
 
     # table_score: Puntaje Personal por Pilar de cada Q
