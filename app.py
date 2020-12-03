@@ -181,7 +181,9 @@ def coll_results_redirect():
         session["DNI"] = int(DNI)
         session["password_coll"] = password
         #print(df_users.password)
-        df_user  = df_users.loc[(df_users["DNI"].astype(int) == DNI) & (df_users["password"] == password)]
+        try:
+            df_user  = df_users.loc[(df_users["DNI"].astype(int) == DNI) & (df_users["password"] == password)]
+        except: return render_template("fail_login_coll_html.html")
 
         if len(df_user) == 0:
             return render_template("fail_login_coll_html.html")
