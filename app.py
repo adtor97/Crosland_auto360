@@ -486,11 +486,11 @@ def dnis_chunks(Periodo_path, Periodo):
 
     config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
     DNIs = session["DNIs"]
-    if len(DNIs)>=40:
-        DNIs_temp = DNIs[:40]
-        session["DNIs"] = DNIs[40:]
+    if len(DNIs)>=30:
+        DNIs_temp = DNIs[:30]
+        session["DNIs"] = DNIs[30:]
     else:
-        DNIs_temp = DNIs[:40]
+        DNIs_temp = DNIs[:30]
         session["DNIs"] = []
     #i = 0
     print(len(DNIs))
