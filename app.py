@@ -38,16 +38,16 @@ Bootstrap(app)
 
 pd.options.display.float_format = "{:,.2f}".format
 # Env.
-wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
-path_crosland = os.environ['path_crosland']
+#wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
+#path_crosland = os.environ['path_crosland']
 
 # Local @Cesar
 #wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 #path_crosland = "D:\Proyectos\Freelance\Crosland\Github - Produccion 3\Crosland_auto360"
 
 # Local @Adrian
-#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
-#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
+wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
@@ -93,15 +93,13 @@ def home():
 def login_admin():
     return render_template("login_admin_html.html")
 
-@app.route("/action_admin", methods=["GET", "POST"])
+@app.route("/action_admin", methods=["POST", "GET"])
 def action_admin():
-    if request.method == 'POST':
-        try:
-            session['user'] = request.form["user"]
-            session['password'] = request.form["password"]
-        except:
-            pass
-    else:
+
+    try:
+        session['user'] = request.form["user"]
+        session['password'] = request.form["password"]
+    except:
         pass
 
     try:
@@ -111,6 +109,7 @@ def action_admin():
             return render_template("fail_login_admin_html.html")
     except:
         return render_template("fail_login_admin_html.html")
+
 
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
@@ -390,8 +389,14 @@ def see_results():
 
 @app.route("/final", methods=["GET", "POST"])
 #En esta función se guarda el nuevo DF completo, se sube a donde lo lee el Power BI y se generan + envían los PDFs
-def final_page():
+def final_page_action():
     if request.method == 'POST':
+
+        try:
+            if utils_validations.validate_admin(session['user'], session['password']):
+                pass
+            else: return ("Error al cargar la página iniciar sesión")
+        except: return ("Error al cargar la página iniciar sesión")
 
         year = session["year"]
         Q = session["Q"]
@@ -399,6 +404,7 @@ def final_page():
 
         Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
         #Periodo_path = path_crosland + "/PDFs/"+Periodo # local_path
+
         try:
             shutil.rmtree(Periodo_path, ignore_errors=True)
         except: pass
@@ -414,6 +420,7 @@ def final_page():
         df_new = utils_data_wrangling.update(df_complete, "data/df_results.csv")
         #print(df_new)
         DNIs = [int(x) for x in df_complete.DNI_evaluado.unique()]
+        session["DNIs"] = DNIs
         DNIs_all = [int(x) for x in df_new.DNI_evaluado.unique()]
         df_users_passwords = utils_data_wrangling.build_password_df(DNIs_all)
         df_complete = df_new.loc[df_new["Periodo"]<=Periodo]
@@ -435,73 +442,6 @@ def final_page():
         df_auto = df_new_auto.loc[df_new_auto["Periodo"]<=Periodo]
         #df_new_auto.to_csv("data/df_auto.csv", index = False)
 
-        options = {
-                    "enable-local-file-access": None
-                    }
-        path_wkthmltopdf = wkhtmltopdf_path
-
-        config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-
-        i = 0
-        print(len(DNIs))
-        for DNI in DNIs:
-            i+=1
-            print(DNI, i)
-            #sleep(5)
-
-            df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == int(DNI)]
-
-
-            df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == int(DNI)]
-
-            if (len(df_complete_DNI) == 0):
-                print("no results 1")
-                render = render_template("home_html.html")
-                pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
-
-            else:
-
-                try:
-
-                    #radar = utils_plotly.build_radar_coll(df_new[["Pilar", "value"]], df_complete_DNI[["Pilar", "value"]], df_auto_DNI[["Pilar", "value"]])
-                    #line = utils_plotly.build_lines_coll(df_complete_DNI[["Pilar", "value", "Periodo"]])
-
-                    #radar_name = "radar_" + str(DNI) + ".png"
-                    #line_name = "line_" + str(DNI) + ".png"
-
-                    #radar.write_image(path + "/static/tmp/" + radar_name)
-                    #line.write_image(path + "/static/tmp/" + line_name)
-
-                    dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
-                    #print(dfs_show_coll)
-                    #dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
-                    #print(dfs_show_coll[1])
-                    #print(dfs_show_coll)
-
-                    dfs_show_coll_html = [x.set_index(x.columns[0]).T.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
-                    dfs_cols = [x.columns.values for x in dfs_show_coll]
-                    #print(dfs_cols)
-                    #for i in dfs_show_coll:
-                        #print(len(i))
-                    #return "hola"
-
-                    css_path = path_crosland + "crosland_app/static/css_colab_results.css"
-                    logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
-
-                    #css_path = path_crosland + "/static/css_colab_results.css"
-                    #logo_path = path_crosland + "/static/pictures/crosland.png"
-
-                    render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
-                                            titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
-                    #print(DNI, len())
-                    pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=css_path)
-
-                except:
-                    print("no results 2")
-                    render = render_template("no_results.html")
-                    pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
-
-
         global df_results
         df_results = pd.read_csv("data/df_results.csv")
 
@@ -517,8 +457,108 @@ def final_page():
         global Qs
         Qs = list(df_results.Periodo.unique())
         Qs.sort()
+        Periodo_path = Periodo_path.replace("/", ";")
 
-        return render_template('final_html.html')
+        return redirect(url_for("dnis_chunks", Periodo_path=Periodo_path, Periodo=Periodo), code=307)
+
+@app.route("/dnis_chunks/<Periodo_path>/<Periodo>", methods=["POST"])
+def dnis_chunks(Periodo_path, Periodo):
+
+    try:
+        if utils_validations.validate_admin(session['user'], session['password']):
+            pass
+        else: return ("Error al cargar la página iniciar sesión")
+    except: return ("Error al cargar la página iniciar sesión")
+
+    global df_complete
+    df_complete = df_complete
+    global df_feedback
+    df_feedback = df_feedback
+    global df_auto
+    df_auto = df_auto
+
+    Periodo_path = Periodo_path.replace(";", "/")
+
+    options = {
+                "enable-local-file-access": None
+                }
+    path_wkthmltopdf = wkhtmltopdf_path
+
+    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+    DNIs = session["DNIs"]
+    if len(DNIs)>=40:
+        DNIs_temp = DNIs[:40]
+        session["DNIs"] = DNIs[40:]
+    else:
+        DNIs_temp = DNIs[:40]
+        session["DNIs"] = []
+    #i = 0
+    print(len(DNIs))
+    for DNI in DNIs_temp:
+        #i+=1
+        #print(DNI, i)
+        df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == int(DNI)]
+
+
+        df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == int(DNI)]
+
+        if (len(df_complete_DNI) == 0):
+            print("no results 1")
+            render = render_template("home_html.html")
+            pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
+
+        else:
+
+            try:
+
+                #radar = utils_plotly.build_radar_coll(df_new[["Pilar", "value"]], df_complete_DNI[["Pilar", "value"]], df_auto_DNI[["Pilar", "value"]])
+                #line = utils_plotly.build_lines_coll(df_complete_DNI[["Pilar", "value", "Periodo"]])
+
+                #radar_name = "radar_" + str(DNI) + ".png"
+                #line_name = "line_" + str(DNI) + ".png"
+
+                #radar.write_image(path + "/static/tmp/" + radar_name)
+                #line.write_image(path + "/static/tmp/" + line_name)
+
+                dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
+                #print(dfs_show_coll)
+                #dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
+                #print(dfs_show_coll[1])
+                #print(dfs_show_coll)
+
+                dfs_show_coll_html = [x.set_index(x.columns[0]).T.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
+                dfs_cols = [x.columns.values for x in dfs_show_coll]
+                #print(dfs_cols)
+                #for i in dfs_show_coll:
+                    #print(len(i))
+                #return "hola"
+
+                css_path = path_crosland + "crosland_app/static/css_colab_results.css"
+                logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
+
+                #css_path = path_crosland + "/static/css_colab_results.css"
+                #logo_path = path_crosland + "/static/pictures/crosland.png"
+
+                render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
+                                        titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
+                #print(DNI, len())
+                pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=css_path)
+
+            except:
+                print("no results 2")
+                render = render_template("no_results.html")
+                pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
+
+    Periodo_path = Periodo_path.replace("/", ";")
+    if len(session["DNIs"])>0:
+        return redirect(url_for("dnis_chunks", Periodo_path=Periodo_path, Periodo=Periodo), code=307)
+    else:
+        return redirect(url_for("final_procesamiento", Periodo=Periodo), code=307)
+
+@app.route("/final_procesamiento/<Periodo>", methods=["GET", "POST"])
+def final_page(Periodo):
+    return render_template('final_html.html')
+
 
 @app.route("/download_users_passwords", methods=["GET", "POST"])
 #En esta función se guarda el nuevo DF completo, se sube a donde lo lee el Power BI y se generan + envían los PDFs
