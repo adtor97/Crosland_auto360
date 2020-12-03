@@ -553,12 +553,7 @@ def dnis_chunks(Periodo_path, Periodo):
     if len(session["DNIs"])>0:
         return redirect(url_for("dnis_chunks", Periodo_path=Periodo_path, Periodo=Periodo), code=307)
     else:
-        return redirect(url_for("final_procesamiento", Periodo=Periodo), code=307)
-
-@app.route("/final_procesamiento/<Periodo>", methods=["GET", "POST"])
-def final_page(Periodo):
-    return render_template('final_html.html')
-
+        return render_template('final_html.html')
 
 @app.route("/download_users_passwords", methods=["GET", "POST"])
 #En esta función se guarda el nuevo DF completo, se sube a donde lo lee el Power BI y se generan + envían los PDFs
