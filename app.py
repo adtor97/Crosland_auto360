@@ -46,7 +46,7 @@ path_crosland = os.environ['path_crosland']
 #path_crosland = "D:\Proyectos\Freelance\Crosland\Github - Produccion 3\Crosland_auto360"
 
 # Local @Adrian
-#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Auto360"
+#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Crosland_auto360"
 #wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
