@@ -3,10 +3,10 @@ old_data/
 testing_codes/
 google-credentials.json
 static/tmp/*
-
+data/*
 .ipynb_checkpoints/
 __pycache__/
-
+PDFs/*
 utils/__pycache__
 utils/utils_google.py
 

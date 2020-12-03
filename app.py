@@ -634,12 +634,6 @@ def down_auto():
 
     except: return "Error al leer archivo"
 
-
-
-
-
-
-
 if __name__ == "__main__":
     excel.init_excel(app)
     app.run(debug=False)
