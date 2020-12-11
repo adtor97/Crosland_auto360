@@ -402,7 +402,7 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     df_complete.drop(['Nombre Completo_evaluador'],axis=1,inplace=True)
 
     #TOKENIZAR DNI
-    df_complete['DNI_evaluador'] = df_complete['DNI_evaluador'].apply(tokenizar)
+    #df_complete['DNI_evaluador'] = df_complete['DNI_evaluador'].apply(tokenizar)
         # AGREGAR Q
     df_evaluaciones = agregar_Q(df_complete, year=year, Q=Q)
 

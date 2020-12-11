@@ -14,12 +14,12 @@
     <img class="logo" src="{{ logo_path }}" alt="logo_crosland" >
   </div>
 
-<div class="tables_result">
+  <div class="tables_result">
 
-  {% for table in tables %}
-  <h3>{{ titles[loop.index] }}</h3>
-  {{ table|safe }}
-  {% endfor %}
-</div>
+    {% for table in tables %}
+    <h3>{{ titles[loop.index] }}</h3>
+    {{ table|safe }}
+    {% endfor %}
+  </div>
 
 </body>
