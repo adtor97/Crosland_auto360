@@ -14,12 +14,33 @@
     <img class="logo" src="{{ logo_path }}" alt="logo_crosland" >
   </div>
 
-  <div class="tables_result">
+  <div class="tables_result" style="display: flex;">
 
-    {% for table in tables %}
-    <h3>{{ titles[loop.index] }}</h3>
+    {% for table in [tables[0], tables[1]] %}
+    <div class="tables_result" style="width:95%;">
+    <h3>{{ titles[0:3][loop.index] }}</h3>
     {{ table|safe }}
+    </div>
     {% endfor %}
-  </div>
 
+
+
+    {% for table in [tables[2], tables[5]] %}
+    <div class="tables_result" style="width:48%; display: inline-block;">
+    <h3>{{ [titles[0], titles[3], titles[6]][loop.index] }}</h3>
+    {{ table|safe }}
+    </div>
+    {% endfor %}
+
+
+
+    {% for table in [tables[3], tables[4]] %}
+    <div class="tables_result" style="width:95%;">
+    <h3>{{ [titles[0], titles[4], titles[5]][loop.index] }}</h3>
+    {{ table|safe }}
+    </div>
+    {% endfor %}
+
+
+  </div>
 </body>

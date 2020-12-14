@@ -42,12 +42,12 @@ pd.options.display.float_format = "{:,.2f}".format
 #path_crosland = os.environ['path_crosland']
 
 # Local @Cesar
-wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
-path_crosland = "D:\Proyectos\Freelance\Crosland\Github - Produccion 3\Crosland_auto360"
+#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+#path_crosland = "D:\Proyectos\Freelance\Crosland\Github - Produccion 3\Crosland_auto360"
 
 # Local @Adrian
-#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Crosland_auto360"
-#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Crosland_auto360"
+wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
