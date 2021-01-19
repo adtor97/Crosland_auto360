@@ -618,8 +618,11 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #row_1 = pd.DataFrame([df_evaluaciones_q.reset_index().columns.to_list()],columns=df_evaluaciones_q.reset_index().columns.to_list())
     #df_evaluaciones_q = row_1.append(df_evaluaciones_q).T
     #df_evaluaciones_q = df_evaluaciones_q.pivot_table(index=['Pilar'],values='value',columns='Periodo').T
-
-
+    nivocu_columns = list(table_score_by_nivocu.columns)
+    for i in range(1,len(nivocu_columns)):
+        if nivocu_columns[i] == nivocu_columns[i-1]:
+            nivocu_columns[i]=""
+    table_score_by_nivocu.columns = nivocu_columns
     '''
 
     OUTPUT
