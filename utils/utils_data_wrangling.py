@@ -592,7 +592,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_feedback_personal = df_feedback_personal.pivot_table(index=['Periodo'],values='feedback',aggfunc=lambda x: ' '.join(x)).T.reset_index()
     df_feedback_personal.rename(columns={'index':''},inplace=True)
     #print("df_feedback_personal", len(df_feedback_personal))
-    df_evaluaciones_persona = df_evaluaciones_persona.drop_duplicates(subset=['evaluados'],keep='first')
+    df_evaluaciones_persona = df_evaluaciones_persona.drop_duplicates(subset=['evaluados'],keep='last') # read last Job
 
     # AUTOEVALUACION
     #autoev[autoev['DNI_evaluador']==40646048]
