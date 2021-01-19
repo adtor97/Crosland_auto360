@@ -38,7 +38,7 @@ def build_radar_coll(df_total, df_coll, df_auto):
 
     fig.update_traces(hoverinfo='r')
 
-    fig.update_layout(title="Acumulado general", font=dict(size=14))
+    fig.update_layout(title="Acumulado general", font=dict(size=16))
     return fig
 
 def build_radar_general(df_total):
@@ -87,7 +87,7 @@ def build_lines_coll(df_coll):
     y=1.02,
     xanchor="right",
     x=1,
-    font=dict(size=14),
+    font=dict(size=16),
     bgcolor='rgba(0,0,0,0)',
         ))
 

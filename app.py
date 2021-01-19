@@ -501,14 +501,16 @@ def dnis_chunks(Periodo_path, Periodo):
         #i+=1
         #print(DNI, i)
         df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == int(DNI)]
+        name = df_complete_DNI["Nombre Completo_evaluado"].values[0]
 
+        file_name = name + "_" + str(DNI) + "_" + Periodo + '.pdf'
 
         df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == int(DNI)]
-
+        #print("NOMBREEE: ", name)
         if (len(df_complete_DNI) == 0):
             print("no results 1")
             render = render_template("home_html.html")
-            pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
+            pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + file_name,configuration=config, options=options)
 
         else:
 
@@ -545,12 +547,12 @@ def dnis_chunks(Periodo_path, Periodo):
                 render = render_template("coll_results_html_download.html", css_path = css_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                         titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
                 #print(DNI, len())
-                pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options, css=css_path)
+                pdfkit.from_string(render,Periodo_path + "/" + file_name,configuration=config, options=options, css=css_path)
 
             except:
                 print("no results 2")
                 render = render_template("no_results.html")
-                pdfkit.from_string(render,Periodo_path + "/" + str(DNI) + "_" + Periodo + '.pdf',configuration=config, options=options)
+                pdfkit.from_string(render,Periodo_path + "/" + file_name,configuration=config, options=options)
 
     Periodo_path = Periodo_path.replace("/", ";")
     if len(session["DNIs"])>0:

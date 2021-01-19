@@ -592,7 +592,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_feedback_personal = df_feedback_personal.pivot_table(index=['Periodo'],values='feedback',aggfunc=lambda x: ' '.join(x)).T.reset_index()
     df_feedback_personal.rename(columns={'index':''},inplace=True)
     #print("df_feedback_personal", len(df_feedback_personal))
-    df_evaluaciones_persona = df_evaluaciones_persona.drop_duplicates(subset=['evaluados'],keep='last') # read last Job
+    df_evaluaciones_persona = df_evaluaciones_persona.drop_duplicates(subset=['evaluados'],keep='first')
 
     # AUTOEVALUACION
     #autoev[autoev['DNI_evaluador']==40646048]
@@ -618,14 +618,12 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #row_1 = pd.DataFrame([df_evaluaciones_q.reset_index().columns.to_list()],columns=df_evaluaciones_q.reset_index().columns.to_list())
     #df_evaluaciones_q = row_1.append(df_evaluaciones_q).T
     #df_evaluaciones_q = df_evaluaciones_q.pivot_table(index=['Pilar'],values='value',columns='Periodo').T
-    nivocu_columns = list(table_score_by_nivocu.columns)
-    for i in range(1,len(nivocu_columns)):
-        if nivocu_columns[i] == nivocu_columns[i-1]:
-            nivocu_columns[i]=""
-    table_score_by_nivocu.columns = nivocu_columns
+    periodos = list(table_score_by_nivocu.Periodo)
+    for i in range(1,len(periodos)):
+        if periodos[i] == list(table_score_by_nivocu.Periodo)[i-1]:
+            periodos[i]=""
+    table_score_by_nivocu["Periodo"] = periodos
 
-    table_score = table_score.replace("#", "# evaluadores ")
-    table_score_by_nivocu = table_score_by_nivocu.replace("#", "# evaluadores ")
     '''
 
     OUTPUT
@@ -656,7 +654,7 @@ def rename_count_mean_columns(df):
     nivocu_columns = [x for x in df.columns if "Nivel Ocupacional_evaluador-" in x]
 
     new_mean_columns = [x.replace("mean-", "") for x in mean_columns]
-    new_count_columns = ["#" for x in count_columns]
+    new_count_columns = ["# evaluadores" for x in count_columns]
     new_nivocu_columns = [x.replace("Nivel Ocupacional_evaluador-","Rango") for x in nivocu_columns]
 
     zip_dict_columns = zip(mean_columns+count_columns+nivocu_columns, new_mean_columns+new_count_columns+new_nivocu_columns)
