@@ -503,7 +503,7 @@ def dnis_chunks(Periodo_path, Periodo):
         df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == int(DNI)]
         name = df_complete_DNI["Nombre Completo_evaluado"].values[0]
 
-        file_name = name + "_" + str(DNI) + "_" + Periodo + '.pdf'
+        file_name = str(DNI) + "_" + name + "_" + Periodo + '.pdf'
 
         df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == int(DNI)]
         #print("NOMBREEE: ", name)
