@@ -569,7 +569,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #print("table_score_by_nivocu = table_score_by_nivocu[[table_score_by_nivocu.columns[0], table_score_by_nivocu.columns[1], table_score_by_nivocu.columns[2], table_score_by_nivocu.columns[3], table_score_by_nivocu.columns[7], table_score_by_nivocu.columns[4], table_score_by_nivocu.columns[8], table_score_by_nivocu.columns[5], table_score_by_nivocu.columns[9], table_score_by_nivocu.columns[6], table_score_by_nivocu.columns[10]]]")
     table_score_by_nivocu = rename_count_mean_columns(table_score_by_nivocu)
     #print("table_score_by_nivocu = rename_count_mean_columns(table_score_by_nivocu)")
-    table_score_by_nivocu.rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True)
+    table_score_by_nivocu.rename(columns={"Nivel Ocupacional_evaluador-":"Nivel Ocupacional"},inplace=True)
     try: table_score_by_nivocu.drop(["evaluados"], axis = 1, inplace = True)
     except: pass
     #print("table_score_by_nivocu", len(table_score_by_nivocu))
@@ -609,7 +609,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_autoev_personal.columns.name = ""
 
     #Datos Personales
-    df_evaluaciones_persona = df_evaluaciones_persona.head(1)[['DNI_evaluado','Nombre Completo_evaluado','Area_evaluado','Descripción Puesto_evaluado']]
+    df_evaluaciones_persona = df_evaluaciones_persona.tail(1)[['DNI_evaluado','Nombre Completo_evaluado','Area_evaluado','Descripción Puesto_evaluado']]
     df_evaluaciones_persona.rename(columns={'DNI_evaluado':'DNI','Nombre Completo_evaluado':'Nombre Completo','Area_evaluado':'Area','Descripción Puesto_evaluado':'Puesto'},inplace=True)
 
     #Promedio General por periodo
@@ -623,6 +623,9 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
         if nivocu_columns[i] == nivocu_columns[i-1]:
             nivocu_columns[i]=""
     table_score_by_nivocu.columns = nivocu_columns
+
+    table_score["Periodo"] = table_score["Periodo"].str.replace("#", "# evaluadores ")
+    table_score_by_nivocu["Periodo"] = table_score_by_nivocu["Periodo"].str.replace("#", "# evaluadores ")
     '''
 
     OUTPUT

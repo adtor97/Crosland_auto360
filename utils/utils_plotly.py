@@ -10,7 +10,7 @@ def build_radar_coll(df_total, df_coll, df_auto):
     df_pilares_coll_grouped = df_coll.groupby("Pilar", as_index = False).mean()
     df_pilares_auto_grouped = df_auto[["Pilar", "value"]].groupby("Pilar", as_index = False).mean()
 
-    fig = go.Figure()
+    fig = go.Figure(title="Acumulado general")
 
     if len(df_pilares_grouped)>0:
         fig.add_trace(go.Scatterpolar(
@@ -37,6 +37,8 @@ def build_radar_coll(df_total, df_coll, df_auto):
     else: pass
 
     fig.update_traces(hoverinfo='r')
+
+    fig.update_layout(font=dict(size=14))
     return fig
 
 def build_radar_general(df_total):
@@ -85,7 +87,7 @@ def build_lines_coll(df_coll):
     y=1.02,
     xanchor="right",
     x=1,
-    font=dict(size=12),
+    font=dict(size=14),
     bgcolor='rgba(0,0,0,0)',
         ))
 
