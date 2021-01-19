@@ -624,8 +624,8 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
             nivocu_columns[i]=""
     table_score_by_nivocu.columns = nivocu_columns
 
-    table_score["Periodo"] = table_score["Periodo"].str.replace("#", "# evaluadores ")
-    table_score_by_nivocu["Periodo"] = table_score_by_nivocu["Periodo"].str.replace("#", "# evaluadores ")
+    table_score["Periodo"] = table_score.apply(lambda x: str(x).replace("#", "# evaluadores "))
+    table_score_by_nivocu["Periodo"] = table_score_by_nivocu.apply(lambda x: str(x).replace("#", "# evaluadores "))
     '''
 
     OUTPUT
