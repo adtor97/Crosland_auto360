@@ -251,7 +251,7 @@ def coll_results(DNI):
         #for i in dfs_show_coll:
             #print(len(i))
         #return "hola"
-            return render_template("coll_results_html.html", radar_name = "/static/tmp/" + radar_name, line_name = "/static/tmp/" + line_name, tables=dfs_show_coll_html,
+        return render_template("coll_results_html.html", radar_name = "/static/tmp/" + radar_name, line_name = "/static/tmp/" + line_name, tables=dfs_show_coll_html,
         titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
 
 
