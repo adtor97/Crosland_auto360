@@ -547,17 +547,23 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     # Normalizar Nombre de columnas
     table_score.columns = ['-'.join(col).strip() for col in table_score.columns.values]
     table_score = table_score[[table_score.columns[0], table_score.columns[4], table_score.columns[1], table_score.columns[5], table_score.columns[2], table_score.columns[6], table_score.columns[3], table_score.columns[7]]]
+    print(table_score.columns)
     #print(table_score, len(table_score))
+    table_score["Tu promedio"] = table_score.loc[:,["mean-Buscamos la excelencia","mean-Contagiamos pasión","mean-Trabajamos juntos","mean-Vivimos y disfrutamos"]].mean(numeric_only=True,skipna=True,axis=1)
+
     table_score = rename_count_mean_columns(table_score)
+    
     table_score.reset_index(inplace=True)
+    
     try: table_score.drop(["evaluados"], axis = 1, inplace = True)
     except: pass
     #print("table_score", len(table_score))
     #table_score = table_score[table_score['Periodo'].isin(periodo_list)]
-
+    
     # GROUP BY NIVEL OCUPACIONAL
-
-    table_score_by_nivocu = df_evaluaciones_persona.groupby(['Periodo','evaluados','Nivel Ocupacional_evaluador','Pilar'])['value'].agg(['mean','count']).unstack()
+    df_evaluaciones_persona_nivocu = df_evaluaciones_persona.loc[df_evaluaciones_persona['Periodo'].isin(last_n_q(df_evaluaciones_persona,n=1))]
+    table_score_by_nivocu = df_evaluaciones_persona_nivocu.groupby(['Periodo','evaluados','Nivel Ocupacional_evaluador','Pilar'])['value'].agg(['mean','count']).unstack()
+    
     # Normalizar Nombre de columnas
     table_score_by_nivocu.reset_index(inplace=True)
     table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
@@ -607,14 +613,19 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_autoev_personal = df_autoev_personal.loc[df_autoev_personal["Periodo"]>="2020-Q4"]
     #print("df_autoev_personal.reset_index(inplace=True)")
     df_autoev_personal.columns.name = ""
+    df_autoev_personal["Tu promedio"] = df_autoev_personal.mean(numeric_only=True,skipna=True,axis=1)
 
     #Datos Personales
     df_evaluaciones_persona = df_evaluaciones_persona.tail(1)[['DNI_evaluado','Nombre Completo_evaluado','Area_evaluado','Descripción Puesto_evaluado']]
     df_evaluaciones_persona.rename(columns={'DNI_evaluado':'DNI','Nombre Completo_evaluado':'Nombre Completo','Area_evaluado':'Area','Descripción Puesto_evaluado':'Puesto'},inplace=True)
 
+
     #Promedio General por periodo
     df_evaluaciones_q = df_evaluaciones.groupby(['Periodo','Pilar']).mean().iloc[:,0:1].reset_index()
-    df_evaluaciones_q = df_evaluaciones.reset_index().pivot_table(index=['Periodo'],values='value',columns='Pilar').reset_index()
+    df_evaluaciones_q = df_evaluaciones.reset_index().pivot_table(index=['Periodo'],values='value',columns='Pilar').reset_index()   
+    #holi = df_evaluaciones_q.loc[:,["Buscamos la excelencia","Vivimos y disfrutamos"]].mean(axis=0)
+    df_evaluaciones_q["Promedio Crosland"] = df_evaluaciones_q.mean(numeric_only=True,skipna=True,axis=1)
+    
     #row_1 = pd.DataFrame([df_evaluaciones_q.reset_index().columns.to_list()],columns=df_evaluaciones_q.reset_index().columns.to_list())
     #df_evaluaciones_q = row_1.append(df_evaluaciones_q).T
     #df_evaluaciones_q = df_evaluaciones_q.pivot_table(index=['Pilar'],values='value',columns='Periodo').T

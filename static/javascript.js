@@ -16,7 +16,7 @@ function copyClipboard() {
 function process_once() {
 
   var msg = document.getElementById('msg');
-        msg.innerHTML = 'Boton desabilitado, la data se está procesando';
+        msg.innerHTML = 'Botón deshabilitado, la data se está procesando';
   document.getElementById('buttom_process').disabled = true;
   document.getElementById('buttom_process').innerHTML = 'Procesando...'
 
