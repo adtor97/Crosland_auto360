@@ -552,18 +552,18 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     table_score["Tu promedio"] = table_score.loc[:,["mean-Buscamos la excelencia","mean-Contagiamos pasión","mean-Trabajamos juntos","mean-Vivimos y disfrutamos"]].mean(numeric_only=True,skipna=True,axis=1)
 
     table_score = rename_count_mean_columns(table_score)
-    
+
     table_score.reset_index(inplace=True)
-    
+
     try: table_score.drop(["evaluados"], axis = 1, inplace = True)
     except: pass
     #print("table_score", len(table_score))
     #table_score = table_score[table_score['Periodo'].isin(periodo_list)]
-    
+
     # GROUP BY NIVEL OCUPACIONAL
     df_evaluaciones_persona_nivocu = df_evaluaciones_persona.loc[df_evaluaciones_persona['Periodo'].isin(last_n_q(df_evaluaciones_persona,n=1))]
     table_score_by_nivocu = df_evaluaciones_persona_nivocu.groupby(['Periodo','evaluados','Nivel Ocupacional_evaluador','Pilar'])['value'].agg(['mean','count']).unstack()
-    
+
     # Normalizar Nombre de columnas
     table_score_by_nivocu.reset_index(inplace=True)
     table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
@@ -622,10 +622,10 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
 
     #Promedio General por periodo
     df_evaluaciones_q = df_evaluaciones.groupby(['Periodo','Pilar']).mean().iloc[:,0:1].reset_index()
-    df_evaluaciones_q = df_evaluaciones.reset_index().pivot_table(index=['Periodo'],values='value',columns='Pilar').reset_index()   
+    df_evaluaciones_q = df_evaluaciones.reset_index().pivot_table(index=['Periodo'],values='value',columns='Pilar').reset_index()
     #holi = df_evaluaciones_q.loc[:,["Buscamos la excelencia","Vivimos y disfrutamos"]].mean(axis=0)
     df_evaluaciones_q["Promedio Crosland"] = df_evaluaciones_q.mean(numeric_only=True,skipna=True,axis=1)
-    
+
     #row_1 = pd.DataFrame([df_evaluaciones_q.reset_index().columns.to_list()],columns=df_evaluaciones_q.reset_index().columns.to_list())
     #df_evaluaciones_q = row_1.append(df_evaluaciones_q).T
     #df_evaluaciones_q = df_evaluaciones_q.pivot_table(index=['Pilar'],values='value',columns='Periodo').T
@@ -666,7 +666,7 @@ def rename_count_mean_columns(df):
 
     new_mean_columns = [x.replace("mean-", "") for x in mean_columns]
     new_count_columns = ["# evaluadores" for x in count_columns]
-    new_nivocu_columns = [x.replace("Nivel Ocupacional_evaluador-","Rango") for x in nivocu_columns]
+    new_nivocu_columns = [x.replace("Nivel Ocupacional_evaluador-","Nivel Ocupacional") for x in nivocu_columns]
 
     zip_dict_columns = zip(mean_columns+count_columns+nivocu_columns, new_mean_columns+new_count_columns+new_nivocu_columns)
     dict_columns = dict(zip_dict_columns)

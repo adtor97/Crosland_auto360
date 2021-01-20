@@ -48,7 +48,7 @@ path_crosland = os.environ['path_crosland']
 
 # Local @Adrian
 #path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Crosland_auto360"
-#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+#   wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
@@ -542,13 +542,13 @@ def dnis_chunks(Periodo_path, Periodo):
 
                 #css_report_path = path_crosland + "/static/css_colab_results_download.css"
                 #logo_path = path_crosland + "/static/pictures/crosland.png"
-                
+
                 render = render_template("coll_results_html_download.html", css_path = css_report_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                         titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
-                
+
                 #print(DNI, len())
                 pdfkit.from_string(render,Periodo_path + "/" + file_name,configuration=config, options=options, css=css_report_path)
-                
+
             except:
                 print("no results 2")
                 render = render_template("no_results.html")
