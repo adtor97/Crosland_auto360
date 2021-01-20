@@ -36,7 +36,7 @@
 
     {% for table in [tables[3], tables[4]] %}
     <div class="tables_result" style="width:95%;">
-    <h3>{{ [titles[0], titles[4], titles[5]][loop.index] }}</h3>
+    <h2>{{ [titles[0], titles[4], titles[5]][loop.index] }}</h2>
     {{ table|safe }}
     </div>
     {% endfor %}
