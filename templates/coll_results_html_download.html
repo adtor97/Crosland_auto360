@@ -24,9 +24,8 @@
     {% endfor %}
 
 
-
     {% for table in [tables[2], tables[5]] %}
-    <div class="tables_result" style="width:48%; display: inline-block;">
+    <div class="tables_result" style="width:95%">
     <h2>{{ [titles[0], titles[3], titles[6]][loop.index] }}</h2>
     {{ table|safe }}
     </div>
