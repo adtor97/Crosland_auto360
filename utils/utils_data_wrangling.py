@@ -49,7 +49,7 @@ def capitalizar_nombre(message):
     return capitalized_message
 
 def tokenizar(dni):
-    # #print(type(dni)) # Punto de revision Input
+    # ##print(type(dni)) # Punto de revision Input
     if isinstance(dni, float):
         dni = str(int(dni))
     elif isinstance(dni, str):
@@ -173,6 +173,12 @@ def get_close(nombre,lista_nombres,mincut=0.4):
     elif len(close_name)>0:
         return close_name[0]
 
+def simple_nombre(name):
+    name = str(name)
+    name = name.replace("Del ","").replace("De La ","").replace("De ","")
+    name = name.replace("DEL ","").replace("DE LA ","").replace("DE ","")
+    new_name = name
+    return new_name
 
 def get_quarter(d):
     return "%d-Q%d" % (d.year,ceil(d.month/3)-1)
@@ -197,18 +203,11 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     columns_len = df_survey.shape[1]
     #Filtro de respuestas completas
     df_survey = df_survey.loc[df_survey['Status']=='Complete']
-
-    survey=df_survey.copy() #
-
     df_survey = df_survey.iloc[:,19:columns_len]
     df_survey = df_survey.loc[:,~df_survey.columns.str.contains('que has trabajado los últimos tres meses',case=False)]
 
-    ##print('DNI_Unicos_Evaluadores: '+str(len(df_survey['DNI_evaluador'].unique()))) # Punto de revision
-
     # Formateo de DNI
-
     df_melt = pd.melt(df_survey,id_vars='DNI_evaluador',var_name='evaluados')
-
     df_melt.dropna(inplace=True)
     df_melt.reset_index(inplace=True)
 
@@ -221,7 +220,6 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     df_melt['que_es']=df_1['que_es']
     df_melt.shape
     # split que_es?
-    # df_que_es = pd.DataFrame(df_melt.que_es.str.split(':',expand=True)[0], columns = ['pilar','basura'])
 
     #$$$$$$$$$$$$$$$$$$$$$$$$
     df_melt['que_es']=df_melt.que_es.str.split(':',expand=True)[0]
@@ -248,14 +246,13 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     df_values = df_values[(df_values['value']>=1) & (df_values['value']<=5)]
 
     df_values.drop_duplicates(subset=['DNI_evaluador','evaluados','que_es'],keep='first')
-    df_values.to_excel("pre/df_values.xlsx")
-    #pd.to_excel(df_values,"df_values.xlsx")
-    ##print('# DNI unico Evaluadores - pre merge: '+str(len(df_values['DNI_evaluador'].unique())))  # Punto de revision
+
+    df_values["Nombre Completo_artificial"] = df_values["evaluados"].apply(lambda x: simple_nombre(x))
 
     # =============================================================================
     # Tratamiento de HC
     # =============================================================================
-    
+
     df_colaboradores.rename(columns={columna_documento_colaboradores:'DNI'},inplace=True)
     df_colaboradores['DNI'] = df_colaboradores["DNI"].astype(str)
 
@@ -263,13 +260,13 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     df_colaboradores.drop(df_colaboradores[df_colaboradores.DNI.isnull()].index, inplace = True)
     df_colaboradores.drop(df_colaboradores[df_colaboradores.DNI=='nan'].index, inplace = True)
 
-    df_colaboradores['Nombre Completo'] = df_colaboradores['Nombre Completo'].apply(cambioorden_nombre_apellido)
-    df_colaboradores['Nombre Completo'] = df_colaboradores['Nombre Completo'].apply(capitalizar_nombre)
+    df_colaboradores['Nombre Completo_artificial'] = df_colaboradores['Nombre Completo'].apply(lambda x: simple_nombre(x))
+    df_colaboradores['Nombre Completo_artificial'] = df_colaboradores['Nombre Completo_artificial'].apply(cambioorden_nombre_apellido)
+    df_colaboradores['Nombre Completo_artificial'] = df_colaboradores['Nombre Completo_artificial'].apply(capitalizar_nombre)
 
     df_colaboradores['DNI'] = pd.to_numeric(df_colaboradores['DNI'],errors='ignore')
     df_colaboradores['DNI'] = df_colaboradores['DNI'].astype(int)
 
-    #df_colaboradores['DNI'] = df_colaboradores['DNI'].apply(dni_format)
 
     # =============================================================================
     #     Agregamos Informacion para Evaluados y Evaluados
@@ -290,53 +287,48 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     # =============================================================================
     #     COMPLEMENTAMOS INFORMACION >>>EVALUADOS & EVALUADOR
     # =============================================================================
-    # #print(len(df_values['evaluados']))
 
     #Merge evaluado & evaluador
-    df_complete = pd.merge(df_values,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombredf_complete = pd.merge(df_values,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
-    df_complete.to_excel("pre/test.xlsx")
+    df_complete = pd.merge(df_values,df_evaluados,left_on='Nombre Completo_artificial',right_on='Nombre Completo_artificial_evaluado',how='left') # Usamos el nombredf_complete = pd.merge(df_values,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
+
     # MERGUE EVALUADOR # PROBANDO LEFT
     df_complete = pd.merge(df_complete,df_evaluador,on='DNI_evaluador',how='left') # usamos el DNI
-    df_complete.to_excel("pre/test_1.xlsx")
+
     ####
     # =============================================================================
     # @INICIO OBSERVADO
     # DIFFLIB MAGIC # TRATAMIENTO de los que no hicieron merge
     # =============================================================================
     #Observacion> Los nombre que no hacen merge es por la composicion Apellido Nombre
-    # Al hacer merge en algunos casos aproxima a un nombre erroneo.
-    # Cuando esto sucede los resultados de la persona que ahora es corregida se concatenan con las de otro evaluado.
 
-    df_complete_temp = df_complete[df_complete['Nombre Completo_evaluado'].isnull()]
-    df_complete_temp = df_complete_temp[['DNI_evaluador','evaluados','value','que_es']]
+    df_complete_temp = df_complete[df_complete['Nombre Completo_artificial_evaluado'].isnull()]
+    df_complete_temp = df_complete_temp[['DNI_evaluador','evaluados','Nombre Completo_artificial','value','que_es']]
+    df_complete_temp = df_complete_temp.loc[~df_complete_temp["Nombre Completo_artificial"].str.contains('Sentiment',case=False)]
+    df_complete_temp = df_complete_temp.loc[~df_complete_temp["Nombre Completo_artificial"].str.contains('¿Qué crees que debería',case=False)]
+    df_complete_temp['Nombre Completo_artificial'] = df_complete_temp["Nombre Completo_artificial"].apply(lambda x:get_close(nombre=x, lista_nombres=df_evaluados['Nombre Completo_artificial_evaluado'].to_list()))
 
-    df_complete_temp = df_complete_temp.loc[~df_complete_temp.evaluados.str.contains('Sentiment',case=False)]
-    df_complete_temp.to_excel("pre/df_complete_PRE_temp_diff.xlsx")
-    df_complete_temp['evaluados'] = df_complete_temp.evaluados.apply(lambda x:get_close(nombre=x, lista_nombres=df_evaluados['Nombre Completo_evaluado'].to_list()))
-    df_complete_temp.to_excel("pre/df_complete_POST_temp_diff.xlsx")
-    
     #Merge evaluado & evaluador
-    df_complete_temp = pd.merge(df_complete_temp,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
+    df_complete_temp = pd.merge(df_complete_temp,df_evaluados,left_on='Nombre Completo_artificial',right_on='Nombre Completo_artificial_evaluado',how='left') # Usamos el nombre
     df_complete_temp = pd.merge(df_complete_temp,df_evaluador,on='DNI_evaluador',how='left') # usamos el DNI
-    
-    df_complete_temp.to_excel("pre/df_complete_POST_diff_POST_merge.xlsx")
+
+    df_replace_names = df_complete_temp[["evaluados","Nombre Completo_evaluado"]]
+    df_replace_names = df_replace_names.rename(columns = {"evaluados":"Nombre encontrado en Alchemer",
+                                                                    "Nombre Completo_evaluado": "Nombre encontrado en el HC"})
+    df_replace_names = df_replace_names.drop_duplicates()
+
+    df_complete_temp.drop(columns=["evaluados"],inplace=True)
     df_complete.dropna(subset = ['DNI_evaluado'],inplace=True)
-    
+
     df_complete = pd.concat([df_complete,df_complete_temp],ignore_index=True)
-    
+
     # @FIN OBSERVADO
-    
-    
-    # Filtro para excluir algún área en el procesamiento del Score
+
     # =============================================================================
     #     # COMPLEMENTANDO INFORMACIÓN DE EVALUADO
     # =============================================================================
 
     # Eliminando Nan
     df_complete.drop(df_complete[df_complete.evaluados.isnull()].index, inplace = True)
-
-    # Regla 1 Para la misma ORG. su Score
-    ##df_complete_whitout_filter = df_complete.drop(df_complete[df_complete['Unidad de Negocio']=='Wuf'].index)
 
     # Regla 3 | Filtro CTMR
     # Elimina las Autoevaluaciones dentro de las evaluaciones
@@ -363,16 +355,14 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
         df_complete.loc[df_complete['value'] == 5,'value'] = 100
 
     # STATUS
-
+    df_complete.drop(columns = ["Nombre Completo_artificial","Nombre Completo_artificial_evaluado"],inplace=True)
     df_complete.loc[df_complete.groupby(['DNI_evaluador','Pilar','DNI_evaluado']).value.max == df_complete.value]
 
-    # df_complete.drop(['Nombre Completo_evaluador'],axis=1,inplace=True)
 
     #TOKENIZAR DNI
-    #df_complete['DNI_evaluador'] = df_complete['DNI_evaluador'].apply(tokenizar)
         # AGREGAR Q
     df_evaluaciones = agregar_Q(df_complete, year=year, Q=Q)
-    
+
     #df_evaluaciones['Fecha Nacimiento_evaluado'] = df_evaluaciones['Fecha Nacimiento_evaluado'].to_datetime
     df_evaluaciones['edad_evaluado'] = df_evaluaciones['Fecha Nacimiento_evaluado'].apply(calculate_age)
     mean = df_evaluaciones['edad_evaluado'].mean()
@@ -390,88 +380,86 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
                                                   'Millenials' if fechanacimiento.year > 1981 and fechanacimiento.year < 2000  else  \
                                                   'Generation Y' if fechanacimiento.year > 1965 and fechanacimiento.year < 1982  else  \
                                                   'Baby Boomer' for fechanacimiento in df_evaluaciones['Fecha Nacimiento_evaluado']]
-    
+
     # =============================================================================
     # FEEDBACK
     # =============================================================================
 
     # Treatment Feedbak por Colaborador
     # Nuevo procesamiento
-    #survey copia del df_survey
-    columns_feedback  = ["DNI_evaluador"] + df_survey.columns[df_survey.columns.str.contains('mejorar')].to_list()
-    
+    columns_feedback  = ["DNI_evaluador"] + df_survey.columns[df_survey.columns.str.contains('mejorar?')].to_list()
+
     df_feedback = df_survey[columns_feedback]
-    df_feedback.to_csv("pre/df_feedback_premelt.csv",index=False)
     df_feedback = df_feedback.melt(id_vars="DNI_evaluador")
     df_feedback=df_feedback.dropna(axis=0)
-    df_feedback.to_csv("pre/df_feedback.csv",index=False)
     df_feedback.variable = df_feedback.variable.str.split(':|¿|,',expand=True)[0] # Split + Clean
     df_feedback.variable = df_feedback.variable.str.strip()
-    
-    #----------------------------------------------------------------
-    #Df_feedback detallado
-    
-    df_feedback_detail = pd.merge(df_feedback,df_evaluados[['Nombre Completo_evaluado','DNI_evaluado']],left_on='variable',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
-    df_feedback_detail_temp = df_feedback_detail[df_feedback_detail['Nombre Completo_evaluado'].isnull()]
-    df_feedback_detail = df_feedback_detail.dropna(axis=0)
-    df_feedback_detail_temp['Nombre Completo_evaluado'] = df_feedback_detail_temp.variable.apply(lambda x:get_close(nombre=x, lista_nombres=df_evaluados['Nombre Completo_evaluado'].unique()))
-    df_feedback_detail_temp.drop(columns = "DNI_evaluado",inplace=True)
-    df_feedback_detail_temp = pd.merge(df_feedback_detail_temp,df_evaluados[['Nombre Completo_evaluado','DNI_evaluado']],left_on='Nombre Completo_evaluado',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
-    df_feedback = pd.concat([df_feedback_detail,df_feedback_detail_temp],ignore_index=True)
-    df_feedback = pd.merge(df_feedback,df_evaluador[['Nombre Completo_evaluador','DNI_evaluador']],left_on='DNI_evaluador',right_on='DNI_evaluador',how='left') # Usamos el nombre
-    
-    #----------------------------------------------------------------
-    table_feedback = df_feedback.groupby(['variable'])['value'].apply(lambda x: ' | = | '.join(x))
 
+    #----------------------------------------------------------------
+
+    #Df_feedback detallado
+    df_feedback["Nombre Completo_artificial"] = df_feedback["variable"].apply(lambda x: simple_nombre(x))
+    df_feedback['Nombre Completo_artificial'] = df_feedback["Nombre Completo_artificial"].apply(lambda x: capitalizar_nombre(x))
+    # df_feedback_v0 = df_feedback.copy()
+    # MERGE -> EVALUADO NOMBRE ARTIFICIAL
+    df_feedback_detail = pd.merge(df_feedback,df_evaluados[['Nombre Completo_artificial_evaluado','Nombre Completo_evaluado','DNI_evaluado']],left_on='Nombre Completo_artificial',right_on='Nombre Completo_artificial_evaluado',how='left') # Usamos el nombre
+
+    # Tratamiento a lo que no hicieron merge
+    df_feedback_detail_temp = df_feedback_detail[df_feedback_detail['Nombre Completo_artificial_evaluado'].isnull()]
+    df_feedback_detail = df_feedback_detail.dropna(axis=0)
+
+    #difflib
+    df_feedback_detail_temp['Nombre Completo_artificial'] = df_feedback_detail_temp.variable.apply(lambda x:get_close(nombre=x, lista_nombres=df_evaluados['Nombre Completo_artificial_evaluado'].to_list()))
+    df_feedback_detail_temp.drop(columns = ["Nombre Completo_artificial_evaluado","Nombre Completo_evaluado","DNI_evaluado"],inplace=True)
+    df_feedback_detail_temp = pd.merge(df_feedback_detail_temp,df_evaluados[['Nombre Completo_artificial_evaluado','Nombre Completo_evaluado','DNI_evaluado']],left_on='Nombre Completo_artificial',right_on='Nombre Completo_artificial_evaluado',how='left') # Usamos el nombre
+    # no process only to show
+    df_feedback_replace_names = df_feedback_detail_temp[["variable","Nombre Completo_evaluado"]]
+    df_feedback_replace_names = df_feedback_replace_names.drop_duplicates()
+    df_feedback_replace_names.rename(columns={"variable":"Nombre detectado en Alchemer","Nombre Completo_evaluado":"Nombre aproximado en HC"},inplace=True)
+
+    df_feedback = pd.concat([df_feedback_detail,df_feedback_detail_temp],ignore_index=True)
+
+    # MERGE -> EVALUADOR
+    df_feedback = pd.merge(df_feedback,df_evaluador[['Nombre Completo_evaluador','DNI_evaluador']],left_on='DNI_evaluador',right_on='DNI_evaluador',how='left') # Cruzamos DNI evaluador
+    df_feedback = df_feedback.drop(columns=["Nombre Completo_artificial","Nombre Completo_artificial_evaluado"])
+    #----------------------------------------------------------------
+    table_feedback = df_feedback.groupby(['Nombre Completo_evaluado'])['value'].apply(lambda x: ' | = | '.join(x))
     table_feedback = pd.DataFrame({'evaluados':table_feedback.index,'feedback':table_feedback.values})
-        #
     table_feedback['evaluados'] = table_feedback['evaluados'].str.strip()
-        #
     table_feedback = table_feedback.loc[~table_feedback.evaluados.str.contains('Sentiment',case=False)]
-        #
     table_feedback = pd.merge(table_feedback,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
 
     # TRATAMIENTO PARA LOS VACIOS QUE NO HICIERON MERGE EXACTO
     # Aplicamos DIFFLIB SOLO A LOS NO MERGE
-        # table_temp
-        
+
     table_temp = table_feedback[table_feedback['Nombre Completo_evaluado'].isnull()]
     table_temp = table_temp[['evaluados','feedback']]
     table_temp = table_temp.loc[~table_temp.evaluados.str.contains('Sentiment',case=False)]
     table_temp['evaluados'] = table_temp.evaluados.apply(lambda x:get_close(nombre=x, lista_nombres=df_evaluados['Nombre Completo_evaluado'].to_list()))
     table_temp = pd.merge(table_temp,df_evaluados,left_on='evaluados',right_on='Nombre Completo_evaluado',how='left') # Usamos el nombre
 
-    # Concatenamos los null no merge tratados y completados
+    # Concat no_merge_treatment + merge
     table_feedback.dropna(subset=['Nombre Completo_evaluado'],inplace=True)
     table_feedback = pd.concat([table_feedback,table_temp],ignore_index=True)
-    
+
     #----------------------------------------------------------------
-    
     # AGREGAR Q
     table_feedback = agregar_Q(table_feedback, year = year, Q = Q )
+
     df_feedback = agregar_Q(df_feedback, year = year, Q = Q )
     #----------------------------------------------------------------
     #ID unico DNI_Evaluador+DNI_evaluado+Periodo
     df_evaluaciones["ID"] = df_evaluaciones["DNI_evaluador"].astype(str) +  df_evaluaciones["DNI_evaluado"].astype(str) + df_evaluaciones["Periodo"].astype(str)
     df_evaluaciones["ID_2"] = df_evaluaciones["DNI_evaluador"].astype(str) + df_evaluaciones["Periodo"].astype(str)
     df_feedback["ID"] = df_feedback["DNI_evaluador"].astype(str) +  df_feedback["DNI_evaluado"].astype(str) + df_feedback["Periodo"].astype(str)
-    
-    # =============================================================================
-    # TO GENERAL REPORT
-    # =============================================================================
-    # Headers : DNI +| Nombre+ | Nivel Ocupacional +| Peso~ | Unidad de Negocio +| Area +
-    #           Puesto +| Jefe Directo * | Sede +| Fecha de Ingreso +| Score-'nombre del pilar'~ |Count-'nombre del pilar' ~
-    #           Periodo ~ | Sexo +| Fecha de Nacimiento +| Edad ~| Promedio General ~ | # Evaluadores ~ | Rango de Edad ~
-    # * No es proveido ni obtenido de manera artificial
-    # ~ Variables obtenidas por procesamiento
-    # + Varibales obtenidas desde la BD de Colaboradores
+
+    df_replace_names.reset_index(drop=True, inplace=True)
+    df_feedback_replace_names.reset_index(drop=True, inplace=True)
 
     '''OUTPUT
-    # df_complete
-    # table_feedback
-    '''
-    return [df_evaluaciones, table_feedback,df_feedback]
 
+    '''
+    return [df_evaluaciones, table_feedback,df_feedback,df_replace_names,df_feedback_replace_names]
 
 def validation_Q(df, year , Q):
     Periodo = str(year)+'-'+str(Q)
@@ -519,85 +507,92 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     # periodo_list            = last_n_q(df = df_evaluaciones,n=4,columna_periodo='Periodo')
     # last_q = last_n_q(df = df_evaluaciones,n=1,columna_periodo='Periodo')
     # df_evaluaciones[columna_dni] = df_evaluaciones[columna_dni].astype(float)
-
-    dni = int(dni)
     #print(dni)
-    #print(df_evaluaciones[columna_dni])
+    dni = int(dni)
+    #print(type(dni))
+    ##print(df_evaluaciones[columna_dni])
     #filtramos el df_evaluaciones por dni
     df_evaluaciones[columna_dni] = df_evaluaciones[columna_dni].astype(int).values
+    #print("df_evaluaciones", df_evaluaciones)
     df_evaluaciones_persona = df_evaluaciones[df_evaluaciones[columna_dni]==dni].copy()
+    #print("df_evaluaciones_persona", df_evaluaciones_persona)
     #MOSTRAMOS LOS ULTIMOS 4 RESULTADOS | n=4.
     df_evaluaciones_persona = df_evaluaciones_persona.loc[df_evaluaciones_persona['Periodo'].isin(last_n_q(df_evaluaciones_persona,n=4))]
-
-    #print(df_evaluaciones_persona, len(df_evaluaciones_persona))
+    #print("df_evaluaciones_persona.loc", df_evaluaciones_persona)
+    ##print(df_evaluaciones_persona, len(df_evaluaciones_persona))
     table_score = df_evaluaciones_persona.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
-    #print(table_score, len(table_score))
+    #print("table_score", table_score, len(table_score))
     # Normalizar Nombre de columnas
     table_score.columns = ['-'.join(col).strip() for col in table_score.columns.values]
     table_score = table_score[[table_score.columns[0], table_score.columns[4], table_score.columns[1], table_score.columns[5], table_score.columns[2], table_score.columns[6], table_score.columns[3], table_score.columns[7]]]
-    print(table_score.columns)
-    #print(table_score, len(table_score))
+    #print("table_score.columns", table_score.columns)
+    #print("table_score[[", table_score, len(table_score))
     table_score["Tu promedio"] = table_score.loc[:,["mean-Buscamos la excelencia","mean-Contagiamos pasión","mean-Trabajamos juntos","mean-Vivimos y disfrutamos"]].mean(numeric_only=True,skipna=True,axis=1)
-
+    #print("table_score[Tu promedio]", table_score["Tu promedio"]  )
     table_score = rename_count_mean_columns(table_score)
-
+    #print("rename_count_mean_columns(table_score)", table_score)
     table_score.reset_index(inplace=True)
 
     try: table_score.drop(["evaluados"], axis = 1, inplace = True)
     except: pass
-    #print("table_score", len(table_score))
+    ##print("table_score", len(table_score))
     #table_score = table_score[table_score['Periodo'].isin(periodo_list)]
 
     # GROUP BY NIVEL OCUPACIONAL
     df_evaluaciones_persona_nivocu = df_evaluaciones_persona.loc[df_evaluaciones_persona['Periodo'].isin(last_n_q(df_evaluaciones_persona,n=1))]
+    #print("df_evaluaciones_persona_nivocu", df_evaluaciones_persona_nivocu)
     table_score_by_nivocu = df_evaluaciones_persona_nivocu.groupby(['Periodo','evaluados','Nivel Ocupacional_evaluador','Pilar'])['value'].agg(['mean','count']).unstack()
-
+    #print("table_score_by_nivocu", table_score_by_nivocu)
     # Normalizar Nombre de columnas
     table_score_by_nivocu.reset_index(inplace=True)
     table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
     #print("table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]")
 
     table_score_by_nivocu.rename(columns={'Periodo-':'Periodo','DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)
-    #print("table_score_by_nivocu.rename(columns={'Periodo-':'Periodo','DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)")
-    table_score_by_nivocu = table_score_by_nivocu[[table_score_by_nivocu.columns[0], table_score_by_nivocu.columns[1], table_score_by_nivocu.columns[2], table_score_by_nivocu.columns[3], table_score_by_nivocu.columns[7], table_score_by_nivocu.columns[4], table_score_by_nivocu.columns[8], table_score_by_nivocu.columns[5], table_score_by_nivocu.columns[9], table_score_by_nivocu.columns[6], table_score_by_nivocu.columns[10]]]
-    #print("table_score_by_nivocu = table_score_by_nivocu[[table_score_by_nivocu.columns[0], table_score_by_nivocu.columns[1], table_score_by_nivocu.columns[2], table_score_by_nivocu.columns[3], table_score_by_nivocu.columns[7], table_score_by_nivocu.columns[4], table_score_by_nivocu.columns[8], table_score_by_nivocu.columns[5], table_score_by_nivocu.columns[9], table_score_by_nivocu.columns[6], table_score_by_nivocu.columns[10]]]")
+    #print(len(table_score_by_nivocu.columns), table_score_by_nivocu.columns)
+    #print(table_score_by_nivocu)
+    table_score_by_nivocu = table_score_by_nivocu_order(table_score_by_nivocu)
+    #print(len(table_score_by_nivocu.columns), table_score_by_nivocu.columns)
+    #print(table_score_by_nivocu)
+
+    ##print("table_score_by_nivocu = table_score_by_nivocu[[table_score_by_nivocu.columns[0], table_score_by_nivocu.columns[1], table_score_by_nivocu.columns[2], table_score_by_nivocu.columns[3], table_score_by_nivocu.columns[7], table_score_by_nivocu.columns[4], table_score_by_nivocu.columns[8], table_score_by_nivocu.columns[5], table_score_by_nivocu.columns[9], table_score_by_nivocu.columns[6], table_score_by_nivocu.columns[10]]]")
     table_score_by_nivocu = rename_count_mean_columns(table_score_by_nivocu)
-    #print("table_score_by_nivocu = rename_count_mean_columns(table_score_by_nivocu)")
+    ##print("table_score_by_nivocu = rename_count_mean_columns(table_score_by_nivocu)")
     table_score_by_nivocu.rename(columns={"Nivel Ocupacional_evaluador-":"Nivel Ocupacional"},inplace=True)
     try: table_score_by_nivocu.drop(["evaluados"], axis = 1, inplace = True)
     except: pass
-    #print("table_score_by_nivocu", len(table_score_by_nivocu))
-    #print(table_score_by_nivocu.columns)
+    ##print("table_score_by_nivocu", len(table_score_by_nivocu))
+    ##print(table_score_by_nivocu.columns)
 
     #FEEDBACK PERSONAL
 
     #df_feedback[columna_dni] = df_feedback[columna_dni].astype(str)
-    #print("feedback total len: ", len(df_feedback))
+    ##print("feedback total len: ", len(df_feedback))
     df_feedback[columna_dni] = df_feedback[columna_dni].astype(int).values
-    #print(df_feedback[columna_dni])
-    #print(dni, type(dni))
-    #if 40031813 in df_feedback[columna_dni]:print("yes")
-    #else: print ("no")
+    ##print(df_feedback[columna_dni])
+    ##print(dni, type(dni))
+    #if 40031813 in df_feedback[columna_dni]:#print("yes")
+    #else: #print ("no")
     df_feedback_personal = df_feedback.loc[df_feedback[columna_dni]==int(dni)]
-    #print("feedback len: ", len(df_feedback))
+    ##print("feedback len: ", len(df_feedback))
     df_feedback_personal = df_feedback_personal[["Periodo","feedback"]]
-    #print("feedback len: ", len(df_feedback_personal))
+    ##print("feedback len: ", len(df_feedback_personal))
     #arreglos de tabla para presentación
     df_feedback_personal = df_feedback_personal.pivot_table(index=['Periodo'],values='feedback',aggfunc=lambda x: ' '.join(x)).T.reset_index()
     df_feedback_personal.rename(columns={'index':''},inplace=True)
-    #print("df_feedback_personal", len(df_feedback_personal))
+    ##print("df_feedback_personal", len(df_feedback_personal))
     df_evaluaciones_persona = df_evaluaciones_persona.drop_duplicates(subset=['evaluados'],keep='last')
 
     # AUTOEVALUACION
-    
+
     df_autoev_personal = df_autoev[df_autoev['DNI_evaluador']==int(dni)]
-    #print(len(df_autoev_personal), df_autoev_personal)
+    ##print(len(df_autoev_personal), df_autoev_personal)
     df_autoev_personal = df_autoev_personal[["Periodo", "Pilar", "value"]].pivot_table(index='Periodo', columns='Pilar', values='value', aggfunc='mean')
-    #print("df_autoev_personal = df_autoev_personal[[...]].pivot(index='Periodo', columns='Pilar', values='value')")
+    ##print("df_autoev_personal = df_autoev_personal[[...]].pivot(index='Periodo', columns='Pilar', values='value')")
     #df_autoev_personal = df_autoev_personal.rename(columns = {"value":"Autoevaluación"})
     df_autoev_personal.reset_index(inplace=True)
     df_autoev_personal = df_autoev_personal.loc[df_autoev_personal["Periodo"]>="2020-Q4"]
-    #print("df_autoev_personal.reset_index(inplace=True)")
+    ##print("df_autoev_personal.reset_index(inplace=True)")
     df_autoev_personal.columns.name = ""
     df_autoev_personal["Tu promedio"] = df_autoev_personal.mean(numeric_only=True,skipna=True,axis=1)
 
@@ -629,23 +624,40 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     # table_score_by_nivocu
 
     '''
-    print("final personal_reporting")
+    #print("final personal_reporting")
     return df_evaluaciones_persona,df_evaluaciones_q,table_score,table_score_by_nivocu,df_feedback_personal,df_autoev_personal
 
+def table_score_by_nivocu_order(table_score_by_nivocu):
+    n = len(table_score_by_nivocu.columns)-3
+    #print(n)
+    n_mid = n//2
+    #print(n_mid)
+    columns = list(table_score_by_nivocu.columns[0:3])
+    columns_all = list(table_score_by_nivocu.columns)
+    #print(columns)
+    for i in range(3, n-n_mid):
+        #print(i)
+        #print(columns_all[i])
+        columns.append(columns_all[i])
+        #print(columns_all[i+n_mid])
+        columns.append(columns_all[i+n_mid])
+    #print(columns)
+    table_score_by_nivocu = table_score_by_nivocu[columns]
+    return table_score_by_nivocu
 
 def build_password_df(DNIs):
-    #print(DNIs)
+    ##print(DNIs)
     df_dnis = pd.DataFrame(DNIs, columns = ["DNI"])
-    #print(df_dnis)
+    ##print(df_dnis)
     df_dnis["password"] = df_dnis["DNI"].apply(tokenizar)
     df_dnis["password"] = df_dnis["password"].apply(lambda x: x[1:-1] if x[0] in ["+", "-", "="] else x[:-1])
     df_dnis["password"] = df_dnis["password"]
-    #print(df_dnis["password"])
+    ##print(df_dnis["password"])
     return df_dnis
 
 
 def rename_count_mean_columns(df):
-    #print("rename_count_mean_columns")
+    ##print("rename_count_mean_columns")
     mean_columns = [x for x in df.columns if "mean" in x]
     count_columns = [x for x in df.columns if "count" in x]
     nivocu_columns = [x for x in df.columns if "Nivel Ocupacional_evaluador-" in x]
@@ -656,35 +668,48 @@ def rename_count_mean_columns(df):
 
     zip_dict_columns = zip(mean_columns+count_columns+nivocu_columns, new_mean_columns+new_count_columns+new_nivocu_columns)
     dict_columns = dict(zip_dict_columns)
-    #print(dict_columns)
+    ##print(dict_columns)
 
     df = df.rename(columns = dict_columns)
-    #print(df)
-    #print("final")
+    ##print(df)
+    ##print("final")
     return df
 
-def finder_critical_evaluator(df_results,id_evaluator,id_evaluated,id_value,id_periodo):
-    
+def finder_critical_evaluator(df_results, on="",id_evaluator="DNI_evaluador",id_evaluated="DNI_evaluado",id_value="value",id_periodo="Periodo"):
+
     critical_table = df_results.groupby([id_periodo,id_evaluator,id_evaluated])[id_value].agg('mean')
     critical_table = critical_table.reset_index()
     #
     scores = critical_table.value
     critical_table['satisfaction_lvl'] = ["Insatisfecho" if score<45 else "Neutro" if score>46 and score<65 else "Satisfecho" for score in scores ]
-    
+
     # Counting by satisfaction lvl TABLE
     critical_table = critical_table.groupby([id_periodo,id_evaluator,'satisfaction_lvl']).count()
     critical_table = critical_table.reset_index()
     critical_table.drop(columns=id_evaluated,inplace=True)
-        
+
     evaluator_satisfied_count = critical_table.pivot_table(index=[id_periodo,id_evaluator],columns='satisfaction_lvl',values='value').reset_index()
     evaluator_satisfied_count = evaluator_satisfied_count.fillna(0)
     evaluator_satisfied_count["total"] = evaluator_satisfied_count["Insatisfecho"] + evaluator_satisfied_count["Neutro"] + evaluator_satisfied_count["Satisfecho"]
-    
+
     evaluator_satisfied_count["porcent_unsatisfied"] = evaluator_satisfied_count["Insatisfecho"] / evaluator_satisfied_count["total"]
-    evaluator_satisfied_count['critical_label'] = ["Muy Crítico" if porcent>0.8 else "Critico" if porcent<0.8 and porcent>0.5 else "Moderado" if porcent<0.5 and porcent>0.3 else "Regular" for porcent in evaluator_satisfied_count.porcent_unsatisfied ]
-    
+    evaluator_satisfied_count['critical_label'] = ["Muy Crítico" if porcent>0.8 else "Critico" if porcent<0.8 and porcent>0.5 else "Moderado" if porcent<0.5 and porcent>0.3 else "Normal" for porcent in evaluator_satisfied_count.porcent_unsatisfied ]
+
     evaluator_satisfied_count['ID_2'] = evaluator_satisfied_count['DNI_evaluador'].astype(str) + evaluator_satisfied_count['Periodo'].astype(str)
+    evaluator_satisfied_count = evaluator_satisfied_count.merge(df_results[["ID_2", "year", "Q"]], on="ID_2", how="left")
+
     return evaluator_satisfied_count
+
+def DNI_PDF_format(x):
+    #if x["Tipo_documento_evaluado"]=="DNI":
+    str_DNI = str(x)
+
+    n_zeros = 8 - len(str(str_DNI))
+    zeros = "0"*n_zeros
+    str_DNI = zeros+str_DNI
+    return str_DNI
+
+
 
 #%%
 #Testing Zone Script
@@ -718,7 +743,7 @@ def finder_critical_evaluator(df_results,id_evaluator,id_evaluated,id_value,id_p
 # df_results = df_results.loc[df_results["Periodo"]=="2020-Q2"]
 # # for i in df_results["evaluados"]
 # df_results = df_results[ df_results["evaluados"]=="Luz Gissella Ruiz Flores"]
-# print(len(df_results["DNI_evaluador"].unique()))
+# #print(len(df_results["DNI_evaluador"].unique()))
 
 def try_int_str(x):
     try: str(int(x))

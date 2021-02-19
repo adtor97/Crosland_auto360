@@ -48,7 +48,7 @@ path_crosland = os.environ['path_crosland']
 
 # Local @Adrian
 #path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Crosland_auto360"
-#   wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
@@ -84,6 +84,17 @@ try:
 except:
     df_auto_old = pd.DataFrame()
 #print(len(df_auto_old))
+
+try:
+    df_feedback_detail_old = pd.read_csv("data/df_feedback_detail.csv")
+except:
+    df_feedback_detail_old = pd.DataFrame()
+
+try:
+    df_evaluator_satisfied_count_old = pd.read_csv("data/df_evaluator_satisfied_count.csv")
+except:
+    df_evaluator_satisfied_count_old = pd.DataFrame()
+
 
 @app.route("/")
 def home():
@@ -157,6 +168,18 @@ def download_action():
             flash('Aún no se han generado usuarios ni contraseñas')
             return render_template("download_previous_results.html", buttons=Qs)
 
+    else: return "Inicia sesión"
+
+@app.route("/download_action_excel", methods=["POST"])
+def download_action_excel():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            return send_file('data/df_results.csv',
+                            mimetype='text/csv',
+                            attachment_filename='Resultados.csv',
+                            as_attachment=True)
+        except:
+            return "No file found"
     else: return "Inicia sesión"
 
 @app.route("/login_coll")
@@ -331,8 +354,10 @@ def see_results():
             global df_complete
             df_complete = results[0]
             #df_complete = df_complete.drop("DNI_evaluador", axis = 1)
+
             global df_results
             df_results = df_results
+
             new_columns = [x for x in df_complete.columns if x not in df_results.columns]
             df_new_columns = pd.DataFrame(new_columns, columns = ["Columnas nuevas"])
             old_columns = [x for x in df_results.columns if x not in df_complete.columns]
@@ -353,8 +378,14 @@ def see_results():
             df_feedback["DNI_evaluado"] = df_feedback["DNI_evaluado"].apply(utils_data_wrangling.try_int_str)
             #print("df_feedback = results[1]")
 
-            #ws_temp = utils_google.open_ws("Crosland_data_master", "temp")
-            #utils_google.pandas_to_sheets(df_complete, ws_temp)
+            global df_feedback_detail
+            df_feedback_detail = results[2]
+
+            global df_replace_names
+            df_replace_names = results[3]
+
+            global df_feedback_replace_names
+            df_feedback_replace_names = results[4]
 
             prom = round(df_complete.value.mean(), 2)
             #print("prom = round(df_complete.value.mean(), 2)")
@@ -382,9 +413,15 @@ def see_results():
                                                 titles2=df_new_columns.columns.values,
                                                 tables3=[df_old_columns.to_html(classes='data')],
                                                 titles3=df_old_columns.columns.values,
+                                                tables4=[df_replace_names.to_html(classes='data')],
+                                                titles4=df_replace_names.columns.values,
+                                                tables5=[df_feedback_replace_names.to_html(classes='data')],
+                                                titles5=df_feedback_replace_names.columns.values,
                                                 )
 
-        except:
+        except TypeError as Err:
+
+            print(Err)
             return render_template('fail_data_process.html')
 
     else:
@@ -419,6 +456,11 @@ def final_page_action():
         df_feedback = df_feedback
         global df_auto
         df_auto = df_auto
+        global df_feedback_detail_old
+        df_feedback_detail_old = df_feedback_detail_old
+        global df_evaluator_satisfied_count_old
+        df_evaluator_satisfied_count_old = df_evaluator_satisfied_count_old
+
         #print(df_complete)
         df_new = utils_data_wrangling.update(df_complete, "data/df_results.csv")
         #print(df_new)
@@ -445,13 +487,16 @@ def final_page_action():
         df_auto = df_new_auto.loc[df_new_auto["Periodo"]<=Periodo]
         #df_new_auto.to_csv("data/df_auto.csv", index = False)
 
+        df_feedback_detail_old = utils_data_wrangling.update(df_feedback_detail, "data/df_feedback_detail.csv")
+
+        df_evaluator_satisfied_count_new = utils_data_wrangling.finder_critical_evaluator(df_new.loc[df_new["Periodo"]==Periodo])
+        df_evaluator_satisfied_count_old = utils_data_wrangling.update(df_evaluator_satisfied_count_new, "data/df_evaluator_satisfied_count.csv")
+
         global df_results
         df_results = pd.read_csv("data/df_results.csv")
 
-
         global df_feedback_old
         df_feedback_old = pd.read_csv("data/df_feedback.csv")
-
 
         global df_auto_old
         df_auto_old = pd.read_csv("data/df_auto.csv")
@@ -495,20 +540,23 @@ def dnis_chunks(Periodo_path, Periodo):
     else:
         DNIs_temp = DNIs[:30]
         session["DNIs"] = []
-    #i = 0
-    print(len(DNIs))
+    i = 0
+    #print(len(DNIs))
     for DNI in DNIs_temp:
-        #i+=1
+        i+=1
         #print(DNI, i)
-        df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"] == int(DNI)]
+
+        df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"].apply(utils_data_wrangling.try_int_str) == utils_data_wrangling.try_int_str(DNI)]
         name = df_complete_DNI["Nombre Completo_evaluado"].values[0]
+        #print(name)
 
-        file_name = str(DNI) + "_" + name + "_" + Periodo + '.pdf'
-
+        file_name = utils_data_wrangling.DNI_PDF_format(DNI) + "-" + name + '.pdf'
+        #print(file_name)
         df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == int(DNI)]
+        #print(df_auto_DNI)
         #print("NOMBREEE: ", name)
         if (len(df_complete_DNI) == 0):
-            print("no results 1")
+            #print("no results 1")
             render = render_template("home_html.html")
             pdfkit.from_string(render,"/PDFs/" + Periodo + "/" + file_name,configuration=config, options=options)
 
@@ -516,27 +564,15 @@ def dnis_chunks(Periodo_path, Periodo):
 
             try:
 
-                #radar = utils_plotly.build_radar_coll(df_new[["Pilar", "value"]], df_complete_DNI[["Pilar", "value"]], df_auto_DNI[["Pilar", "value"]])
-                #line = utils_plotly.build_lines_coll(df_complete_DNI[["Pilar", "value", "Periodo"]])
-
-                #radar_name = "radar_" + str(DNI) + ".png"
-                #line_name = "line_" + str(DNI) + ".png"
-
-                #radar.write_image(path + "/static/tmp/" + radar_name)
-                #line.write_image(path + "/static/tmp/" + line_name)
-
                 dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
                 #print(dfs_show_coll)
-                #dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
-                #print(dfs_show_coll[1])
-                #print(dfs_show_coll)
+
 
                 dfs_show_coll_html = [x.set_index(x.columns[0]).T.to_html(classes='data').replace('border="1"','border="0"') for x in dfs_show_coll]
+                #print(dfs_show_coll_html)
                 dfs_cols = [x.columns.values for x in dfs_show_coll]
                 #print(dfs_cols)
-                #for i in dfs_show_coll:
-                    #print(len(i))
-                #return "hola"
+
                 css_report_path = path_crosland + "crosland_app/static/css_colab_results_download.css"
                 logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
 
@@ -544,15 +580,18 @@ def dnis_chunks(Periodo_path, Periodo):
                 #logo_path = path_crosland + "/static/pictures/crosland.png"
 
                 render = render_template("coll_results_html_download.html", css_path = css_report_path, tables=dfs_show_coll_html,logo_path = logo_path,
-                                        titles=["","Informacion personal", "Calificación Crosland","Calificación Personal", "Calificación Personal por nivel ocupacional", "Feedback", "Autoevaluación"])
-
-                #print(DNI, len())
+                                        titles=["","Informacion personal", "Calificación Crosland","Calificación Personal",
+                                                "Calificación Personal por nivel ocupacional",
+                                                "Feedback", "Autoevaluación"])
+                #print("render")
+                #print(DNI, len(DNI))
                 pdfkit.from_string(render,Periodo_path + "/" + file_name,configuration=config, options=options, css=css_report_path)
-
+                #print("pdfkit")
             except:
-                print("no results 2")
+
                 render = render_template("no_results.html")
                 pdfkit.from_string(render,Periodo_path + "/" + file_name,configuration=config, options=options)
+                #print("no results 2")
 
     Periodo_path = Periodo_path.replace("/", ";")
     if len(session["DNIs"])>0:
@@ -620,13 +659,38 @@ def down_results():
     #return excel.make_response_from_array(list(df_auto.values), "csv", file_name="df_results")
 
 
-
 @app.route("/download/lWdREEWWOuI/r0j8n3k/j8ndsad3k", methods=["GET", "POST"])
 #Link de descargar df_auto
 def down_auto():
     try: #df_auto = pd.read_csv("data/df_auto.csv")
         df_auto = pd.read_csv("data/df_auto.csv")
         resp = make_response(df_auto.to_csv(index=False))
+        resp.headers["Content-Disposition"] = "attachment; filename=df_auto.csv"
+        resp.headers["Content-Type"] = "text/csv"
+
+        return resp
+
+    except: return "Error al leer archivo"
+
+@app.route("/download/ertyHJ56/guhiJKAW/725ATYS", methods=["GET", "POST"])
+#Link de descargar df_feedback_detail
+def down_feedback_detail():
+    try: #df_auto = pd.read_csv("data/df_auto.csv")
+        df_feedback_detail = pd.read_csv("data/df_feedback_detail.csv")
+        resp = make_response(df_feedback_detail.to_csv(index=False))
+        resp.headers["Content-Disposition"] = "attachment; filename=df_auto.csv"
+        resp.headers["Content-Type"] = "text/csv"
+
+        return resp
+
+    except: return "Error al leer archivo"
+
+@app.route("/download/etgYUAH6/19ijR4/ghaYAaj", methods=["GET", "POST"])
+#Link de descargar df_evaluator_satisfied_count
+def down_evaluator_satisfied_count():
+    try: #df_auto = pd.read_csv("data/df_auto.csv")
+        df_evaluator_satisfied_count = pd.read_csv("data/df_evaluator_satisfied_count.csv")
+        resp = make_response(df_evaluator_satisfied_count.to_csv(index=False))
         resp.headers["Content-Disposition"] = "attachment; filename=df_auto.csv"
         resp.headers["Content-Type"] = "text/csv"
 

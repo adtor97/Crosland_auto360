@@ -24,13 +24,16 @@
 
     </div>
 
-<div style="margin-top: 7%;">
+<div style="margin-top: 7%; height: 50%; display: block; align-items:center;">
     <h4>Ahora revisa el formato del dataset final</h4>
 
     {% for table in tables1 %}
               {{ table|safe }}
     {% endfor %}
+</div>
 
+<div div style="margin-top: 7%; width: 100%; display: flex;">
+  <div style="  width: 45%; display: inline-block; align-items:center;">
     <h4>Por acá están las columnas que no coinciden con los datos anteriores</h4>
 
     {% for table in tables2 %}
@@ -40,6 +43,24 @@
     {% for table in tables3 %}
               {{ table|safe }}
     {% endfor %}
+  </div>
+
+  <div style="width: 45%; display: inline-block; align-items:center;">
+    <h4>Estos nombres no fueron encontrados tal cual, han sido aproximados.</h4>
+    <h4>Por favor revisa que esté todo bien caso contrario puedes arreglar el nombre en Alchemer</h4>
+    <h4>o editar el archivo de Head Count y volver a procesar.</h4>
+
+    <h4>Nombres de sección de evaluaciones.</h4>
+    {% for table in tables4 %}
+              {{ table|safe }}
+    {% endfor %}
+
+    <h4>Nombres de sección de feedback.</h4>
+    {% for table in tables5 %}
+              {{ table|safe }}
+    {% endfor %}
+
+  </div>
 </div>
 
 
