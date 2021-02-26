@@ -632,8 +632,8 @@ def dnis_chunks(Periodo_path, Periodo):
         name = df_complete_DNI["Nombre Completo_evaluado"].values[0]
         try: tipo_doc = df_complete_DNI["TIPO DE DOCUMENTO_evaluado"].dropna().values[0]
         except: tipo_doc = "DNI"
-        print('df_complete_DNI["TIPO DE DOCUMENTO_evaluado"]', df_complete_DNI["TIPO DE DOCUMENTO_evaluado"])
-        print("tipo_doc:", tipo_doc)
+        #print('df_complete_DNI["TIPO DE DOCUMENTO_evaluado"]', df_complete_DNI["TIPO DE DOCUMENTO_evaluado"])
+        #print("tipo_doc:", tipo_doc)
 
         file_name = utils_data_wrangling.DNI_PDF_format(DNI, tipo_doc) + "_" + name + '.pdf'
         #print(file_name)
