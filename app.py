@@ -785,4 +785,4 @@ def down_evaluator_satisfied_count():
 
 if __name__ == "__main__":
     excel.init_excel(app)
-    app.run(debug=False)
+    app.run(debug=True)

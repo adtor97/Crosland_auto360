@@ -9,7 +9,7 @@
 </head>
 
 <body>
-  <h1>Hola! Los archivos se procesaron con éxito</h1>
+  <h1>¡Hola! Los archivos se procesaron con éxito</h1>
   <h4>Revisa los resultados antes de terminar el proceso</h4>
 
 
@@ -68,8 +68,8 @@
   <div class="form__input-group">
     <form action="/final"  method="POST" onsubmit="update_button.disabled = true; return true;">
       <h3 class="form__title-warning">⚠ Lee Cuidadosamente</h3>
-      <p class="form_sub-title">En caso este seguro de que no hay ningún error en el procesamiento y desee realmente actualizar estos resultados a la base de datos principal haga click en
-      "ACTUALIZAR" <strong>-- Esta acción no es reversible --</strong> , en caso contrario de click en "VEO ALGO RARO" para volver a procesar los archivos.</p>
+      <p class="form_sub-title">En caso esté seguro de que no hay ningún error en el procesamiento y desee realmente actualizar estos resultados a la base de datos principal haga click en
+      "ACTUALIZAR" <strong>-- Esta acción no es reversible --</strong> ,caso contrario de click en "VEO ALGO RARO" para volver a procesar los archivos.</p>
       <button id="buttom_process" type="submit" onclick="this.form.submit();process_once()" class="float_result">Actualizar y Generar Reportes</button>
       <p id="msg"></p>
     </form>
@@ -87,9 +87,9 @@
 <div class="all" id="all">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h3 class="form__title-warning"> ⚠ Leer atentamene ⚠ </h3>
-        <p>Antes de actualizar, lee el reporte de columnas en la parte inferior, asegurate de corregir las observaciones antes de actualizar.</p>
-        <p>.La acción de "Actualizar y Generar Reportes" demorará varios minutos(hasta 15 min) , los reportes pdf's de todos los colaboradores también son generados en este tiempo.
+        <h3 class="form__title-warning"> ⚠ Leer atentamente ⚠ </h3>
+        <p>Antes de actualizar, lee el reporte de columnas en la parte inferior, asegúrate de corregir las observaciones antes de actualizar.</p>
+        <p>La acción de "Actualizar y Generar Reportes" demorará varios minutos (hasta 15 min), los reportes PDF's de todos los colaboradores también son generados en este tiempo.
            Es importante no cancelar la acción, esto podría generar errores en los resultados y en los reportes.</p>
         <p>Cuando haya finalizado verás la pagina de Actualización exitosa y podrás descargar los resultados en la página de Reportes así cómo actualizar el dashboard con los últimos resultados</p>
     </div>
