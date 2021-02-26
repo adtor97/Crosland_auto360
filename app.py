@@ -173,14 +173,12 @@ def download_action():
 def download_action_excel():
     if utils_validations.validate_admin(session['user'], session['password']):
         try:
-            output = io.BytesIO()
-            writer = pd.ExcelWriter(output)
             df_results_temp = pd.read_csv("data/df_results.csv")
-            df_results_temp.to_excel(writer, index=False)
+            resp = make_response(df_results_temp.to_csv(index=False, delimiter="|"))
+            resp.headers["Content-Disposition"] = "attachment; filename=Resultados_maestro.csv"
+            resp.headers["Content-Type"] = "text/csv"
 
-            writer.save()
-            output.seek(0)
-            return send_file(output, attachment_filename='Resultados_maestro.xlsx', as_attachment=True)
+            return resp
 
         except:
             return "No file found"
@@ -190,14 +188,12 @@ def download_action_excel():
 def download_action_excel_feedback():
     if utils_validations.validate_admin(session['user'], session['password']):
         try:
-            output = io.BytesIO()
-            writer = pd.ExcelWriter(output)
             df_feedback_detail_temp = pd.read_csv("data/df_feedback_detail.csv")
-            df_feedback_detail_temp.to_excel(writer, index=False)
+            resp = make_response(df_feedback_detail_temp.to_csv(index=False, delimiter="|"))
+            resp.headers["Content-Disposition"] = "attachment; filename=Resultados_feedback.csv"
+            resp.headers["Content-Type"] = "text/csv"
 
-            writer.save()
-            output.seek(0)
-            return send_file(output, attachment_filename='Resultados_feedback.xlsx', as_attachment=True)
+            return resp
 
         except:
             return "No file found"
@@ -207,14 +203,12 @@ def download_action_excel_feedback():
 def download_action_excel_critics():
     if utils_validations.validate_admin(session['user'], session['password']):
         try:
-            output = io.BytesIO()
-            writer = pd.ExcelWriter(output)
             df_evaluator_satisfied_count_temp = pd.read_csv("data/df_evaluator_satisfied_count.csv")
-            df_evaluator_satisfied_count_temp.to_excel(writer, index=False)
+            resp = make_response(df_evaluator_satisfied_count_temp.to_csv(index=False, delimiter="|"))
+            resp.headers["Content-Disposition"] = "attachment; filename=Resultados_criticos.csv"
+            resp.headers["Content-Type"] = "text/csv"
 
-            writer.save()
-            output.seek(0)
-            return send_file(output, attachment_filename='Resultados_criticos.xlsx', as_attachment=True)
+            return resp
 
         except:
             return "No file found"
@@ -782,6 +776,10 @@ def down_evaluator_satisfied_count():
         return resp
 
     except: return "Error al leer archivo"
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return 'El archivo es demasiado grande, por favor redúcelo', 413
 
 if __name__ == "__main__":
     excel.init_excel(app)
