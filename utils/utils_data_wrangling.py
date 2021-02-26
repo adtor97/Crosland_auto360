@@ -697,6 +697,7 @@ def finder_critical_evaluator(df_results, on="",id_evaluator="DNI_evaluador",id_
 
     evaluator_satisfied_count['ID_2'] = evaluator_satisfied_count['DNI_evaluador'].astype(str) + evaluator_satisfied_count['Periodo'].astype(str)
     evaluator_satisfied_count = evaluator_satisfied_count.merge(df_results[["ID_2", "year", "Q"]], on="ID_2", how="left")
+    evaluator_satisfied_count = evaluator_satisfied_count.drop_duplicates(subset=["ID_2"])
 
     return evaluator_satisfied_count
 
