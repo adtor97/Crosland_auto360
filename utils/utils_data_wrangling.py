@@ -597,8 +597,8 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     df_autoev_personal["Tu promedio"] = df_autoev_personal.mean(numeric_only=True,skipna=True,axis=1)
 
     #Datos Personales
-    df_evaluaciones_persona = df_evaluaciones_persona.tail(1)[['DNI_evaluado','Nombre Completo_evaluado','Area_evaluado','Descripción Puesto_evaluado']]
-    df_evaluaciones_persona.rename(columns={'DNI_evaluado':'DNI','Nombre Completo_evaluado':'Nombre Completo','Area_evaluado':'Area','Descripción Puesto_evaluado':'Puesto'},inplace=True)
+    df_evaluaciones_persona = df_evaluaciones_persona.tail(1)[['DNI_evaluado','Nombre Completo_evaluado','Sector_evaluado','Descripción Puesto_evaluado']]
+    df_evaluaciones_persona.rename(columns={'DNI_evaluado':'DNI','Nombre Completo_evaluado':'Nombre Completo','Sector_evaluado':'Area','Descripción Puesto_evaluado':'Puesto'},inplace=True)
 
 
     #Promedio General por periodo
@@ -700,14 +700,19 @@ def finder_critical_evaluator(df_results, on="",id_evaluator="DNI_evaluador",id_
 
     return evaluator_satisfied_count
 
-def DNI_PDF_format(x):
-    #if x["Tipo_documento_evaluado"]=="DNI":
-    str_DNI = str(x)
+def DNI_PDF_format(x, tipo_doc):
+    try:
+        if tipo_doc=="DNI" or str(tipo_doc)=="nan":
+            str_DNI = str(x)
 
-    n_zeros = 8 - len(str(str_DNI))
-    zeros = "0"*n_zeros
-    str_DNI = zeros+str_DNI
-    return str_DNI
+            n_zeros = 8 - len(str(str_DNI))
+            zeros = "0"*n_zeros
+            str_DNI = zeros+str_DNI
+            return str_DNI
+        else:
+            return str(x)
+    except:
+            return str(x)
 
 
 

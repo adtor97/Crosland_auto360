@@ -98,8 +98,7 @@ except:
 
 @app.route("/")
 def home():
-    grafo = os.path.join(static_folder, 'Grafo.png')
-    return render_template("home_html.html", grafo = grafo)
+    return render_template("home_html.html")
 
 @app.route("/login_admin")
 def login_admin():
@@ -174,13 +173,96 @@ def download_action():
 def download_action_excel():
     if utils_validations.validate_admin(session['user'], session['password']):
         try:
-            return send_file('data/df_results.csv',
-                            mimetype='text/csv',
-                            attachment_filename='Resultados.csv',
+            output = io.BytesIO()
+            writer = pd.ExcelWriter(output)
+            df_results_temp = pd.read_csv("data/df_results.csv")
+            df_results_temp.to_excel(writer, index=False)
+
+            writer.save()
+            output.seek(0)
+            return send_file(output, attachment_filename='Resultados_maestro.xlsx', as_attachment=True)
+
+        except:
+            return "No file found"
+    else: return "Inicia sesión"
+
+@app.route("/download_action_excel_feedback", methods=["POST"])
+def download_action_excel_feedback():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            output = io.BytesIO()
+            writer = pd.ExcelWriter(output)
+            df_feedback_detail_temp = pd.read_csv("data/df_feedback_detail.csv")
+            df_feedback_detail_temp.to_excel(writer, index=False)
+
+            writer.save()
+            output.seek(0)
+            return send_file(output, attachment_filename='Resultados_feedback.xlsx', as_attachment=True)
+
+        except:
+            return "No file found"
+    else: return "Inicia sesión"
+
+@app.route("/download_action_excel_critics", methods=["POST"])
+def download_action_excel_critics():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            output = io.BytesIO()
+            writer = pd.ExcelWriter(output)
+            df_evaluator_satisfied_count_temp = pd.read_csv("data/df_evaluator_satisfied_count.csv")
+            df_evaluator_satisfied_count_temp.to_excel(writer, index=False)
+
+            writer.save()
+            output.seek(0)
+            return send_file(output, attachment_filename='Resultados_criticos.xlsx', as_attachment=True)
+
+        except:
+            return "No file found"
+    else: return "Inicia sesión"
+
+@app.route("/download_action_excel_plantilla_general", methods=["POST"])
+def download_action_excel_plantilla_general():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            return send_file('static/data/plantilla_resultados_generales.xlsx',
+                            mimetype='application/vnd.ms-excel',
+                            attachment_filename='plantilla_resultados_generales.xlsx',
                             as_attachment=True)
         except:
             return "No file found"
     else: return "Inicia sesión"
+
+@app.route("/save_action_excel_plantilla_general", methods=["POST", "GET"])
+def save_action_excel_plantilla_general():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            file = request.files.get('plantilla_general')
+            file.save(os.path.join("static\\data\\plantilla_resultados_generales.xlsx"))
+            return redirect("/previous_results")
+        except:
+            return redirect("/previous_results")
+
+@app.route("/download_action_excel_plantilla_feedback", methods=["POST"])
+def download_action_excel_plantilla_feedback():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            return send_file('static/data/plantilla_resultados_feedback.xlsx',
+                            mimetype='application/vnd.ms-excel',
+                            attachment_filename='plantilla_resultados_generales.xlsx',
+                            as_attachment=True)
+        except:
+            return "No file found"
+    else: return "Inicia sesión"
+
+@app.route("/save_action_excel_plantilla_feedback", methods=["POST", "GET"])
+def save_action_excel_plantilla_feedback():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            file = request.files.get('plantilla_feedback')
+            file.save(os.path.join("static\\data\\plantilla_resultados_feedback.xlsx"))
+            return redirect("/previous_results")
+        except:
+            return redirect("/previous_results")
 
 @app.route("/login_coll")
 def login_coll():
@@ -548,9 +630,12 @@ def dnis_chunks(Periodo_path, Periodo):
 
         df_complete_DNI = df_complete.loc[df_complete["DNI_evaluado"].apply(utils_data_wrangling.try_int_str) == utils_data_wrangling.try_int_str(DNI)]
         name = df_complete_DNI["Nombre Completo_evaluado"].values[0]
-        #print(name)
+        try: tipo_doc = df_complete_DNI["TIPO DE DOCUMENTO_evaluado"].dropna().values[0]
+        except: tipo_doc = "DNI"
+        print('df_complete_DNI["TIPO DE DOCUMENTO_evaluado"]', df_complete_DNI["TIPO DE DOCUMENTO_evaluado"])
+        print("tipo_doc:", tipo_doc)
 
-        file_name = utils_data_wrangling.DNI_PDF_format(DNI) + "-" + name + '.pdf'
+        file_name = utils_data_wrangling.DNI_PDF_format(DNI, tipo_doc) + "_" + name + '.pdf'
         #print(file_name)
         df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == int(DNI)]
         #print(df_auto_DNI)
