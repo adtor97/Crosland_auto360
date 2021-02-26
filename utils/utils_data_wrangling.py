@@ -393,6 +393,10 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     df_feedback = df_survey[columns_feedback]
     df_feedback = df_feedback.melt(id_vars="DNI_evaluador")
     df_feedback=df_feedback.dropna(axis=0)
+    df_feedback = df_feedback.replace('\n',' ', regex=True)
+    df_feedback = df_feedback.replace('\n',' ', regex=True)
+    df_feedback = df_feedback.replace('|',' ')
+    df_feedback = df_feedback.replace(';',' ')
     df_feedback.variable = df_feedback.variable.str.split(':|¿|,',expand=True)[0] # Split + Clean
     df_feedback.variable = df_feedback.variable.str.strip()
 
