@@ -9,5 +9,6 @@ __pycache__/
 PDFs/*
 utils/__pycache__
 utils/utils_google.py
+others.py
 
 !*.gitkeep
