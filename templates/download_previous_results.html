@@ -74,6 +74,20 @@
       </div>
       </form>
 
+      <form action="/download_action_excel_plantilla_critics"  method="POST">
+        <button type="submit" class="float" name="Excel_critics_button" value=excel>Plantilla críticos</button>
+      </form>
+
+      <form action="/save_action_excel_plantilla_critics"  method="POST"  onsubmit="process_button.disabled = true; return true;" enctype=multipart/form-data>
+      <div class="form__input-survey">
+        <label for="file_answers">Actualiza la plantilla de críticos</label>
+        <input type="file" class="form-control" name = "plantilla_criticos">
+        <br>
+        <br>
+      <button type="submit" class="float_2" onClick="this.form.submit();process_once(); " id="buttom_process_mini">Actualizar plantilla críticos</button>
+      </div>
+      </form>
+
       <br>
      </div>
   </div>

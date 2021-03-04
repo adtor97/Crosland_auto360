@@ -39,16 +39,16 @@ Bootstrap(app)
 
 pd.options.display.float_format = "{:,.2f}".format
 # Env.
-wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
-path_crosland = os.environ['path_crosland']
+#wkhtmltopdf_path = os.environ['wkhtmltopdf_path']
+#path_crosland = os.environ['path_crosland']
 
 # Local @Cesar
 #wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 #path_crosland = "D:\Proyectos\Freelance\Crosland\Github - Produccion 7\Crosland_auto360"
 
 # Local @Adrian
-#path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Crosland_auto360"
-#wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Crosland_auto360"
+wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
 #login_manager = LoginManager()
@@ -143,8 +143,8 @@ def download_action():
     if utils_validations.validate_admin(session['user'], session['password']):
         try:
             Q = request.form["Q_button"]
-            file_path = path_crosland + "crosland_app/PDFs/" + Q
-            #file_path = path_crosland + "/PDFs/" + Q # local_path
+            #file_path = path_crosland + "crosland_app/PDFs/" + Q
+            file_path = path_crosland + "/PDFs/" + Q # local_path
 
             timestr = time.strftime("%Y%m%d-%H%M%S")
             fileName = "reportes_360_{}.zip".format(timestr)
@@ -236,6 +236,16 @@ def save_action_excel_plantilla_general():
         except:
             return redirect("/previous_results")
 
+@app.route("/save_action_excel_plantilla_critics", methods=["POST", "GET"])
+def save_action_excel_plantilla_critics():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            file = request.files.get('plantilla_criticos')
+            file.save(os.path.join("static\\data\\plantilla_resultados_criticos.xlsx"))
+            return redirect("/previous_results")
+        except:
+            return redirect("/previous_results")
+
 @app.route("/download_action_excel_plantilla_feedback", methods=["POST"])
 def download_action_excel_plantilla_feedback():
     if utils_validations.validate_admin(session['user'], session['password']):
@@ -243,6 +253,18 @@ def download_action_excel_plantilla_feedback():
             return send_file('static/data/plantilla_resultados_feedback.xlsx',
                             mimetype='application/vnd.ms-excel',
                             attachment_filename='plantilla_resultados_generales.xlsx',
+                            as_attachment=True)
+        except:
+            return "No file found"
+    else: return "Inicia sesión"
+
+@app.route("/download_action_excel_plantilla_critics", methods=["POST"])
+def download_action_excel_plantilla_critics():
+    if utils_validations.validate_admin(session['user'], session['password']):
+        try:
+            return send_file('static/data/plantilla_resultados_criticos.xlsx',
+                            mimetype='application/vnd.ms-excel',
+                            attachment_filename='plantilla_resultados_criticos.xlsx',
                             as_attachment=True)
         except:
             return "No file found"
@@ -333,11 +355,11 @@ def coll_results(DNI):
         radar_name = "radar_" + str(DNI) + ".png"
         line_name = "line_" + str(DNI) + ".png"
 
-        radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
-        line.write_image(path_crosland + "crosland_app/static/tmp/" + line_name)
+        #radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+        #line.write_image(path_crosland + "crosland_app/static/tmp/" + line_name)
 
-        #radar.write_image(path_crosland + "/static/tmp/" + radar_name)
-        #line.write_image(path_crosland + "/static/tmp/" + line_name)
+        radar.write_image(path_crosland + "/static/tmp/" + radar_name)
+        line.write_image(path_crosland + "/static/tmp/" + line_name)
 
         dfs_show_coll = utils_data_wrangling.personal_reporting(df_results,df_feedback,df_autoev,str(session["DNI"]))
         dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
@@ -420,9 +442,11 @@ def see_results():
 
         try:
 
-            dfs_auto_survey = utils_data_wrangling.df_split(df_answers)
+            dfs_auto_survey = utils_data_wrangling.df_split(df_answers, df_coll)
             global df_auto
             df_auto = utils_data_wrangling.agregar_Q(dfs_auto_survey[0], session["year"], session["Q"])
+            df_auto["ID_2"] = df_auto["DNI_evaluador"].apply(utils_data_wrangling.try_int_str).astype(str) + df_auto["Periodo"].astype(str)
+
             df_survey = dfs_auto_survey[1]
 
             results = utils_data_wrangling.auto360(df_survey, df_coll, session["year"], session["Q"])
@@ -472,8 +496,8 @@ def see_results():
             radar_name = "radar_" + str(Periodo) + ".png"
             #print("radar_name = radar_ + str(Periodo) + .png")
 
-            radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
-            #radar.write_image(path_crosland + "/static/tmp/" + radar_name) # local_path
+            #radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+            radar.write_image(path_crosland + "/static/tmp/" + radar_name) # local_path
 
             #print("radar.write_image(path_crosland + /static/tmp/ + radar_name)")
             #print("pre render")
@@ -518,8 +542,8 @@ def final_page_action():
         Q = session["Q"]
         Periodo = str(session["year"]) + "-" + session["Q"]
 
-        Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
-        #Periodo_path = path_crosland + "/PDFs/"+Periodo # local_path
+        #Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
+        Periodo_path = path_crosland + "/PDFs/"+Periodo # local_path
 
         try:
             shutil.rmtree(Periodo_path, ignore_errors=True)
@@ -629,7 +653,7 @@ def dnis_chunks(Periodo_path, Periodo):
         #print('df_complete_DNI["TIPO DE DOCUMENTO_evaluado"]', df_complete_DNI["TIPO DE DOCUMENTO_evaluado"])
         #print("tipo_doc:", tipo_doc)
 
-        file_name = utils_data_wrangling.DNI_PDF_format(DNI, tipo_doc) + "_" + name + '.pdf'
+        file_name = utils_data_wrangling.DNI_PDF_format(DNI, tipo_doc) + "-" + name + '.pdf'
         #print(file_name)
         df_auto_DNI = df_auto.loc[df_auto["DNI_evaluador"] == int(DNI)]
         #print(df_auto_DNI)
@@ -652,11 +676,11 @@ def dnis_chunks(Periodo_path, Periodo):
                 dfs_cols = [x.columns.values for x in dfs_show_coll]
                 #print(dfs_cols)
 
-                css_report_path = path_crosland + "crosland_app/static/css_colab_results_download.css"
-                logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
+                #css_report_path = path_crosland + "crosland_app/static/css_colab_results_download.css"
+                #logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
 
-                #css_report_path = path_crosland + "/static/css_colab_results_download.css"
-                #logo_path = path_crosland + "/static/pictures/crosland.png"
+                css_report_path = path_crosland + "/static/css_colab_results_download.css"
+                logo_path = path_crosland + "/static/pictures/crosland.png"
 
                 render = render_template("coll_results_html_download.html", css_path = css_report_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                         titles=["","Informacion personal", "Calificación Crosland","Calificación Personal",
@@ -696,8 +720,8 @@ def download_users_passwords():
 def pdf_tutorial():
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
-            return send_file(path_crosland+"crosland_app/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
-            #return send_file(path_crosland+"/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
+            #return send_file(path_crosland+"crosland_app/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
+            return send_file(path_crosland+"/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
 
         else:
             return render_template("fail_login_admin_html.html")
@@ -711,8 +735,8 @@ def pdf_tutorial():
 def template_dashboard_360():
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
-            return send_file(path_crosland+"crosland_app/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
-            #return send_file(path_crosland+"/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
+            #return send_file(path_crosland+"crosland_app/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
+            return send_file(path_crosland+"/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
 
         else:
             return render_template("fail_login_admin_html.html")
@@ -725,9 +749,9 @@ def template_dashboard_360():
 @app.route("/download/RcFE9jRH/ukLas/j8n3k", methods=["GET", "POST"])
 #Link de descargar df_results
 def down_results():
-    try: #df_auto = pd.read_csv("data/df_auto.csv")
-        df_auto = pd.read_csv("data/df_results.csv")
-        resp = make_response(df_auto.to_csv(index=False))
+    try:
+        df_results = pd.read_csv("data/df_results.csv")
+        resp = make_response(df_results.to_csv(index=False))
         resp.headers["Content-Disposition"] = "attachment; filename=df_results.csv"
         resp.headers["Content-Type"] = "text/csv"
 
@@ -743,7 +767,16 @@ def down_results():
 def down_auto():
     try: #df_auto = pd.read_csv("data/df_auto.csv")
         df_auto = pd.read_csv("data/df_auto.csv")
-        resp = make_response(df_auto.to_csv(index=False))
+        df_auto = df_auto.rename(columns={"value":"value_auto"})
+        df_auto_columns = df_auto.columns
+        print("auto columns: ", len(df_auto_columns)+1)
+        print("auto len: ", len(df_auto_columns))
+        df_results = pd.read_csv("data/df_results.csv")
+        df_results_columns = list([x for x in df_auto_columns if x in df_results.columns])
+        df_results = df_results[list(df_results_columns)]
+        df_auto_results = pd.concat([df_auto,df_results], axis = 0)
+        df_auto_results = df_auto_results[df_results_columns + ["value"]]
+        resp = make_response(df_auto_results.to_csv(index=False))
         resp.headers["Content-Disposition"] = "attachment; filename=df_auto.csv"
         resp.headers["Content-Type"] = "text/csv"
 

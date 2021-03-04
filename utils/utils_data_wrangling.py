@@ -109,7 +109,7 @@ def last_n_q(df,n,columna_periodo='Periodo'):
 
     return periodo_list
 
-def df_split(df_survey):
+def df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numero documento'):
     # Contiene DNI del evaluador -> Autoevaluador
     col_autoev = df_survey.columns[df_survey.columns.str.contains('DNI|Autoevaluac',regex=True)]
     # Contiene Preguntas de Autoevaluacion
@@ -133,13 +133,17 @@ def df_split(df_survey):
 
     #r-scale segun Logica de 2020 Q4
 
-    df_autoev.loc[df_autoev['value'] == 0,'value'] = 0 #Conversion especial de puntaje vacío
+    df_autoev.loc[df_autoev['value'] == 0,'value'] = np.nan #Conversion especial de puntaje vacío
     df_autoev.loc[df_autoev['value'] == 1,'value'] = 20
     df_autoev.loc[df_autoev['value'] == 2,'value'] = 40
     df_autoev.loc[df_autoev['value'] == 3,'value'] = 60
     df_autoev.loc[df_autoev['value'] == 4,'value'] = 80
     df_autoev.loc[df_autoev['value'] == 5,'value'] = 100
 
+    len_df_autoev_columns = len(df_autoev.columns)
+    df_autoev = df_autoev.merge(df_colaboradores.rename(columns={columna_documento_colaboradores: 'DNI_evaluador'}), on="DNI_evaluador", how="left")
+    dict_cols_autoev_evaluado = {x+"_evaluado":x for x in list(df_autoev.columns[len_df_autoev_columns:])}
+    df_autoev = df_autoev.rename(columns = dict_cols_autoev_evaluado)
     # SPLIT ONLY DF SURVEY
     only_col_autoev = df_survey.columns[df_survey.columns.str.contains('Autoevalu',regex=True)]
     df_survey = df_survey.drop(columns = only_col_autoev)
