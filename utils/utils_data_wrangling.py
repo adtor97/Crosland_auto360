@@ -86,8 +86,14 @@ def cambioorden_nombre_apellido(message):
 def agregar_Q(df,year,Q):
     year = str(year)
     Q    = str(Q)
-    yearQ = year+'-'+Q
-    df['Periodo'] = yearQ
+    
+    year_Q = year+'-'+Q
+    year_Q = str(year_Q)
+    # print(year_Q)
+    # df.assign(Periodo=year_Q)
+    # df.assign(year=year)
+    # df.assign(Q=Q)
+    df['Periodo'] = year_Q
     df['year'] = year
     df['Q'] = Q
     return df
@@ -109,11 +115,16 @@ def last_n_q(df,n,columna_periodo='Periodo'):
 
     return periodo_list
 
+
+
 def df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numero documento'):
     # Contiene DNI del evaluador -> Autoevaluador
+    DNI_survey = "¿Cuál es tu DNI?Esta información será utilizada exclusivamente para procesar la data y la finalidad es poder hacer seguimiento de quienes han completado la encuesta. Los resultados serán confidenciales y tu evaluación hacia los otros también."
     col_autoev = df_survey.columns[df_survey.columns.str.contains('DNI|Autoevaluac',regex=True)]
     # Contiene Preguntas de Autoevaluacion
-
+        # si no hace match con hc, el evaluador es eliminado
+    df_survey = df_survey.merge(df_colaboradores[columna_documento_colaboradores],left_on=DNI_survey,right_on="Numero documento",how="inner")
+    
     df_autoev = df_survey[col_autoev].copy()
 
     if len(df_autoev.columns)<2:
@@ -126,7 +137,6 @@ def df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numer
 
     for col in df_autoev.columns[1:]:
         df_autoev.rename(columns={str(col):str(re.split('[|\-:]+',col)[2].strip())},inplace=True)
-
     df_autoev.rename(columns={str(df_survey.columns[df_survey.columns.str.contains('DNI',regex=True)][0]):'DNI_evaluador'},inplace=True)
     df_autoev = df_autoev.melt(id_vars='DNI_evaluador',var_name='Pilar')
     df_autoev.dropna(inplace=True)
@@ -141,12 +151,18 @@ def df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numer
     df_autoev.loc[df_autoev['value'] == 5,'value'] = 100
 
     len_df_autoev_columns = len(df_autoev.columns)
-    df_autoev = df_autoev.merge(df_colaboradores.rename(columns={columna_documento_colaboradores: 'DNI_evaluador'}), on="DNI_evaluador", how="left")
+    df_colaboradores = df_colaboradores.rename(columns={columna_documento_colaboradores: 'DNI_evaluador'})
+    
+    # print(df_colaboradores.columns)
+    # print(df_autoev.columns)
+    df_autoev = df_autoev.merge( df_colaboradores, on="DNI_evaluador", how="left")
     dict_cols_autoev_evaluado = {x+"_evaluado":x for x in list(df_autoev.columns[len_df_autoev_columns:])}
     df_autoev = df_autoev.rename(columns = dict_cols_autoev_evaluado)
     # SPLIT ONLY DF SURVEY
     only_col_autoev = df_survey.columns[df_survey.columns.str.contains('Autoevalu',regex=True)]
     df_survey = df_survey.drop(columns = only_col_autoev)
+    
+    
     del only_col_autoev,col_autoev
 
     return [df_autoev,df_survey]
@@ -460,8 +476,10 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
     #ID unico DNI_Evaluador+DNI_evaluado+Periodo
     df_evaluaciones["ID"] = df_evaluaciones["DNI_evaluador"].astype(str) +  df_evaluaciones["DNI_evaluado"].astype(str) + df_evaluaciones["Periodo"].astype(str)
     df_evaluaciones["ID_2"] = df_evaluaciones["DNI_evaluador"].astype(str) + df_evaluaciones["Periodo"].astype(str)
+    df_evaluaciones["ID_3"] = df_evaluaciones["DNI_evaluado"].astype(str) + df_evaluaciones["Periodo"].astype(str)
+    df_evaluaciones["ID_3"] = df_evaluaciones["ID_3"].apply(remove_float_str).astype(str)
     df_feedback["ID"] = df_feedback["DNI_evaluador"].astype(str) +  df_feedback["DNI_evaluado"].astype(str) + df_feedback["Periodo"].astype(str)
-
+    
     df_replace_names.reset_index(drop=True, inplace=True)
     df_feedback_replace_names.reset_index(drop=True, inplace=True)
 
@@ -479,6 +497,7 @@ def validation_Q(df, year , Q):
 
 
 def update(df_new, df_master_path):
+    print()
     year    = int(df_new.year.unique()[0])
     Q       = df_new.Q.unique()[0]
     Periodo = str(year)+'-'+str(Q)
@@ -531,6 +550,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #print("df_evaluaciones_persona.loc", df_evaluaciones_persona)
     ##print(df_evaluaciones_persona, len(df_evaluaciones_persona))
     table_score = df_evaluaciones_persona.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
+    
     #print("table_score", table_score, len(table_score))
     # Normalizar Nombre de columnas
     table_score.columns = ['-'.join(col).strip() for col in table_score.columns.values]
@@ -552,19 +572,26 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #table_score = table_score[table_score['Periodo'].isin(periodo_list)]
 
     # GROUP BY NIVEL OCUPACIONAL
+    
+    
     df_evaluaciones_persona_nivocu = df_evaluaciones_persona.loc[df_evaluaciones_persona['Periodo'].isin(last_n_q(df_evaluaciones_persona,n=1))]
     #print("df_evaluaciones_persona_nivocu", df_evaluaciones_persona_nivocu)
     table_score_by_nivocu = df_evaluaciones_persona_nivocu.groupby(['Periodo','evaluados','Nivel Ocupacional_evaluador','Pilar'])['value'].agg(['mean','count']).unstack()
+    
+    
+    #print("check niveocu",table_score_by_nivocu)
+    #print("---------")
+    
     #print("table_score_by_nivocu", table_score_by_nivocu)
     # Normalizar Nombre de columnas
     table_score_by_nivocu.reset_index(inplace=True)
     table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
-    #print("table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]")
-
     table_score_by_nivocu.rename(columns={'Periodo-':'Periodo','DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)
-    #print(len(table_score_by_nivocu.columns), table_score_by_nivocu.columns)
-    #print(table_score_by_nivocu)
+    
+    #df_evaluaciones_persona_save = table_score_by_nivocu.copy() 
     table_score_by_nivocu = table_score_order_nivocu(table_score_by_nivocu)
+    
+    
     #print(len(table_score_by_nivocu.columns), table_score_by_nivocu.columns)
     #print(table_score_by_nivocu)
 
@@ -659,21 +686,23 @@ def table_score_order(table_score):
     return table_score
 
 def table_score_order_nivocu(table_score):
-    n = len(table_score.columns)-3
+    
+    columns = [x for x in table_score.columns if ("mean" in x ) or ("count" in x)]#list(table_score.columns[0:n_mid])
+    columns_all = [x for x in table_score.columns if x not in columns]#list(table_score.columns)
+    #print(columns)
+    n = len(columns)
     #print(n)
     n_mid = n//2
     #print(n_mid)
-    columns = list(table_score.columns[0:3])
-    columns_all = list(table_score.columns)
+    
+    for i in range(n_mid):
+        # print(i)
+        # print(columns[i])
+        columns_all.append(columns[i])
+        # print(columns[i+n_mid])
+        columns_all.append(columns[i+n_mid])
     #print(columns)
-    for i in range(3, n-n_mid):
-        #print(i)
-        #print(columns_all[i])
-        columns.append(columns_all[i])
-        #print(columns_all[i+n_mid])
-        columns.append(columns_all[i+n_mid])
-    #print(columns)
-    table_score = table_score[columns]
+    table_score = table_score[columns_all]
     return table_score
 
 def build_password_df(DNIs):
@@ -763,44 +792,81 @@ def DNI_PDF_format(x, tipo_doc):
     except:
             return str(x)
 
+def try_int_str(x):
+    try: str(int(x))
+    except: str(x)
+
+    return x
 
 
-#%%
-#Testing Zone Script
-# df_colaboradores = pd.read_excel("data/HC Setiembre.xlsx",sheet_name="HC SET")
-# df_survey = pd.read_csv("data/Output_360_Q3.csv")
+def remove_float_str(x):
+    try:
+        x = str(x)
+        x = x.replace(".0","")
+        return x
+    except: return x
+
+##%%
+# #Testing Zone Script
+
+# df_colaboradores = pd.read_excel("input/HC Setiembre.xlsx",sheet_name="HC SET")
+# df_survey = pd.read_csv("input/Output_360_Q3.csv")
+# df_survey = df_survey.rename(columns={"¿Cuál es tu DNI?Esta información será utilizada exclusivamente para procesar la data y la finalidad es poder hacer seguimiento de quienes han completado la encuesta. Los resultados serán confidenciales y tu evaluación hacia los otros también.":"DNI"})
+
 # Q="Q3"
 # year = "2020"
 
-# results = auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='Numero documento')
+# df_results = pd.read_csv("output/df_results.csv")
+# df_results["ID_3"] = df_results["ID_3"].apply(remove_float_str).astype(str)
+# df_results.to_csv("output/df_results.csv",index=False)
 
-# update(results[0],"results/df_results.csv")
-# update(results[1],"results/df_feedback.csv")
-# update(results[2],"results/df_feedback_detail.csv")
+
+# autoev = df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numero documento')[0]
+# autoev = agregar_Q(autoev, year=2020, Q="Q3")
+# update(autoev,"output/df_autoev.csv")
+
+# results = auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='Numero documento')
 # #%%
-# df_survey = pd.read_csv("data/Output_360_Q2.csv")
-# df_colaboradores = pd.read_excel("data/HC Junio.xlsx",sheet_name="HC JUNIO")
+# #autoev = df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numero documento')
+# update(autoev,"output/df_autoev.csv")
+# update(results[0],"output/df_results.csv")
+# update(results[1],"output/df_feedback.csv")
+# update(results[2],"output/df_feedback_detail.csv")
+# #%%
+# df_survey = pd.read_csv("input/Output_360_Q2.csv")
+# df_colaboradores = pd.read_excel("input/HC Junio.xlsx",sheet_name="HC JUNIO")
 # year = "2020"
 # Q="Q2"
+
+
+# autoev = df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numero documento')[0]
+# autoev = agregar_Q(autoev, year=2020, Q="Q2")
+# update(autoev,"output/df_autoev.csv")
+
 # results = auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='Numero documento')
-# update(results[0],"results/df_results.csv")
-# update(results[1],"results/df_feedback.csv")
-# update(results[2],"results/df_feedback_detail.csv")
+##%%
+
+# update(autoev,"output/df_autoev.csv")
+# update(results[0],"output/df_results.csv")
+# update(results[1],"output/df_feedback.csv")
+# update(results[2],"output/df_feedback_detail.csv")
 # #results[0].to_excel("results/df_results.xlsx")
+##%%
+# df_results = pd.read_csv("output/df_results.csv")
+# df_feedback = pd.read_csv("output/df_feedback.csv")
+# df_autoev = pd.read_csv("output/df_autoev.csv")
+
 # #%%
-# df_results = pd.read_csv("results/df_results.csv")
 # #finder debe correrse luego de realizar Update a todas las df
 # finder_critical = finder_critical_evaluator(df_results,"DNI_evaluador","DNI_evaluado","value","Periodo")
-# finder_critical.to_csv("results/critical_table.csv",index=False)
+# finder_critical.to_csv("output/critical_table.csv",index=False)
 # #%%
+
+# personal = personal_reporting(df_results,df_feedback=df_feedback,df_autoev=df_autoev,dni='72635322',columna_dni='DNI_evaluado')
+##%%
 # df_results = pd.read_csv("data/df_results(3).csv")
 # df_results = df_results.loc[df_results["Periodo"]=="2020-Q2"]
 # # for i in df_results["evaluados"]
 # df_results = df_results[ df_results["evaluados"]=="Luz Gissella Ruiz Flores"]
 # #print(len(df_results["DNI_evaluador"].unique()))
 
-def try_int_str(x):
-    try: str(int(x))
-    except: str(x)
-
-    return x
