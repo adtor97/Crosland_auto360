@@ -86,7 +86,7 @@ def cambioorden_nombre_apellido(message):
 def agregar_Q(df,year,Q):
     year = str(year)
     Q    = str(Q)
-    
+
     year_Q = year+'-'+Q
     year_Q = str(year_Q)
     # print(year_Q)
@@ -124,7 +124,7 @@ def df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numer
     # Contiene Preguntas de Autoevaluacion
         # si no hace match con hc, el evaluador es eliminado
     df_survey = df_survey.merge(df_colaboradores[columna_documento_colaboradores],left_on=DNI_survey,right_on="Numero documento",how="inner")
-    
+
     df_autoev = df_survey[col_autoev].copy()
 
     if len(df_autoev.columns)<2:
@@ -152,7 +152,7 @@ def df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numer
 
     len_df_autoev_columns = len(df_autoev.columns)
     df_colaboradores = df_colaboradores.rename(columns={columna_documento_colaboradores: 'DNI_evaluador'})
-    
+
     # print(df_colaboradores.columns)
     # print(df_autoev.columns)
     df_autoev = df_autoev.merge( df_colaboradores, on="DNI_evaluador", how="left")
@@ -161,8 +161,8 @@ def df_split(df_survey, df_colaboradores, columna_documento_colaboradores='Numer
     # SPLIT ONLY DF SURVEY
     only_col_autoev = df_survey.columns[df_survey.columns.str.contains('Autoevalu',regex=True)]
     df_survey = df_survey.drop(columns = only_col_autoev)
-    
-    
+
+
     del only_col_autoev,col_autoev
 
     return [df_autoev,df_survey]
@@ -202,7 +202,6 @@ def simple_nombre(name):
 
 def get_quarter(d):
     return "%d-Q%d" % (d.year,ceil(d.month/3)-1)
-
 
 def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='Numero documento'):
     # =============================================================================
@@ -473,13 +472,13 @@ def auto360(df_survey,df_colaboradores,year,Q,columna_documento_colaboradores='N
 
     df_feedback = agregar_Q(df_feedback, year = year, Q = Q )
     #----------------------------------------------------------------
-    #ID unico DNI_Evaluador+DNI_evaluado+Periodo
-    df_evaluaciones["ID"] = df_evaluaciones["DNI_evaluador"].astype(str) +  df_evaluaciones["DNI_evaluado"].astype(str) + df_evaluaciones["Periodo"].astype(str)
-    df_evaluaciones["ID_2"] = df_evaluaciones["DNI_evaluador"].astype(str) + df_evaluaciones["Periodo"].astype(str)
+    #ID TO CONNECT TABLES
+    df_evaluaciones["ID"] = df_evaluaciones["DNI_evaluador"].apply(remove_float_str).astype(str) + "_" + df_evaluaciones["DNI_evaluado"].apply(remove_float_str).astype(str) +"_"+ df_evaluaciones["Periodo"].astype(str)
+    df_evaluaciones["ID_2"] = df_evaluaciones["DNI_evaluador"].apply(remove_float_str).astype(str) + df_evaluaciones["Periodo"].astype(str)
     df_evaluaciones["ID_3"] = df_evaluaciones["DNI_evaluado"].astype(str) + df_evaluaciones["Periodo"].astype(str)
     df_evaluaciones["ID_3"] = df_evaluaciones["ID_3"].apply(remove_float_str).astype(str)
-    df_feedback["ID"] = df_feedback["DNI_evaluador"].astype(str) +  df_feedback["DNI_evaluado"].astype(str) + df_feedback["Periodo"].astype(str)
-    
+    df_feedback["ID"] = df_feedback["DNI_evaluador"].apply(remove_float_str).astype(str) +"_" + df_feedback["DNI_evaluado"].apply(remove_float_str).astype(str) +"_"+ df_feedback["Periodo"].astype(str)
+
     df_replace_names.reset_index(drop=True, inplace=True)
     df_feedback_replace_names.reset_index(drop=True, inplace=True)
 
@@ -550,7 +549,7 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #print("df_evaluaciones_persona.loc", df_evaluaciones_persona)
     ##print(df_evaluaciones_persona, len(df_evaluaciones_persona))
     table_score = df_evaluaciones_persona.groupby(['Periodo','evaluados','Pilar'],as_index=False)['value'].agg(['mean','count']).unstack()
-    
+
     #print("table_score", table_score, len(table_score))
     # Normalizar Nombre de columnas
     table_score.columns = ['-'.join(col).strip() for col in table_score.columns.values]
@@ -572,26 +571,26 @@ def personal_reporting(df_evaluaciones,df_feedback,df_autoev,dni,columna_dni='DN
     #table_score = table_score[table_score['Periodo'].isin(periodo_list)]
 
     # GROUP BY NIVEL OCUPACIONAL
-    
-    
+
+
     df_evaluaciones_persona_nivocu = df_evaluaciones_persona.loc[df_evaluaciones_persona['Periodo'].isin(last_n_q(df_evaluaciones_persona,n=1))]
     #print("df_evaluaciones_persona_nivocu", df_evaluaciones_persona_nivocu)
     table_score_by_nivocu = df_evaluaciones_persona_nivocu.groupby(['Periodo','evaluados','Nivel Ocupacional_evaluador','Pilar'])['value'].agg(['mean','count']).unstack()
-    
-    
+
+
     #print("check niveocu",table_score_by_nivocu)
     #print("---------")
-    
+
     #print("table_score_by_nivocu", table_score_by_nivocu)
     # Normalizar Nombre de columnas
     table_score_by_nivocu.reset_index(inplace=True)
     table_score_by_nivocu.columns = ['-'.join(col).strip() for col in table_score_by_nivocu.columns.values]
     table_score_by_nivocu.rename(columns={'Periodo-':'Periodo','DNI_evaluado-':'DNI_evaluado','evaluados-':'evaluados'},inplace=True)
-    
-    #df_evaluaciones_persona_save = table_score_by_nivocu.copy() 
+
+    #df_evaluaciones_persona_save = table_score_by_nivocu.copy()
     table_score_by_nivocu = table_score_order_nivocu(table_score_by_nivocu)
-    
-    
+
+
     #print(len(table_score_by_nivocu.columns), table_score_by_nivocu.columns)
     #print(table_score_by_nivocu)
 
@@ -686,7 +685,7 @@ def table_score_order(table_score):
     return table_score
 
 def table_score_order_nivocu(table_score):
-    
+
     columns = [x for x in table_score.columns if ("mean" in x ) or ("count" in x)]#list(table_score.columns[0:n_mid])
     columns_all = [x for x in table_score.columns if x not in columns]#list(table_score.columns)
     #print(columns)
@@ -694,7 +693,7 @@ def table_score_order_nivocu(table_score):
     #print(n)
     n_mid = n//2
     #print(n_mid)
-    
+
     for i in range(n_mid):
         # print(i)
         # print(columns[i])
@@ -869,4 +868,3 @@ def remove_float_str(x):
 # # for i in df_results["evaluados"]
 # df_results = df_results[ df_results["evaluados"]=="Luz Gissella Ruiz Flores"]
 # #print(len(df_results["DNI_evaluador"].unique()))
-
