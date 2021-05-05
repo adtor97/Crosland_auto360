@@ -46,8 +46,8 @@ path_crosland = os.environ['path_crosland']
 # wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 # path_crosland = "D:\Proyectos\Freelance\Crosland\Github - Produccion 1.3\Crosland_auto360"
 
-# Local @Adrian
-# path_crosland = "C:/Users/Usuario/Documents/Freelos/Crosland/Crosland_auto360"
+#Local @Adrian
+# path_crosland = "C:/Users/Usuario/OneDrive - Universidad del Pacífico/Documentos/Freelos/Crosland/Crosland_auto360"
 # wkhtmltopdf_path = "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
 
 #q = Queue(connection=conn)
@@ -143,8 +143,8 @@ def download_action():
     if utils_validations.validate_admin(session['user'], session['password']):
         try:
             Q = request.form["Q_button"]
-            file_path = path_crosland + "crosland_app/PDFs/" + Q
-            #file_path = path_crosland + "/PDFs/" + Q # local_path
+            #file_path = path_crosland + "crosland_app/PDFs/" + Q
+            file_path = path_crosland + "/PDFs/" + Q # local_path
 
             timestr = time.strftime("%Y%m%d-%H%M%S")
             fileName = "reportes_360_{}.zip".format(timestr)
@@ -355,11 +355,11 @@ def coll_results(DNI):
         radar_name = "radar_" + str(DNI) + ".png"
         line_name = "line_" + str(DNI) + ".png"
 
-        radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
-        line.write_image(path_crosland + "crosland_app/static/tmp/" + line_name)
+        #radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+        #line.write_image(path_crosland + "crosland_app/static/tmp/" + line_name)
 
-        #radar.write_image(path_crosland + "/static/tmp/" + radar_name)
-        #line.write_image(path_crosland + "/static/tmp/" + line_name)
+        radar.write_image(path_crosland + "/static/tmp/" + radar_name)
+        line.write_image(path_crosland + "/static/tmp/" + line_name)
 
         dfs_show_coll = utils_data_wrangling.personal_reporting(df_results,df_feedback,df_autoev,str(session["DNI"]))
         dfs_show_coll[1].rename(columns={"Nivel Ocupacional_evaluador-":"Rango"},inplace=True) # Mandar esta pinche linea al util_sta_wragling/personal_reporting
@@ -496,8 +496,8 @@ def see_results():
             radar_name = "radar_" + str(Periodo) + ".png"
             #print("radar_name = radar_ + str(Periodo) + .png")
 
-            radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
-            #radar.write_image(path_crosland + "/static/tmp/" + radar_name) # local_path
+            #radar.write_image(path_crosland + "crosland_app/static/tmp/" + radar_name)
+            radar.write_image(path_crosland + "/static/tmp/" + radar_name) # local_path
 
             #print("radar.write_image(path_crosland + /static/tmp/ + radar_name)")
             #print("pre render")
@@ -542,8 +542,8 @@ def final_page_action():
         Q = session["Q"]
         Periodo = str(session["year"]) + "-" + session["Q"]
 
-        Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
-        #Periodo_path = path_crosland + "/PDFs/"+Periodo # local_path
+        #Periodo_path = path_crosland + "crosland_app/PDFs/"+Periodo
+        Periodo_path = path_crosland + "/PDFs/"+Periodo # local_path
 
         try:
             shutil.rmtree(Periodo_path, ignore_errors=True)
@@ -666,8 +666,10 @@ def dnis_chunks(Periodo_path, Periodo):
         else:
 
             try:
-
-                dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
+                year = session["year"]
+                print("YEAR:", year)
+                dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete[df_complete["year"]==year],df_feedback[df_feedback["year"]==year],df_auto[df_auto["year"]==year],int(DNI))
+                #dfs_show_coll = utils_data_wrangling.personal_reporting(df_complete,df_feedback,df_auto,int(DNI))
                 #print(dfs_show_coll)
 
 
@@ -676,20 +678,20 @@ def dnis_chunks(Periodo_path, Periodo):
                 dfs_cols = [x.columns.values for x in dfs_show_coll]
                 #print(dfs_cols)
 
-                css_report_path = path_crosland + "crosland_app/static/css_colab_results_download.css"
-                logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
+                #css_report_path = path_crosland + "crosland_app/static/css_colab_results_download.css"
+                #logo_path = path_crosland + "crosland_app/static/pictures/crosland.png"
 
-                #css_report_path = path_crosland + "/static/css_colab_results_download.css"
-                #logo_path = path_crosland + "/static/pictures/crosland.png"
+                css_report_path = path_crosland + "/static/css_colab_results_download.css"
+                logo_path = path_crosland + "/static/pictures/crosland.png"
 
                 render = render_template("coll_results_html_download.html", css_path = css_report_path, tables=dfs_show_coll_html,logo_path = logo_path,
                                         titles=["","Informacion personal", "Calificación Crosland","Calificación Personal",
                                                 "Calificación Personal por nivel ocupacional",
                                                 "Feedback", "Autoevaluación"])
-                #print("render")
+                print("render")
                 #print(DNI, len(DNI))
                 pdfkit.from_string(render,Periodo_path + "/" + file_name,configuration=config, options=options, css=css_report_path)
-                #print("pdfkit")
+                print("pdfkit")
             except:
 
                 render = render_template("no_results.html")
@@ -720,8 +722,8 @@ def download_users_passwords():
 def pdf_tutorial():
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
-            return send_file(path_crosland+"crosland_app/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
-            #return send_file(path_crosland+"/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
+            #return send_file(path_crosland+"crosland_app/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
+            return send_file(path_crosland+"/static/files_to_download/Tutorial_Actualizando_Dashboard.pdf",attachment_filename="Tutorial_Actualizando_Dashboard.pdf")
 
         else:
             return render_template("fail_login_admin_html.html")
@@ -735,8 +737,8 @@ def pdf_tutorial():
 def template_dashboard_360():
     try:
         if utils_validations.validate_admin(session['user'], session['password']):
-            return send_file(path_crosland+"crosland_app/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
-            #return send_file(path_crosland+"/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
+            #return send_file(path_crosland+"crosland_app/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
+            return send_file(path_crosland+"/static/files_to_download/Dashboard_360.pbix",attachment_filename="Dashboard_360.pbix",as_attachment=True)
 
         else:
             return render_template("fail_login_admin_html.html")
